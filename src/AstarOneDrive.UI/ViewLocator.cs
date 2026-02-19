@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using AstarOneDrive.UI.ViewModels;
+using AstarOneDrive.UI.Home;
 
 namespace AstarOneDrive.UI;
 
@@ -32,6 +32,6 @@ public class ViewLocator : IDataTemplate
 
     public bool Match(object? data)
     {
-        return data is ViewModelBase;
+        return data is AstarOneDrive.UI.Common.ViewModelBase;
     }
 }

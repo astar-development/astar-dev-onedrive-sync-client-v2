@@ -1,0 +1,24 @@
+<UserControl
+    x:Class="AstarOneDrive.UI.FolderTrees.FolderTreeView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Margin="8">
+
+        <TextBlock Text="{DynamicResource Folders_Title}"
+                   FontWeight="Bold"
+                   FontSize="16" />
+
+        <TreeView Items="{Binding FolderTree}">
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <CheckBox IsChecked="{Binding IsSelected}" />
+                        <TextBlock Text="{Binding Name}" />
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+
+    </StackPanel>
+</UserControl>

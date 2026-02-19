@@ -1,0 +1,26 @@
+<UserControl
+    x:Class="AstarOneDrive.UI.SyncStatus.SyncStatusView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Margin="8" Spacing="8">
+
+        <TextBlock Text="{DynamicResource Sync_Title}"
+                   FontWeight="Bold"
+                   FontSize="16" />
+
+        <TextBlock Text="{Binding CurrentStatus}" />
+
+        <ProgressBar Minimum="0"
+                     Maximum="100"
+                     Value="{Binding Progress}" />
+
+        <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Content="{DynamicResource Sync_Now}"
+                    Command="{Binding SyncNowCommand}" />
+            <Button Content="{DynamicResource Sync_Pause}"
+                    Command="{Binding PauseCommand}" />
+        </StackPanel>
+
+    </StackPanel>
+</UserControl>

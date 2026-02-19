@@ -1,0 +1,38 @@
+<UserControl
+    x:Class="AstarOneDrive.UI.Settings.SettingsView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel Margin="12" Spacing="16">
+
+        <TextBlock Text="{DynamicResource Settings_Title}"
+                   FontWeight="Bold"
+                   FontSize="18" />
+
+        <!-- User Settings -->
+        <GroupBox Header="{DynamicResource Settings_User}">
+            <StackPanel Spacing="8">
+                <TextBlock Text="{DynamicResource Settings_UserName}" />
+                <TextBox Text="{Binding UserName}" />
+
+                <TextBlock Text="{DynamicResource Settings_Language}" />
+                <ComboBox Items="{Binding AvailableLanguages}"
+                          SelectedItem="{Binding SelectedLanguage}" />
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Application Settings -->
+        <GroupBox Header="{DynamicResource Settings_App}">
+            <StackPanel Spacing="8">
+                <TextBlock Text="{DynamicResource Settings_Theme}" />
+                <ComboBox Items="{Binding AvailableThemes}"
+                          SelectedItem="{Binding SelectedTheme}" />
+
+                <TextBlock Text="{DynamicResource Settings_Layout}" />
+                <ComboBox Items="{Binding AvailableLayouts}"
+                          SelectedItem="{Binding SelectedLayout}" />
+            </StackPanel>
+        </GroupBox>
+
+    </StackPanel>
+</UserControl>

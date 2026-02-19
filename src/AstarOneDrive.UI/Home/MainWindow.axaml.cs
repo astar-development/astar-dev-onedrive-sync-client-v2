@@ -1,7 +1,6 @@
 using Avalonia.ReactiveUI;
-using AstarOneDrive.UI.ViewModels;
 
-namespace AstarOneDrive.UI.Views;
+namespace AstarOneDrive.UI.Home;
 
 public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
 {
