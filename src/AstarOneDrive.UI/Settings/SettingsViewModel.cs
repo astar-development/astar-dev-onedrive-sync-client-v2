@@ -28,12 +28,22 @@ public class SettingsViewModel : ViewModelBase
         new() { "Light", "Dark", "Auto", "Colorful", "Professional", "Hacker", "HighContrast" };
 
     private string _selectedTheme = "Light";
-    public string SelectedTheme
+public string SelectedTheme
+{
+    get => _selectedTheme;
+    set
     {
-        get => _selectedTheme;
-        set { _selectedTheme = value; RaisePropertyChanged(); }
+        if (_selectedTheme != value)
+        {
+            _selectedTheme = value;
+            RaisePropertyChanged();
+            ThemeChanged?.Invoke(this, value);
+        }
     }
+}
 
+public event EventHandler<string>? ThemeChanged;
+    
     public ObservableCollection<string> AvailableLayouts { get; } =
         new() { "Explorer", "Dashboard", "Terminal" };
 

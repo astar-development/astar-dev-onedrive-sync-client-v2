@@ -50,8 +50,8 @@ public class MainWindowViewModel : ViewModelBase
         Accounts = new AccountsViewModel();
         FolderTree = new FolderTreeViewModel();
         Sync = new SyncStatusViewModel();
-        Logs = new LogsViewModel();
-        Settings = new SettingsViewModel();
+        Logs = new LogsViewModel();Settings = new SettingsViewModel();
+Settings.ThemeChanged += (_, themeName) => ThemeManager.ThemeManager.ApplyTheme(themeName);
 
         // Commands
         SwitchToExplorerCommand = new RelayCommand(_ => CurrentLayout = LayoutType.Explorer);

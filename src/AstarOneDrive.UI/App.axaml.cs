@@ -23,6 +23,7 @@ public partial class App : Avalonia.Application
                 DataContext = new Home.MainWindowViewModel()
             };
         }
+ThemeManager.ThemeManager.ApplyTheme("Dark"); // or load from config
 
         base.OnFrameworkInitializationCompleted();
     }
