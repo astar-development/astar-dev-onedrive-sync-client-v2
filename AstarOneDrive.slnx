@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AstarOneDrive.Application/AstarOneDrive.Application.csproj" />
+    <Project Path="src/AstarOneDrive.Domain/AstarOneDrive.Domain.csproj" />
+    <Project Path="src/AstarOneDrive.Infrastructure/AstarOneDrive.Infrastructure.csproj" />
+    <Project Path="src/AstarOneDrive.UI/AstarOneDrive.UI.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AstarOneDrive.Application.Tests/AstarOneDrive.Application.Tests.csproj" />
+    <Project Path="tests/AstarOneDrive.Domain.Tests/AstarOneDrive.Domain.Tests.csproj" />
+    <Project Path="tests/AstarOneDrive.UI.Tests/AstarOneDrive.UI.Tests.csproj" />
+  </Folder>
+</Solution>
