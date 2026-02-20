@@ -2,7 +2,7 @@ using Avalonia.ReactiveUI;
 
 namespace AstarOneDrive.UI.SyncStatus;
 
-public partial class SyncStatusView : ReactiveWindow<SyncStatusViewModel>
+public partial class SyncStatusView : ReactiveUserControl<SyncStatusViewModel>
 {
     public SyncStatusView()
     {
