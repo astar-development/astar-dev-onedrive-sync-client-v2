@@ -171,6 +171,8 @@ builder.Services.AddGeneratedServices();
 
 ## Branch Strategy
 
+> 📄 See [Implementation Plan](../docs/implementation-plan.md) for the phased delivery plan.
+
 | Branch | Purpose |
 |---|---|
 | `main` | Production-ready, protected |
