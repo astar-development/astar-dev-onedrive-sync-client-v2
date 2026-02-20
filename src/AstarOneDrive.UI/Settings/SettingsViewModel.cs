@@ -1,5 +1,8 @@
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Text.Json;
 using AstarOneDrive.UI.Common;
+using AstarOneDrive.UI.ThemeManager;
 
 namespace AstarOneDrive.UI.Settings;
 
@@ -37,6 +40,7 @@ public string SelectedTheme
         {
             _selectedTheme = value;
             RaisePropertyChanged();
+            ThemeManager.ThemeManager.ApplyTheme(value);
             ThemeChanged?.Invoke(this, value);
         }
     }
@@ -62,5 +66,60 @@ public string SelectedLayout
         }
     }
 }
+
+    private static string GetSettingsFilePath()
+    {
+        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var appFolder = Path.Combine(appDataPath, "AstarOneDrive");
+        Directory.CreateDirectory(appFolder);
+        return Path.Combine(appFolder, "settings.json");
+    }
+
+    public async Task SaveSettingsAsync(CancellationToken cancellationToken = default)
+    {
+        var settings = new
+        {
+            SelectedTheme,
+            SelectedLanguage,
+            SelectedLayout,
+            UserName
+        };
+
+        var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
+        await File.WriteAllTextAsync(GetSettingsFilePath(), json, cancellationToken);
+    }
+
+    public async Task LoadSettingsAsync(CancellationToken cancellationToken = default)
+    {
+        var filePath = GetSettingsFilePath();
+        if (!File.Exists(filePath))
+        {
+            return;
+        }
+
+        var json = await File.ReadAllTextAsync(filePath, cancellationToken);
+        var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+
+        if (root.TryGetProperty("SelectedTheme", out var theme))
+        {
+            SelectedTheme = theme.GetString() ?? "Light";
+        }
+
+        if (root.TryGetProperty("SelectedLanguage", out var language))
+        {
+            SelectedLanguage = language.GetString() ?? "en-US";
+        }
+
+        if (root.TryGetProperty("SelectedLayout", out var layout))
+        {
+            SelectedLayout = layout.GetString() ?? "Explorer";
+        }
+
+        if (root.TryGetProperty("UserName", out var userName))
+        {
+            UserName = userName.GetString() ?? "User";
+        }
+    }
 
 }
