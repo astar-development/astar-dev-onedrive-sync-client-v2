@@ -1,3 +1,4 @@
+using AStar.Dev.Functional.Extensions;
 using AstarOneDrive.Domain.Entities;
 
 namespace AstarOneDrive.Domain.Interfaces;
@@ -7,5 +8,5 @@ namespace AstarOneDrive.Domain.Interfaces;
 /// </summary>
 public interface ISyncFileRepository
 {
-    Task<IReadOnlyList<SyncFile>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<Result<IReadOnlyList<SyncFile>, string>> GetAllAsync(CancellationToken cancellationToken = default);
 }

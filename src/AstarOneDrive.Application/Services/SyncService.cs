@@ -1,3 +1,4 @@
+using AStar.Dev.Functional.Extensions;
 using AstarOneDrive.Application.Interfaces;
 using AstarOneDrive.Domain.Entities;
 using AstarOneDrive.Domain.Interfaces;
@@ -17,6 +18,6 @@ public sealed class SyncService : ISyncService
         _syncFileRepository = syncFileRepository;
     }
 
-    public Task<IReadOnlyList<SyncFile>> GetSyncFilesAsync(CancellationToken cancellationToken = default)
+    public Task<Result<IReadOnlyList<SyncFile>, string>> GetSyncFilesAsync(CancellationToken cancellationToken = default)
         => _syncFileRepository.GetAllAsync(cancellationToken);
 }
