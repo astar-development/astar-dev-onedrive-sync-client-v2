@@ -12,7 +12,7 @@ namespace AstarOneDrive.UI.Home;
 public class MainWindowViewModel : ViewModelBase
 {
     // Shared ViewModels used by all layouts
-    public AccountsViewModel Accounts { get; }
+    public AccountListViewModel Accounts { get; }
     public FolderTreeViewModel FolderTree { get; }
     public SyncStatusViewModel Sync { get; }
     public LogsViewModel Logs { get; }
@@ -47,7 +47,7 @@ public class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         // Instantiate shared ViewModels
-        Accounts = new AccountsViewModel();
+        Accounts = new AccountListViewModel();
         FolderTree = new FolderTreeViewModel();
         Sync = new SyncStatusViewModel();
         Logs = new LogsViewModel();Settings = new SettingsViewModel();
@@ -60,6 +60,24 @@ Settings.ThemeChanged += (_, themeName) => ThemeManager.ThemeManager.ApplyTheme(
 
         // Default layout
         ApplyLayout(LayoutType.Explorer);
+        Settings.LayoutChanged += (_, layoutName) =>
+{
+    switch (layoutName)
+    {
+        case "Explorer":
+            CurrentLayout = LayoutType.Explorer;
+            break;
+
+        case "Dashboard":
+            CurrentLayout = LayoutType.Dashboard;
+            break;
+
+        case "Terminal":
+            CurrentLayout = LayoutType.Terminal;
+            break;
+    }
+};
+
     }
 
     private void ApplyLayout(LayoutType layout)
@@ -81,5 +99,7 @@ Settings.ThemeChanged += (_, themeName) => ThemeManager.ThemeManager.ApplyTheme(
                 CurrentLayoutView = new TerminalLayoutView { DataContext = this };
                 break;
         }
+        
+        Settings.SelectedLayout = layout.ToString();
     }
 }

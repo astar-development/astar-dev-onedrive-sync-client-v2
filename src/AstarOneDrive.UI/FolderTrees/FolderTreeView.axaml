@@ -9,14 +9,14 @@
                    FontWeight="Bold"
                    FontSize="16" />
 
-        <TreeView Items="{Binding FolderTree}">
+        <TreeView ItemsSource="{Binding FolderTree}">
             <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                <TreeDataTemplate ItemsSource="{Binding Children}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <CheckBox IsChecked="{Binding IsSelected}" />
                         <TextBlock Text="{Binding Name}" />
                     </StackPanel>
-                </HierarchicalDataTemplate>
+                </TreeDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>
 

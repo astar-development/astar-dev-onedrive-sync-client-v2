@@ -43,14 +43,24 @@ public string SelectedTheme
 }
 
 public event EventHandler<string>? ThemeChanged;
-    
+public event EventHandler<string>? LayoutChanged;
+
     public ObservableCollection<string> AvailableLayouts { get; } =
         new() { "Explorer", "Dashboard", "Terminal" };
 
     private string _selectedLayout = "Explorer";
-    public string SelectedLayout
+public string SelectedLayout
+{
+    get => _selectedLayout;
+    set
     {
-        get => _selectedLayout;
-        set { _selectedLayout = value; RaisePropertyChanged(); }
+        if (_selectedLayout != value)
+        {
+            _selectedLayout = value;
+            RaisePropertyChanged();
+            LayoutChanged?.Invoke(this, value);
+        }
     }
+}
+
 }

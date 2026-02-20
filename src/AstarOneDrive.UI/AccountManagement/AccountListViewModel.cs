@@ -4,14 +4,14 @@ using AstarOneDrive.UI.Common;
 
 namespace AstarOneDrive.UI.AccountManagement;
 
-public class AccountsViewModel : ViewModelBase
+public class AccountListViewModel : ViewModelBase
 {
     public ObservableCollection<AccountViewModel> Accounts { get; } = new();
 
     public ICommand AddAccountCommand { get; }
     public ICommand ManageAccountCommand { get; }
 
-    public AccountsViewModel()
+    public AccountListViewModel()
     {
         AddAccountCommand = new RelayCommand(_ => AddAccount());
         ManageAccountCommand = new RelayCommand(account => ManageAccount(account as AccountViewModel));

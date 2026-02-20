@@ -2,7 +2,7 @@ using Avalonia.ReactiveUI;
 
 namespace AstarOneDrive.UI.AccountManagement;
 
-public partial class AccountListView : ReactiveWindow<AccountsViewModel>
+public partial class AccountListView : ReactiveWindow<AccountListViewModel>
 {
     public AccountListView()
     {

@@ -2,7 +2,11 @@
     x:Class="AstarOneDrive.UI.Layouts.TerminalLayoutView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:views="using:AstarOneDrive.UI.Views.Components">
+    xmlns:account="using:AstarOneDrive.UI.AccountManagement"
+    xmlns:folder="using:AstarOneDrive.UI.FolderTrees"
+    xmlns:logs="using:AstarOneDrive.UI.Logs"
+    xmlns:settings="using:AstarOneDrive.UI.Settings"
+    xmlns:sync="using:AstarOneDrive.UI.SyncStatus">
 
     <DockPanel>
 
@@ -34,23 +38,23 @@
 
             <!-- Left: Accounts + Folder Tree -->
             <StackPanel>
-                <views:AccountListView />
+                <account:AccountListView />
                 <Separator />
-                <views:FolderTreeView />
+                <folder:FolderTreeView />
             </StackPanel>
 
             <!-- Right: Tabbed Content -->
             <TabControl Grid.Column="1">
                 <TabItem Header="{DynamicResource Tab_Status}">
-                    <views:SyncStatusView />
+                    <sync:SyncStatusView />
                 </TabItem>
 
                 <TabItem Header="{DynamicResource Tab_Logs}">
-                    <views:LogsView />
+                    <logs:LogsView />
                 </TabItem>
 
                 <TabItem Header="{DynamicResource Tab_Settings}">
-                    <views:SettingsView />
+                    <settings:SettingsView />
                 </TabItem>
             </TabControl>
 
