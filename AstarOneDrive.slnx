@@ -5,9 +5,23 @@
     <Project Path="src/AstarOneDrive.Infrastructure/AstarOneDrive.Infrastructure.csproj" />
     <Project Path="src/AstarOneDrive.UI/AstarOneDrive.UI.csproj" />
   </Folder>
+  <Folder Name="/src/nuget-packages/">
+    <Project Path="src/nuget-packages/AStar.Dev.Functional.Extensions/AStar.Dev.Functional.Extensions.csproj" />
+    <Project Path="src/nuget-packages/AStar.Dev.Source.Analyzers/AStar.Dev.Source.Analyzers.csproj" />
+    <Project Path="src/nuget-packages/AStar.Dev.Source.Generators.Attributes/AStar.Dev.Source.Generators.Attributes.csproj" />
+    <Project Path="src/nuget-packages/AStar.Dev.Source.Generators/AStar.Dev.Source.Generators.csproj" />
+    <Project Path="src/nuget-packages/AStar.Dev.Utilities/AStar.Dev.Utilities.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/AstarOneDrive.Application.Tests/AstarOneDrive.Application.Tests.csproj" />
     <Project Path="tests/AstarOneDrive.Domain.Tests/AstarOneDrive.Domain.Tests.csproj" />
     <Project Path="tests/AstarOneDrive.UI.Tests/AstarOneDrive.UI.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/nuget-packages/">
+    <Project Path="tests/nuget-packages/AStar.Dev.Functional.Extensions.Tests.Unit/AStar.Dev.Functional.Extensions.Tests.Unit.csproj" />
+    <Project Path="tests/nuget-packages/AStar.Dev.Source.Analyzers.Tests.Unit/AStar.Dev.Source.Analyzers.Tests.Unit.csproj" />
+    <Project Path="tests/nuget-packages/AStar.Dev.Source.Generators.Attributes.Tests.Unit/AStar.Dev.Source.Generators.Attributes.Tests.Unit.csproj" />
+    <Project Path="tests/nuget-packages/AStar.Dev.Source.Generators.Tests.Unit/AStar.Dev.Source.Generators.Tests.Unit.csproj" />
+    <Project Path="tests/nuget-packages/AStar.Dev.Utilities.Tests.Unit/AStar.Dev.Utilities.Tests.Unit.csproj" />
   </Folder>
 </Solution>
