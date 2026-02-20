@@ -91,7 +91,7 @@ public class SettingsViewModel : ViewModelBase
         }
 
         var json = await File.ReadAllTextAsync(filePath, cancellationToken);
-        var doc = JsonDocument.Parse(json);
+        using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
         if (root.TryGetProperty("SelectedTheme", out var theme))
