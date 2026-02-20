@@ -15,7 +15,7 @@ public class SettingsViewModel : ViewModelBase
     public string UserName
     {
         get => _userName;
-        set { _userName = value; RaisePropertyChanged(); }
+        set => this.RaiseAndSetIfChanged(ref _userName, value);
     }
 
     public ObservableCollection<string> AvailableLanguages { get; } = ["en-US"];
@@ -24,7 +24,7 @@ public class SettingsViewModel : ViewModelBase
     public string SelectedLanguage
     {
         get => _selectedLanguage;
-        set { _selectedLanguage = value; RaisePropertyChanged(); }
+        set => this.RaiseAndSetIfChanged(ref _selectedLanguage, value);
     }
 
     // Application settings
@@ -37,13 +37,10 @@ public class SettingsViewModel : ViewModelBase
         get => _selectedTheme;
         set
         {
-            if (_selectedTheme != value)
-            {
-                _selectedTheme = value;
-                RaisePropertyChanged();
-                ApplyTheme(value);
-                ThemeChanged?.Invoke(this, value);
-            }
+            if (_selectedTheme == value) return;
+            this.RaiseAndSetIfChanged(ref _selectedTheme, value);
+            ApplyTheme(value);
+            ThemeChanged?.Invoke(this, value);
         }
     }
 
@@ -58,12 +55,9 @@ public class SettingsViewModel : ViewModelBase
         get => _selectedLayout;
         set
         {
-            if (_selectedLayout != value)
-            {
-                _selectedLayout = value;
-                RaisePropertyChanged();
-                LayoutChanged?.Invoke(this, value);
-            }
+            if (_selectedLayout == value) return;
+            this.RaiseAndSetIfChanged(ref _selectedLayout, value);
+            LayoutChanged?.Invoke(this, value);
         }
     }
 
