@@ -29,11 +29,11 @@
 
             <!-- Left Drawer -->
             <StackPanel Width="220" Background="{DynamicResource DrawerBackground}">
-                <Button Content="{DynamicResource Nav_Home}" />
-                <Button Content="{DynamicResource Nav_Accounts}" />
-                <Button Content="{DynamicResource Nav_SyncActivity}" />
-                <Button Content="{DynamicResource Nav_UserSettings}" />
-                <Button Content="{DynamicResource Nav_AppSettings}" />
+                <Button Content="{DynamicResource Menu_File}" />
+                <Button Content="{DynamicResource Account_Email}" />
+                <Button Content="{DynamicResource Sync_Activity}" />
+                <Button Content="{DynamicResource Menu_UserSettings}" />
+                <Button Content="{DynamicResource Menu_AppSettings}" />
             </StackPanel>
 
             <!-- Dashboard -->
