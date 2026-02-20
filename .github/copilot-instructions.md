@@ -1,104 +1,171 @@
 # GitHub Copilot Instructions for AstarOneDrive
 
+> 📋 **Quick Reference**: [`/docs/copilot/quick-reference.md`](/docs/copilot/quick-reference.md)
+>
+> 📚 **Detailed Guides**:
+> - [Functional Programming Guide](/docs/copilot/functional-programming-guide.md)
+> - [Common Scenarios](/docs/copilot/common-scenarios.md)
+> - [Migration Guide](/docs/copilot/migration-guide.md)
+> - [Blog Series](/docs/blogs/) — In-depth explanations
+
+---
+
 ## Test-Driven Development (TDD) — MANDATORY
 
-TDD is **not optional** — it is the **only** accepted workflow in this repository.
+**TDD is non-negotiable. Every feature branch MUST demonstrate Red → Green → Refactor.**
 
-### TDD Workflow
-1. **Write a failing test first.** No production code may be written without a corresponding failing test committed to the feature branch. Framework code is exempt from this rule where it delivers no benefit, but all application and domain code must follow it.
-2. **Commit the failing test** to the feature branch before writing any production code.
-3. **Write the minimum production code** required to make the failing test pass.
-4. **Refactor** while keeping all tests green.
+1. Write failing test → Commit (RED)
+2. Write minimum code to pass → Commit (GREEN)  
+3. Refactor while keeping tests green → Commit (REFACTOR)
 
-> ❌ **Pull requests that introduce production code without a prior failing-test commit will be rejected.**
+> ❌ **PRs without a prior failing-test commit will be rejected.**
 
 ---
 
 ## Architecture — Onion Architecture
 
-> 📄 See [Implementation Overview](../docs/implementation-overview.md) for a detailed architecture guide.
-
-This solution follows **Onion Architecture** with strict dependency rules:
+**Strict dependency rules:**
 
 ```
 UI  →  Application  →  Domain
 Infrastructure  →  Application  →  Domain
 ```
 
-| Layer | Project | Allowed Dependencies |
+| Layer | Dependencies | Additional References |
 |---|---|---|
-| Domain | `AstarOneDrive.Domain` | None (no external project references) |
-| Application | `AstarOneDrive.Application` | Domain only |
-| Infrastructure | `AstarOneDrive.Infrastructure` | Domain, Application |
-| UI | `AstarOneDrive.UI` | Application only (not Infrastructure) |
+| Domain | None | `AStar.Dev.Functional.Extensions` |
+| Application | Domain only | (inherits from Domain) |
+| Infrastructure | Domain, Application | (inherits from Domain) |
+| UI | Application only (never Infrastructure) | `AStar.Dev.Utilities`, `AStar.Dev.Source.Generators` |
 
-> ❌ **The UI layer must never reference the Infrastructure layer directly.**
-> Dependency injection (composition root) is the only mechanism for wiring Infrastructure implementations.
-
----
-
-## Naming and Coding Standards
-
-**Microsoft C# Naming Conventions MUST be followed at all times:**
-
-- `PascalCase` — types, methods, properties, events, public fields
-- `camelCase` with `_` prefix — private fields (e.g., `_myField`)
-- `IPascalCase` — interfaces (e.g., `IUserRepository`)
-- `PascalCase` — constants and static readonly fields
-- Production Async methods **must** have the `Async` suffix (e.g., `GetFilesAsync`). Tests may omit the `Async` suffix for readability (e.g., `GetFiles_ReturnsFiles`).
-- Test method names: `MethodName_Scenario_ExpectedResult` pattern
-
-**All warnings are treated as errors** (`TreatWarningsAsErrors=true` in `Directory.Build.props`).
-> ❌ No warnings may be introduced or suppressed without explicit justification.
+**Cross-cutting:** All layers access `Result<T, TError>`, `Option<T>`, `[StrongId]`, `[AutoRegisterService]`
 
 ---
 
-## C# Language Version
+## Functional Programming — MANDATORY
 
-This project uses **C# 14** (LangVersion=preview with .NET 10). You **must** use modern C# features where appropriate:
+> 📚 **Full Guide**: [`/docs/copilot/functional-programming-guide.md`](/docs/copilot/functional-programming-guide.md)
 
-- Primary constructors for simple types
-- Collection expressions (e.g., `[]` instead of `Array.Empty<T>()`)
-- Pattern matching
-- `required` members
-- `init`-only setters
-- Null-coalescing assignment (`??=`)
-- `ArgumentException.ThrowIfNullOrWhiteSpace`, `ArgumentNullException.ThrowIfNull`
-- Target-typed `new` expressions
-- File-scoped namespaces (one namespace per file)
-- Top-level statements where applicable
+### Core Rules
 
-> ❌ Do **not** use obsolete C# patterns when modern equivalents exist.
+1. **NEVER return `null`** → Use `Option<T>`
+2. **NEVER throw exceptions for control flow** → Use `Result<T, TError>`
+3. **ALWAYS use `[StrongId]`** for domain identifiers
+4. **ALWAYS use `[AutoRegisterService]`** for DI registration
+
+### Quick Syntax
+
+```csharp
+// Result - operations that can fail
+public Result<User, string> GetUser(int id)
+{
+    return user ?? "User not found";  // Implicit conversion
+}
+
+// Option - values that may not exist
+public Option<User> FindUser(int id)
+{
+    return _users.FirstOrDefault(u => u.Id == id).ToOption();
+}
+
+// Unit - success with no value
+public Result<Unit, string> ValidateEmail(string email)
+{
+    if (string.IsNullOrWhiteSpace(email))
+        return "Email required";
+    return Unit.Value;
+}
+
+// Try - wrap exceptions
+public Result<string, Exception> ReadFile(string path)
+{
+    return Try.Run(() => File.ReadAllText(path));
+}
+```
+
+### Layer-Specific Error Types
+
+| Layer | TError | Example |
+|---|---|---|
+| Domain | `string` or custom record | `Result<User, string>` |
+| Application | `ErrorResponse` or `Exception` | `Result<OrderDto, ErrorResponse>` |
+| Infrastructure | `Exception` or `string` | `Result<Data, Exception>` |
+| UI | `string` | `Result<Unit, string>` |
+
+---
+
+## Source Generators — MANDATORY
+
+### StrongId
+
+```csharp
+[StrongId]  // Defaults to Guid
+public readonly partial record struct UserId;
+
+[StrongId(typeof(int))]
+public readonly partial record struct OrderId;
+```
+
+**Benefits:** Type safety, no accidental ID mixing, zero overhead
+
+### Service Registration
+
+```csharp
+[AutoRegisterService(ServiceLifetime.Scoped)]
+public class UserService : IUserService { }
+
+// In Program.cs:
+builder.Services.AddGeneratedServices();
+```
+
+---
+
+## Naming & Coding Standards
+
+**Microsoft C# conventions + modern C# 14 features:**
+
+- `PascalCase` — types, methods, properties
+- `_camelCase` — private fields
+- `IPascalCase` — interfaces
+- Async methods: `MethodNameAsync` (production), optional in tests
+- Tests: `MethodName_Scenario_ExpectedResult`
+- Primary constructors, collection expressions `[]`, pattern matching
+- File-scoped namespaces, expression-bodied members
+
+### Mandates
+
+- **NO comments in private members** — refactor until code is self-documenting
+- **XML docs on all public/internal members**
+- **Methods ≤ 20 lines** — refactor if longer
+- **Classes ≤ 200 lines** — split if longer  
+- **Parameters ≤ 5** — use parameter object if more
+- **Immutability preferred** — mutable only when necessary (UI, performance)
+- **Map/Bind/Match over if-else** — functional composition preferred
 
 ---
 
 ## Testing Stack
 
-All test projects use:
+- **xUnit v3** — test framework
+- **Shouldly** — fluent assertions (no `Assert.*`)
+- **NSubstitute** — mocking
 
-| Tool | Purpose |
-|---|---|
-| **XUnit.V3** (`xunit.v3`) | Test framework |
-| **Shouldly** | Fluent assertions |
-| **NSubstitute** | Mocking / substitution |
+### Test Rules
 
-### Rules
-- Every new class or interface **must** have corresponding tests unless exempt above.
-- Use `NSubstitute` for mocking dependencies — no hand-rolled fakes.
-- Use `Shouldly` for all assertions — no raw `Assert.*` calls.
-- Use `TestContext.Current.CancellationToken` when calling `async` methods that accept `CancellationToken`.
+- AAA pattern (Arrange, Act, Assert) — no comments marking sections
+- Use `TestContext.Current.CancellationToken` for async
+- Tests ≤ 10 lines — refactor code under test if longer
+- NO comments in tests — refactor until clear
 
 ---
 
 ## UI Technology
 
-- **AvaloniaUI** — cross-platform UI framework
-- **ReactiveUI** — MVVM reactive framework (`Avalonia.ReactiveUI`)
-- All views live in `src/AstarOneDrive.UI/Views/`
-- All view models live in `src/AstarOneDrive.UI/ViewModels/`
-- Use sub-folders for each UI area (e.g., `Views/Sync/`, `ViewModels/Sync/`)
-- Views inherit from `ReactiveWindow<TViewModel>` or `ReactiveUserControl<TViewModel>`
-- View models inherit from `ViewModelBase` (which extends `ReactiveObject`)
+- **AvaloniaUI** — cross-platform UI
+- **ReactiveUI** — MVVM framework
+- Views: `ReactiveWindow<TViewModel>` or `ReactiveUserControl<TViewModel>`
+- ViewModels: inherit from `ViewModelBase` (extends `ReactiveObject`)
+- Structure: `Views/` and `ViewModels/` with sub-folders by feature
 
 ---
 
@@ -108,8 +175,25 @@ All test projects use:
 
 | Branch | Purpose |
 |---|---|
-| `main` | Production-ready code only - protected via branch policies |
-| `feature/*` | Feature branches — TDD commits required |
-| `copilot/*` | Copilot-generated feature branches |
+| `main` | Production-ready, protected |
+| `feature/*` | Feature development with TDD commits |
+| `copilot/*` | AI-generated branches |
 
-> Each feature branch **must** demonstrate the Red → Green → Refactor cycle via its commit history.
+> Each feature branch **must** show Red → Green → Refactor in commit history.
+
+---
+
+## Additional Resources
+
+### Quick Lookups
+- **Quick Reference**: [`/docs/copilot/quick-reference.md`](/docs/copilot/quick-reference.md) — Cheat sheets & lookup tables
+- **Common Scenarios**: [`/docs/copilot/common-scenarios.md`](/docs/copilot/common-scenarios.md) — OneDrive-specific examples
+- **Migration Guide**: [`/docs/copilot/migration-guide.md`](/docs/copilot/migration-guide.md) — Convert existing code
+
+### In-Depth Learning
+- **Functional Programming Guide**: [`/docs/copilot/functional-programming-guide.md`](/docs/copilot/functional-programming-guide.md) — Comprehensive patterns
+- **Blog Series**: [`/docs/blogs/`](/docs/blogs/) — Theory & detailed explanations
+  - [01: Overview](/docs/blogs/01-functional-extensions-overview.md)
+  - [02: Result Deep Dive](/docs/blogs/02-result-type-deep-dive.md)
+  - [03: Option Deep Dive](/docs/blogs/03-option-type-deep-dive.md)
+  - [04: Supporting Types](/docs/blogs/04-supporting-types-and-extensions.md)
