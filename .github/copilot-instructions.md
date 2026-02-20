@@ -16,6 +16,8 @@ TDD is **not optional** — it is the **only** accepted workflow in this reposit
 
 ## Architecture — Onion Architecture
 
+> 📄 See [Implementation Overview](../docs/implementation-overview.md) for a detailed architecture guide.
+
 This solution follows **Onion Architecture** with strict dependency rules:
 
 ```
@@ -101,6 +103,8 @@ All test projects use:
 ---
 
 ## Branch Strategy
+
+> 📄 See [Implementation Plan](../docs/implementation-plan.md) for the phased delivery plan.
 
 | Branch | Purpose |
 |---|---|
