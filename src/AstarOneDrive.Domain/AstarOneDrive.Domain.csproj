@@ -4,4 +4,13 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\nuget-packages\AStar.Dev.Functional.Extensions\AStar.Dev.Functional.Extensions.csproj" />
+    <ProjectReference Include="..\nuget-packages\AStar.Dev.Source.Analyzers\AStar.Dev.Source.Analyzers.csproj" />
+    <ProjectReference Include="..\nuget-packages\AStar.Dev.Source.Generators.Attributes\AStar.Dev.Source.Generators.Attributes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\nuget-packages\AStar.Dev.Source.Generators\AStar.Dev.Source.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\nuget-packages\AStar.Dev.Source.Generators\AStar.Dev.Source.Generators.csproj" />
+    <ProjectReference Include="..\nuget-packages\AStar.Dev.Utilities\AStar.Dev.Utilities.csproj" />
+  </ItemGroup>
+
 </Project>
