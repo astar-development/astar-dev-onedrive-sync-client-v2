@@ -1,0 +1,23 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Styles.Resources>
+
+  <Color x:Key="Color_Background">#FF1E1E1E</Color>
+  <Color x:Key="Color_Foreground">#FFFFFFFF</Color>
+  <Color x:Key="Color_Primary">#FF3A96DD</Color>
+  <Color x:Key="Color_CardBackground">#FF2A2A2A</Color>
+  <Color x:Key="Color_TerminalBackground">#FF000000</Color>
+
+  <SolidColorBrush x:Key="AppBarBackground" Color="{DynamicResource Color_Primary}" />
+  <SolidColorBrush x:Key="DrawerBackground" Color="#FF252525" />
+  <SolidColorBrush x:Key="CardBackground" Color="{DynamicResource Color_CardBackground}" />
+  <SolidColorBrush x:Key="TerminalBackground" Color="{DynamicResource Color_TerminalBackground}" />
+  <SolidColorBrush x:Key="TerminalBarBackground" Color="#FF111111" />
+  <SolidColorBrush x:Key="TerminalStatusBackground" Color="#FF050505" />
+
+  <SolidColorBrush x:Key="ThemeForegroundBrush" Color="{DynamicResource Color_Foreground}" />
+  <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="{DynamicResource Color_Background}" />
+
+    </Styles.Resources>
+</Styles>

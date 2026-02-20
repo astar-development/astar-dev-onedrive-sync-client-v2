@@ -1,0 +1,21 @@
+Starter XAML for each layout
+
+Starter theme files
+
+Starter localization files
+
+A full MVVM skeleton
+
+A roadmap for implementing the sync engine
+
+If you want, I can now generate:
+
+    Starter XAML for the shared components
+
+    Theme dictionary templates
+
+    Localization resource dictionary templates
+
+    The MainViewModel with layout‑switching commands
+
+    A working minimal solution structure

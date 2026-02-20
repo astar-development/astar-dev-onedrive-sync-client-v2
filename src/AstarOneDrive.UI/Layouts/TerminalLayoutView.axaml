@@ -1,0 +1,66 @@
+<UserControl
+    x:Class="AstarOneDrive.UI.Layouts.TerminalLayoutView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:AstarOneDrive.UI.Layouts"
+    xmlns:account="using:AstarOneDrive.UI.AccountManagement"
+    xmlns:folder="using:AstarOneDrive.UI.FolderTrees"
+    xmlns:logs="using:AstarOneDrive.UI.Logs"
+    xmlns:settings="using:AstarOneDrive.UI.Settings"
+    xmlns:sync="using:AstarOneDrive.UI.SyncStatus"
+    x:DataType="vm:TerminalLayoutViewModel">
+
+    <DockPanel>
+
+        <!-- Top Command Bar -->
+        <Border DockPanel.Dock="Top" Background="{DynamicResource TerminalBarBackground}" Height="36">
+            <DockPanel>
+                <Menu>
+                    <MenuItem Header="{DynamicResource Menu_File}">
+                        <MenuItem Header="{DynamicResource Menu_UserSettings}" />
+                        <MenuItem Header="{DynamicResource Menu_AppSettings}" />
+                    </MenuItem>
+                    <MenuItem Header="{DynamicResource Menu_Layouts}">
+                        <MenuItem Header="Explorer" />
+                        <MenuItem Header="Dashboard" />
+                        <MenuItem Header="Terminal" />
+                    </MenuItem>
+                </Menu>
+                <Button DockPanel.Dock="Right" Content="⌘" Width="36" />
+            </DockPanel>
+        </Border>
+
+        <!-- Bottom Console Status Bar -->
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource TerminalStatusBackground}" Height="28">
+            <TextBlock Text="{Binding TerminalStatus}" Margin="8,0" />
+        </Border>
+
+        <!-- Main Split View -->
+        <Grid ColumnDefinitions="250,*">
+
+            <!-- Left: Accounts + Folder Tree -->
+            <StackPanel>
+                <account:AccountListView />
+                <Separator />
+                <folder:FolderTreeView />
+            </StackPanel>
+
+            <!-- Right: Tabbed Content -->
+            <TabControl Grid.Column="1">
+                <TabItem Header="{DynamicResource Tab_Status}">
+                    <sync:SyncStatusView />
+                </TabItem>
+
+                <TabItem Header="{DynamicResource Tab_Logs}">
+                    <logs:LogsView />
+                </TabItem>
+
+                <TabItem Header="{DynamicResource Tab_Settings}">
+                    <settings:SettingsView />
+                </TabItem>
+            </TabControl>
+
+        </Grid>
+
+    </DockPanel>
+</UserControl>
