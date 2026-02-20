@@ -2,9 +2,11 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
 using AstarOneDrive.UI.Common;
-using AstarOneDrive.UI.ThemeManager;
+using static AstarOneDrive.UI.ThemeManager.ThemeManager;
 
 namespace AstarOneDrive.UI.Settings;
+
+file record SettingsData(string SelectedTheme, string SelectedLanguage, string SelectedLayout, string UserName);
 
 public class SettingsViewModel : ViewModelBase
 {
@@ -16,8 +18,7 @@ public class SettingsViewModel : ViewModelBase
         set { _userName = value; RaisePropertyChanged(); }
     }
 
-    public ObservableCollection<string> AvailableLanguages { get; } =
-        new() { "en-US" };
+    public ObservableCollection<string> AvailableLanguages { get; } = ["en-US"];
 
     private string _selectedLanguage = "en-US";
     public string SelectedLanguage
@@ -28,44 +29,43 @@ public class SettingsViewModel : ViewModelBase
 
     // Application settings
     public ObservableCollection<string> AvailableThemes { get; } =
-        new() { "Light", "Dark", "Auto", "Colorful", "Professional", "Hacker", "HighContrast" };
+        ["Light", "Dark", "Auto", "Colorful", "Professional", "Hacker", "HighContrast"];
 
     private string _selectedTheme = "Light";
-public string SelectedTheme
-{
-    get => _selectedTheme;
-    set
+    public string SelectedTheme
     {
-        if (_selectedTheme != value)
+        get => _selectedTheme;
+        set
         {
-            _selectedTheme = value;
-            RaisePropertyChanged();
-            ThemeManager.ThemeManager.ApplyTheme(value);
-            ThemeChanged?.Invoke(this, value);
+            if (_selectedTheme != value)
+            {
+                _selectedTheme = value;
+                RaisePropertyChanged();
+                ApplyTheme(value);
+                ThemeChanged?.Invoke(this, value);
+            }
         }
     }
-}
 
-public event EventHandler<string>? ThemeChanged;
-public event EventHandler<string>? LayoutChanged;
+    public event EventHandler<string>? ThemeChanged;
+    public event EventHandler<string>? LayoutChanged;
 
-    public ObservableCollection<string> AvailableLayouts { get; } =
-        new() { "Explorer", "Dashboard", "Terminal" };
+    public ObservableCollection<string> AvailableLayouts { get; } = ["Explorer", "Dashboard", "Terminal"];
 
     private string _selectedLayout = "Explorer";
-public string SelectedLayout
-{
-    get => _selectedLayout;
-    set
+    public string SelectedLayout
     {
-        if (_selectedLayout != value)
+        get => _selectedLayout;
+        set
         {
-            _selectedLayout = value;
-            RaisePropertyChanged();
-            LayoutChanged?.Invoke(this, value);
+            if (_selectedLayout != value)
+            {
+                _selectedLayout = value;
+                RaisePropertyChanged();
+                LayoutChanged?.Invoke(this, value);
+            }
         }
     }
-}
 
     private static string GetSettingsFilePath()
     {
@@ -77,14 +77,7 @@ public string SelectedLayout
 
     public async Task SaveSettingsAsync(CancellationToken cancellationToken = default)
     {
-        var settings = new
-        {
-            SelectedTheme,
-            SelectedLanguage,
-            SelectedLayout,
-            UserName
-        };
-
+        var settings = new SettingsData(SelectedTheme, SelectedLanguage, SelectedLayout, UserName);
         var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
         await File.WriteAllTextAsync(GetSettingsFilePath(), json, cancellationToken);
     }
