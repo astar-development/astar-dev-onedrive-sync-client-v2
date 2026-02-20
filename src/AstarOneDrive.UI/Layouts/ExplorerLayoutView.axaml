@@ -18,9 +18,9 @@
             </MenuItem>
 
             <MenuItem Header="{DynamicResource Menu_Layouts}">
-                <MenuItem Header="Explorer" />
-                <MenuItem Header="Dashboard" />
-                <MenuItem Header="Terminal" />
+                <MenuItem Header="{DynamicResource Layout_Explorer}" />
+                <MenuItem Header="{DynamicResource Layout_Dashboard}" />
+                <MenuItem Header="{DynamicResource Layout_Terminal}" />
             </MenuItem>
         </Menu>
 
