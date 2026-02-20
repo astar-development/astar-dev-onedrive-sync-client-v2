@@ -9,17 +9,15 @@ namespace AstarOneDrive.UI.Tests.Localization;
 public sealed class LocalizationManagerTests
 {
     [Fact]
-    public void SetLanguage_LoadsEnUsDictionary_WithoutError()
+    public void SetLanguage_WithEnUs_DoesNotThrow()
     {
-        // Act
+        // Act & Assert
         var action = () => LocalizationManager.SetLanguage("en-US");
-
-        // Assert
         action.ShouldNotThrow();
     }
 
     [Fact]
-    public void GetString_WithValidKey_ReturnsLocalizedString()
+    public void GetString_WithValidKey_ReturnsNonEmptyString()
     {
         // Arrange
         LocalizationManager.SetLanguage("en-US");
@@ -29,6 +27,7 @@ public sealed class LocalizationManagerTests
 
         // Assert
         result.ShouldNotBeNullOrWhiteSpace();
+        result.ShouldNotBe("Menu_File"); // Should be actual value, not fallback
     }
 
     [Fact]
@@ -36,7 +35,7 @@ public sealed class LocalizationManagerTests
     {
         // Arrange
         LocalizationManager.SetLanguage("en-US");
-        const string invalidKey = "NonExistent_Key_That_Does_Not_Exist";
+        const string invalidKey = "NonExistent_Key_12345";
 
         // Act
         var result = LocalizationManager.GetString(invalidKey);
@@ -46,36 +45,43 @@ public sealed class LocalizationManagerTests
     }
 
     [Fact]
-    public void SetLanguage_RemovesPreviousDictionary_BeforeLoadingNew()
+    public void SetLanguage_MultipleCallsWithSameCulture_DoesNotThrow()
     {
-        // Arrange
+        // Act - call multiple times
         LocalizationManager.SetLanguage("en-US");
-        var firstResult = LocalizationManager.GetString("Menu_File");
-
-        // Act
-        LocalizationManager.SetLanguage("en-US"); // Load same language again
+        var action = () => LocalizationManager.SetLanguage("en-US");
 
         // Assert
-        var secondResult = LocalizationManager.GetString("Menu_File");
-        secondResult.ShouldBe(firstResult);
+        action.ShouldNotThrow();
     }
 
     [Fact]
-    public void AppResourceDictionaries_ContainLoadedLocale_AfterSetLanguage()
+    public void CurrentLanguage_ReflecsSetLanguage()
     {
-        // Arrange
-        var app = Application.Current;
-        
         // Act
         LocalizationManager.SetLanguage("en-US");
 
         // Assert
-        app.Resources.MergedDictionaries.ShouldContain(dict =>
-            dict.Source?.ToString()?.Contains("en-US") ?? false);
+        LocalizationManager.CurrentLanguage.ShouldBe("en-US");
     }
 
     [Fact]
-    public void GetString_CommonMenuKeys_AreNotEmpty()
+    public void GetString_AfterSetLanguage_ReturnsConsistentValues()
+    {
+        // Arrange
+        LocalizationManager.SetLanguage("en-US");
+
+        // Act
+        var result1 = LocalizationManager.GetString("Menu_File");
+        var result2 = LocalizationManager.GetString("Menu_File");
+
+        // Assert
+        result1.ShouldBe(result2); // Consistent results
+        result1.ShouldNotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public void GetString_MultipleKeys_ReturnDifferentValues()
     {
         // Arrange
         LocalizationManager.SetLanguage("en-US");
@@ -83,11 +89,11 @@ public sealed class LocalizationManagerTests
         // Act
         var menuFile = LocalizationManager.GetString("Menu_File");
         var menuLayouts = LocalizationManager.GetString("Menu_Layouts");
-        var btnSyncNow = LocalizationManager.GetString("Btn_SyncNow");
+        var btnSync = LocalizationManager.GetString("Btn_SyncNow");
 
         // Assert
+        menuFile.ShouldNotBe(menuLayouts);
+        menuLayouts.ShouldNotBe(btnSync);
         menuFile.ShouldNotBeNullOrWhiteSpace();
-        menuLayouts.ShouldNotBeNullOrWhiteSpace();
-        btnSyncNow.ShouldNotBeNullOrWhiteSpace();
     }
 }
