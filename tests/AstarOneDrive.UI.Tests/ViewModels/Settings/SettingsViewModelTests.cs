@@ -1,3 +1,4 @@
+using AStar.Dev.Functional.Extensions;
 using AstarOneDrive.UI.Settings;
 using Shouldly;
 using Xunit;
@@ -6,6 +7,15 @@ namespace AstarOneDrive.UI.Tests.ViewModels.Settings;
 
 public class SettingsViewModelTests
 {
+    private static string SettingsFilePath
+    {
+        get
+        {
+            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            return Path.Combine(appDataPath, "AstarOneDrive", "settings.json");
+        }
+    }
+
     [Fact]
     public void Constructor_InitializesWithDefaults()
     {
@@ -49,6 +59,21 @@ public class SettingsViewModelTests
     }
 
     [Fact]
+    public async Task SaveSettingsAsync_ReturnsOkResult()
+    {
+        var viewModel = new SettingsViewModel
+        {
+            SelectedTheme = "Dark",
+            SelectedLanguage = "en-US",
+            SelectedLayout = "Dashboard"
+        };
+
+        var result = await viewModel.SaveSettingsAsync(TestContext.Current.CancellationToken);
+
+        Pattern.IsSuccess(result).ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task SaveSettings_PersistsToFile()
     {
         var viewModel = new SettingsViewModel
@@ -58,10 +83,25 @@ public class SettingsViewModelTests
             SelectedLayout = "Dashboard"
         };
 
-        await viewModel.SaveSettingsAsync(TestContext.Current.CancellationToken);
+        var result = await viewModel.SaveSettingsAsync(TestContext.Current.CancellationToken);
 
-        // Assert
-        // Verify settings were persisted (will fail until SaveSettingsAsync is implemented)
+        Pattern.IsSuccess(result).ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task LoadSettingsAsync_ReturnsOkResult()
+    {
+        var viewModel = new SettingsViewModel
+        {
+            SelectedTheme = "Hacker",
+            SelectedLayout = "Terminal"
+        };
+        await viewModel.SaveSettingsAsync(TestContext.Current.CancellationToken);
+        var newViewModel = new SettingsViewModel();
+
+        var result = await newViewModel.LoadSettingsAsync(TestContext.Current.CancellationToken);
+
+        Pattern.IsSuccess(result).ShouldBeTrue();
     }
 
     [Fact]
@@ -73,10 +113,23 @@ public class SettingsViewModelTests
         await viewModel.SaveSettingsAsync(TestContext.Current.CancellationToken);
         var newViewModel = new SettingsViewModel();
 
-        await newViewModel.LoadSettingsAsync(TestContext.Current.CancellationToken);
+        var result = await newViewModel.LoadSettingsAsync(TestContext.Current.CancellationToken);
 
+        Pattern.IsSuccess(result).ShouldBeTrue();
         newViewModel.SelectedTheme.ShouldBe("Dark");
         newViewModel.SelectedLayout.ShouldBe("Dashboard");
+    }
+
+    [Fact]
+    public async Task LoadSettingsAsync_ReturnsErrorResult_WhenJsonIsInvalid()
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(SettingsFilePath)!);
+        await File.WriteAllTextAsync(SettingsFilePath, "not valid json", TestContext.Current.CancellationToken);
+        var viewModel = new SettingsViewModel();
+
+        var result = await viewModel.LoadSettingsAsync(TestContext.Current.CancellationToken);
+
+        Pattern.IsFailure(result).ShouldBeTrue();
     }
 
     [Fact]

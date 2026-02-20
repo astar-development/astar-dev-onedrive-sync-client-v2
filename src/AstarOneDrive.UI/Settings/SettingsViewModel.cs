@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
+using AStar.Dev.Functional.Extensions;
 using AstarOneDrive.UI.Common;
 using static AstarOneDrive.UI.ThemeManager.ThemeManager;
 
@@ -75,44 +76,51 @@ public class SettingsViewModel : ViewModelBase
         return Path.Combine(appFolder, "settings.json");
     }
 
-    public async Task SaveSettingsAsync(CancellationToken cancellationToken = default)
+    public Task<Result<bool, Exception>> SaveSettingsAsync(CancellationToken cancellationToken = default)
     {
         var settings = new SettingsData(SelectedTheme, SelectedLanguage, SelectedLayout, UserName);
         var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-        await File.WriteAllTextAsync(GetSettingsFilePath(), json, cancellationToken);
+        return Try.RunAsync(async () =>
+        {
+            await File.WriteAllTextAsync(GetSettingsFilePath(), json, cancellationToken);
+            return true;
+        });
     }
 
-    public async Task LoadSettingsAsync(CancellationToken cancellationToken = default)
-    {
-        var filePath = GetSettingsFilePath();
-        if (!File.Exists(filePath))
+    public Task<Result<bool, Exception>> LoadSettingsAsync(CancellationToken cancellationToken = default) =>
+        Try.RunAsync(async () =>
         {
-            return;
-        }
+            var filePath = GetSettingsFilePath();
+            if (!File.Exists(filePath))
+            {
+                return true;
+            }
 
-        var json = await File.ReadAllTextAsync(filePath, cancellationToken);
-        var doc = JsonDocument.Parse(json);
-        var root = doc.RootElement;
+            var json = await File.ReadAllTextAsync(filePath, cancellationToken);
+            var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
 
-        if (root.TryGetProperty("SelectedTheme", out var theme))
-        {
-            SelectedTheme = theme.GetString() ?? "Light";
-        }
+            if (root.TryGetProperty("SelectedTheme", out var theme))
+            {
+                SelectedTheme = theme.GetString() ?? "Light";
+            }
 
-        if (root.TryGetProperty("SelectedLanguage", out var language))
-        {
-            SelectedLanguage = language.GetString() ?? "en-US";
-        }
+            if (root.TryGetProperty("SelectedLanguage", out var language))
+            {
+                SelectedLanguage = language.GetString() ?? "en-US";
+            }
 
-        if (root.TryGetProperty("SelectedLayout", out var layout))
-        {
-            SelectedLayout = layout.GetString() ?? "Explorer";
-        }
+            if (root.TryGetProperty("SelectedLayout", out var layout))
+            {
+                SelectedLayout = layout.GetString() ?? "Explorer";
+            }
 
-        if (root.TryGetProperty("UserName", out var userName))
-        {
-            UserName = userName.GetString() ?? "User";
-        }
-    }
+            if (root.TryGetProperty("UserName", out var userName))
+            {
+                UserName = userName.GetString() ?? "User";
+            }
+
+            return true;
+        });
 
 }
