@@ -14,16 +14,17 @@ public partial class App : Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        ThemeManager.ThemeManager.ApplyTheme("Light");
-
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            var mainViewModel = new Home.MainWindowViewModel();
+            mainViewModel.Settings.LoadSettings();
+            ThemeManager.ThemeManager.ApplyTheme(mainViewModel.Settings.SelectedTheme);
+
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new Home.MainWindowViewModel()
+                DataContext = mainViewModel
             };
         }
-ThemeManager.ThemeManager.ApplyTheme("Dark"); // or load from config
 
         base.OnFrameworkInitializationCompleted();
     }
