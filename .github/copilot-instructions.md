@@ -5,7 +5,7 @@
 TDD is **not optional** — it is the **only** accepted workflow in this repository.
 
 ### TDD Workflow
-1. **Write a failing test first.** No production code may be written without a corresponding failing test committed to the feature branch.
+1. **Write a failing test first.** No production code may be written without a corresponding failing test committed to the feature branch. Framework code is exempt from this rule where it delivers no benefit, but all application and domain code must follow it.
 2. **Commit the failing test** to the feature branch before writing any production code.
 3. **Write the minimum production code** required to make the failing test pass.
 4. **Refactor** while keeping all tests green.
@@ -43,7 +43,7 @@ Infrastructure  →  Application  →  Domain
 - `camelCase` with `_` prefix — private fields (e.g., `_myField`)
 - `IPascalCase` — interfaces (e.g., `IUserRepository`)
 - `PascalCase` — constants and static readonly fields
-- Async methods **must** have the `Async` suffix (e.g., `GetFilesAsync`)
+- Production Async methods **must** have the `Async` suffix (e.g., `GetFilesAsync`). Tests may omit the `Async` suffix for readability (e.g., `GetFiles_ReturnsFiles`).
 - Test method names: `MethodName_Scenario_ExpectedResult` pattern
 
 **All warnings are treated as errors** (`TreatWarningsAsErrors=true` in `Directory.Build.props`).
@@ -81,7 +81,7 @@ All test projects use:
 | **NSubstitute** | Mocking / substitution |
 
 ### Rules
-- Every new class or interface **must** have corresponding tests.
+- Every new class or interface **must** have corresponding tests unless exempt above.
 - Use `NSubstitute` for mocking dependencies — no hand-rolled fakes.
 - Use `Shouldly` for all assertions — no raw `Assert.*` calls.
 - Use `TestContext.Current.CancellationToken` when calling `async` methods that accept `CancellationToken`.
@@ -104,7 +104,7 @@ All test projects use:
 
 | Branch | Purpose |
 |---|---|
-| `main` | Production-ready code only |
+| `main` | Production-ready code only - protected via branch policies |
 | `feature/*` | Feature branches — TDD commits required |
 | `copilot/*` | Copilot-generated feature branches |
 
