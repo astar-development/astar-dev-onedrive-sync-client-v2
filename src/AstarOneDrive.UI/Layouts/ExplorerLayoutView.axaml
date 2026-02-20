@@ -2,9 +2,11 @@
     x:Class="AstarOneDrive.UI.Layouts.ExplorerLayoutView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:AstarOneDrive.UI.Layouts"
     xmlns:account="using:AstarOneDrive.UI.AccountManagement"
     xmlns:folder="using:AstarOneDrive.UI.FolderTrees"
-    xmlns:sync="using:AstarOneDrive.UI.SyncStatus">
+    xmlns:sync="using:AstarOneDrive.UI.SyncStatus"
+    x:DataType="vm:ExplorerLayoutViewModel">
 
     <DockPanel>
 

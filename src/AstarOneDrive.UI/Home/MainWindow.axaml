@@ -8,7 +8,7 @@
         x:Class="AstarOneDrive.UI.Home.MainWindow"
         x:TypeArguments="vm:MainWindowViewModel"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="avares://AstarOneDrive.UI/Assets/astar.png"
         Title="AstarOneDrive">
 
     <Design.DataContext>

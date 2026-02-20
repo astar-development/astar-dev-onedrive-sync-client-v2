@@ -1,8 +1,17 @@
+using System.Collections.ObjectModel;
 using AstarOneDrive.UI.Common;
 
 namespace AstarOneDrive.UI.Layouts;
 
 public class DashboardLayoutViewModel : ViewModelBase
 {
-    // ViewModel logic for the DashboardLayoutView can be implemented here.
+    public ObservableCollection<string> Themes { get; } =
+        new() { "Light", "Dark", "System" };
+
+    private string _currentTheme = "System";
+    public string CurrentTheme
+    {
+        get => _currentTheme;
+        set { _currentTheme = value; RaisePropertyChanged(); }
+    }
 }

@@ -11,18 +11,18 @@
                    FontWeight="Bold"
                    FontSize="16" />
 
-        <!-- Accounts List -->
         <ItemsControl ItemsSource="{Binding Accounts}">
             <ItemsControl.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="vm:AccountViewModel">
                     <Border Padding="8" Margin="0,4"
                             Background="{DynamicResource CardBackground}"
                             CornerRadius="4">
                         <StackPanel>
                             <TextBlock Text="{Binding Email}" />
                             <TextBlock Text="{Binding StorageUsed}" FontSize="11" />
+
                             <Button Content="{DynamicResource Accounts_Manage}"
-                                    Command="{Binding DataContext.ManageAccountCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    Command="{Binding $parent[UserControl].DataContext.ManageAccountCommand}"
                                     CommandParameter="{Binding}" />
                         </StackPanel>
                     </Border>
@@ -30,7 +30,6 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <!-- Add Account -->
         <Button Content="{DynamicResource Accounts_Add}"
                 Command="{Binding AddAccountCommand}" />
 

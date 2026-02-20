@@ -4,5 +4,10 @@ namespace AstarOneDrive.UI.Layouts;
 
 public class TerminalLayoutViewModel : ViewModelBase
 {
-    // ViewModel logic for the TerminalLayoutView can be implemented here.
+    private string _terminalStatus = "Ready";
+    public string TerminalStatus
+    {
+        get => _terminalStatus;
+        set { _terminalStatus = value; RaisePropertyChanged(); }
+    }
 }

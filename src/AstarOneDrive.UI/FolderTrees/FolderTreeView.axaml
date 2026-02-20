@@ -1,7 +1,10 @@
 <UserControl
     x:Class="AstarOneDrive.UI.FolderTrees.FolderTreeView"
     xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:AstarOneDrive.UI.FolderTrees"
+    x:DataType="vm:FolderTreeViewModel">
+
 
     <StackPanel Margin="8">
 
@@ -11,7 +14,8 @@
 
         <TreeView ItemsSource="{Binding FolderTree}">
             <TreeView.ItemTemplate>
-                <TreeDataTemplate ItemsSource="{Binding Children}">
+                <TreeDataTemplate ItemsSource="{Binding Children}"
+                                  x:DataType="vm:FolderNodeViewModel">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <CheckBox IsChecked="{Binding IsSelected}" />
                         <TextBlock Text="{Binding Name}" />

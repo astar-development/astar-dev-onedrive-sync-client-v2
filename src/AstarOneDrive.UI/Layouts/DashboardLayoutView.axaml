@@ -2,8 +2,10 @@
     x:Class="AstarOneDrive.UI.Layouts.DashboardLayoutView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:AstarOneDrive.UI.Layouts"
     xmlns:account="using:AstarOneDrive.UI.AccountManagement"
-    xmlns:sync="using:AstarOneDrive.UI.SyncStatus">
+    xmlns:sync="using:AstarOneDrive.UI.SyncStatus"
+    x:DataType="vm:DashboardLayoutViewModel">
 
     <Grid RowDefinitions="Auto,*">
 
@@ -15,7 +17,9 @@
                            VerticalAlignment="Center"
                            Margin="12,0,0,0" />
                 <DockPanel DockPanel.Dock="Right">
-                    <ComboBox Width="120" ItemsSource="{Binding Themes}" SelectedItem="{Binding CurrentTheme}" />
+                    <ComboBox Width="120"
+                              ItemsSource="{Binding Themes}"
+                              SelectedItem="{Binding CurrentTheme}" />
                 </DockPanel>
             </DockPanel>
         </Border>
