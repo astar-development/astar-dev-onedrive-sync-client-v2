@@ -9,14 +9,14 @@ public class SyncStatusViewModel : ViewModelBase
     public string CurrentStatus
     {
         get => _currentStatus;
-        set { _currentStatus = value; RaisePropertyChanged(); }
+        set => this.RaiseAndSetIfChanged(ref _currentStatus, value);
     }
 
     private int _progress;
     public int Progress
     {
         get => _progress;
-        set { _progress = value; RaisePropertyChanged(); }
+        set => this.RaiseAndSetIfChanged(ref _progress, value);
     }
 
     public ICommand SyncNowCommand { get; }

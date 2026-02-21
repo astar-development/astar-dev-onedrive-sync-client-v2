@@ -41,13 +41,13 @@ public class AccountViewModel : ViewModelBase
     public string Email
     {
         get => _email;
-        set { _email = value; RaisePropertyChanged(); }
+        set => this.RaiseAndSetIfChanged(ref _email, value);
     }
 
     private string _storageUsed = "";
     public string StorageUsed
     {
         get => _storageUsed;
-        set { _storageUsed = value; RaisePropertyChanged(); }
+        set => this.RaiseAndSetIfChanged(ref _storageUsed, value);
     }
 }
