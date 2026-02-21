@@ -15,7 +15,7 @@ concurrency:
 env:
   SONAR_PROJECT: astar-dev-onedrive-sync-client-v2
   AZURE_WEBAPP_NAME: astar-dev-onedrive-sync-client-v2
-  SOLUTION_FILE: AStarOneDrive.slnx
+  SOLUTION_FILE: AstarOneDrive.slnx
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 10.0.100
   WORKING_DIRECTORY: src/

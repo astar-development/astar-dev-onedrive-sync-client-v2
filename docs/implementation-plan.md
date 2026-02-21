@@ -8,12 +8,12 @@
 Create minimal localization system and test it.
 
 1. **Test First** — tests/AstarOneDrive.UI.Tests/LocalizationTests.cs
-   - Test: `LocalizationManager` can load en-US dictionary
+   - Test: `LocalizationManager` can load en-GB dictionary
    - Test: `DynamicResource` keys resolve from dictionary
    - Test: Fallback behavior when key missing
 
 2. **Create Locale Files**
-   - src/AstarOneDrive.UI/Locales/en-US.axaml — All UI strings (Menu, Buttons, Status, etc.)
+   - src/AstarOneDrive.UI/Locales/en-GB.axaml — All UI strings (Menu, Buttons, Status, etc.)
 
 3. **Implement Manager** — src/AstarOneDrive.UI/Localization/LocalizationManager.cs
    - `SetLanguage(string culture)` — Load XAML dictionary
@@ -30,7 +30,7 @@ Create minimal localization system and test it.
 Most foundational—settings affect theme, language, layout memory.
 
 1. **Test First** — tests/AstarOneDrive.UI.Tests/ViewModels/Settings/SettingsViewModelTests.cs
-   - Test: Constructor initializes with defaults (Theme=Light, Language=en-US, SelectedLayout=Explorer)
+   - Test: Constructor initializes with defaults (Theme=Light, Language=en-GB, SelectedLayout=Explorer)
    - Test: Setting `SelectedTheme` fires `PropertyChanged`
    - Test: Setting `SelectedTheme` calls `ThemeManager.ApplyTheme()`
    - Test: `SaveSettings()` persists to disk (mock file system)
