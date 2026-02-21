@@ -15,7 +15,7 @@ public class SettingsViewModel : ViewModelBase
     public string UserName
     {
         get => _userName;
-        set { _userName = value; RaisePropertyChanged(); }
+        set => this.RaiseAndSetIfChanged(ref _userName, value);
     }
 
     public ObservableCollection<string> AvailableLanguages { get; } = ["en-US"];
@@ -24,7 +24,7 @@ public class SettingsViewModel : ViewModelBase
     public string SelectedLanguage
     {
         get => _selectedLanguage;
-        set { _selectedLanguage = value; RaisePropertyChanged(); }
+        set => this.RaiseAndSetIfChanged(ref _selectedLanguage, value);
     }
 
     // Application settings
@@ -37,13 +37,10 @@ public class SettingsViewModel : ViewModelBase
         get => _selectedTheme;
         set
         {
-            if (_selectedTheme != value)
-            {
-                _selectedTheme = value;
-                RaisePropertyChanged();
-                ApplyTheme(value);
-                ThemeChanged?.Invoke(this, value);
-            }
+            if (_selectedTheme == value) return;
+            this.RaiseAndSetIfChanged(ref _selectedTheme, value);
+            ApplyTheme(value);
+            ThemeChanged?.Invoke(this, value);
         }
     }
 
@@ -58,12 +55,9 @@ public class SettingsViewModel : ViewModelBase
         get => _selectedLayout;
         set
         {
-            if (_selectedLayout != value)
-            {
-                _selectedLayout = value;
-                RaisePropertyChanged();
-                LayoutChanged?.Invoke(this, value);
-            }
+            if (_selectedLayout == value) return;
+            this.RaiseAndSetIfChanged(ref _selectedLayout, value);
+            LayoutChanged?.Invoke(this, value);
         }
     }
 
@@ -82,36 +76,53 @@ public class SettingsViewModel : ViewModelBase
         await File.WriteAllTextAsync(GetSettingsFilePath(), json, cancellationToken);
     }
 
+    public void LoadSettings()
+    {
+        var filePath = GetSettingsFilePath();
+        if (!File.Exists(filePath))
+            return;
+
+        var json = File.ReadAllText(filePath);
+        ApplySettingsFromJson(json);
+    }
+
     public async Task LoadSettingsAsync(CancellationToken cancellationToken = default)
     {
         var filePath = GetSettingsFilePath();
         if (!File.Exists(filePath))
-        {
             return;
-        }
 
-        var json = await File.ReadAllTextAsync(filePath, cancellationToken);
-        using var doc = JsonDocument.Parse(json);
+        var json = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
+        ApplySettingsFromJson(json);
+    }
+
+    private void ApplySettingsFromJson(string json)
+    {
+        var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
         if (root.TryGetProperty("SelectedTheme", out var theme))
         {
-            SelectedTheme = theme.GetString() ?? "Light";
+            _selectedTheme = theme.GetString() ?? _selectedTheme;
+            RaisePropertyChanged(nameof(SelectedTheme));
         }
 
         if (root.TryGetProperty("SelectedLanguage", out var language))
         {
-            SelectedLanguage = language.GetString() ?? "en-US";
+            _selectedLanguage = language.GetString() ?? _selectedLanguage;
+            RaisePropertyChanged(nameof(SelectedLanguage));
         }
 
         if (root.TryGetProperty("SelectedLayout", out var layout))
         {
-            SelectedLayout = layout.GetString() ?? "Explorer";
+            _selectedLayout = layout.GetString() ?? _selectedLayout;
+            RaisePropertyChanged(nameof(SelectedLayout));
         }
 
         if (root.TryGetProperty("UserName", out var userName))
         {
-            UserName = userName.GetString() ?? "User";
+            _userName = userName.GetString() ?? _userName;
+            RaisePropertyChanged(nameof(UserName));
         }
     }
 

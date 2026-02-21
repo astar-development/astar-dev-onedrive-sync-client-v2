@@ -12,6 +12,6 @@ public class DashboardLayoutViewModel : ViewModelBase
     public string CurrentTheme
     {
         get => _currentTheme;
-        set { _currentTheme = value; RaisePropertyChanged(); }
+        set => this.RaiseAndSetIfChanged(ref _currentTheme, value);
     }
 }

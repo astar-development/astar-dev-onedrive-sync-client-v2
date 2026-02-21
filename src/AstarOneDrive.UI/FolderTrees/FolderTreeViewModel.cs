@@ -31,7 +31,7 @@ public class FolderNodeViewModel : ViewModelBase
     public bool IsSelected
     {
         get => _isSelected;
-        set { _isSelected = value; RaisePropertyChanged(); }
+        set => this.RaiseAndSetIfChanged(ref _isSelected, value);
     }
 
     public ObservableCollection<FolderNodeViewModel> Children { get; } = new();

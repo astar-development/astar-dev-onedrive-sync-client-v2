@@ -23,7 +23,7 @@ public class MainWindowViewModel : ViewModelBase
     public object? CurrentLayoutView
     {
         get => _currentLayoutView;
-        set { _currentLayoutView = value; RaisePropertyChanged(); }
+        set => this.RaiseAndSetIfChanged(ref _currentLayoutView, value);
     }
 
     // Current layout type
@@ -33,8 +33,8 @@ public class MainWindowViewModel : ViewModelBase
         get => _currentLayout;
         set
         {
-            _currentLayout = value;
-            RaisePropertyChanged();
+            if (_currentLayout == value) return;
+            this.RaiseAndSetIfChanged(ref _currentLayout, value);
             ApplyLayout(value);
         }
     }
