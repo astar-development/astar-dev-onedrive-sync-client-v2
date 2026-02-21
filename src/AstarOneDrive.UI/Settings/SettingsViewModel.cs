@@ -82,36 +82,53 @@ public class SettingsViewModel : ViewModelBase
         await File.WriteAllTextAsync(GetSettingsFilePath(), json, cancellationToken);
     }
 
+    public void LoadSettings()
+    {
+        var filePath = GetSettingsFilePath();
+        if (!File.Exists(filePath))
+            return;
+
+        var json = File.ReadAllText(filePath);
+        ApplySettingsFromJson(json);
+    }
+
     public async Task LoadSettingsAsync(CancellationToken cancellationToken = default)
     {
         var filePath = GetSettingsFilePath();
         if (!File.Exists(filePath))
-        {
             return;
-        }
 
-        var json = await File.ReadAllTextAsync(filePath, cancellationToken);
+        var json = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
+        ApplySettingsFromJson(json);
+    }
+
+    private void ApplySettingsFromJson(string json)
+    {
         var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
         if (root.TryGetProperty("SelectedTheme", out var theme))
         {
-            SelectedTheme = theme.GetString() ?? "Light";
+            _selectedTheme = theme.GetString() ?? _selectedTheme;
+            RaisePropertyChanged(nameof(SelectedTheme));
         }
 
         if (root.TryGetProperty("SelectedLanguage", out var language))
         {
-            SelectedLanguage = language.GetString() ?? "en-US";
+            _selectedLanguage = language.GetString() ?? _selectedLanguage;
+            RaisePropertyChanged(nameof(SelectedLanguage));
         }
 
         if (root.TryGetProperty("SelectedLayout", out var layout))
         {
-            SelectedLayout = layout.GetString() ?? "Explorer";
+            _selectedLayout = layout.GetString() ?? _selectedLayout;
+            RaisePropertyChanged(nameof(SelectedLayout));
         }
 
         if (root.TryGetProperty("UserName", out var userName))
         {
-            UserName = userName.GetString() ?? "User";
+            _userName = userName.GetString() ?? _userName;
+            RaisePropertyChanged(nameof(UserName));
         }
     }
 
