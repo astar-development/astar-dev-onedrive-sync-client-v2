@@ -1,8 +1,10 @@
-using Avalonia.ReactiveUI;
+using System.Diagnostics.CodeAnalysis;
+using Avalonia.Controls;
 
 namespace AstarOneDrive.UI.FolderTrees;
 
-public partial class FolderTreeView : ReactiveUserControl<FolderTreeViewModel>
+[ExcludeFromCodeCoverage]
+public partial class FolderTreeView : UserControl
 {
     public FolderTreeView()
     {

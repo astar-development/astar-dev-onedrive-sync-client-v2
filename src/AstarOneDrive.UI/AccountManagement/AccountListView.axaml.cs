@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 
 namespace AstarOneDrive.UI.AccountManagement;
 
+[ExcludeFromCodeCoverage]
 public partial class AccountListView : UserControl
 {
     public AccountListView()

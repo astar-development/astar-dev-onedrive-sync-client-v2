@@ -1,7 +1,6 @@
 using AStar.Dev.Functional.Extensions;
 using AstarOneDrive.UI.Settings;
 using Shouldly;
-using Xunit;
 
 namespace AstarOneDrive.UI.Tests.ViewModels.Settings;
 
@@ -22,7 +21,7 @@ public class SettingsViewModelTests
         var viewModel = new SettingsViewModel();
 
         viewModel.SelectedTheme.ShouldBe("Light");
-        viewModel.SelectedLanguage.ShouldBe("en-US");
+        viewModel.SelectedLanguage.ShouldBe("en-GB");
         viewModel.SelectedLayout.ShouldBe("Explorer");
     }
 
@@ -64,7 +63,7 @@ public class SettingsViewModelTests
         var viewModel = new SettingsViewModel
         {
             SelectedTheme = "Dark",
-            SelectedLanguage = "en-US",
+            SelectedLanguage = "en-GB",
             SelectedLayout = "Dashboard"
         };
 
@@ -79,7 +78,7 @@ public class SettingsViewModelTests
         var viewModel = new SettingsViewModel
         {
             SelectedTheme = "Dark",
-            SelectedLanguage = "en-US",
+            SelectedLanguage = "en-GB",
             SelectedLayout = "Dashboard"
         };
 

@@ -1,6 +1,3 @@
-using System.Globalization;
-using Avalonia;
-using Avalonia.Controls;
 using AstarOneDrive.UI.Localization;
 using Shouldly;
 
@@ -9,10 +6,10 @@ namespace AstarOneDrive.UI.Tests.Localization;
 public sealed class LocalizationManagerTests
 {
     [Fact]
-    public void SetLanguage_WithEnUs_DoesNotThrow()
+    public void SetLanguage_WithEnGb_DoesNotThrow()
     {
         // Act & Assert
-        var action = () => LocalizationManager.SetLanguage("en-US");
+        var action = () => LocalizationManager.SetLanguage("en-GB");
         action.ShouldNotThrow();
     }
 
@@ -20,7 +17,7 @@ public sealed class LocalizationManagerTests
     public void GetString_WithValidKey_ReturnsNonEmptyString()
     {
         // Arrange
-        LocalizationManager.SetLanguage("en-US");
+        LocalizationManager.SetLanguage("en-GB");
 
         // Act
         var result = LocalizationManager.GetString("Menu_File");
@@ -34,7 +31,7 @@ public sealed class LocalizationManagerTests
     public void GetString_WithInvalidKey_ReturnsFallbackValue()
     {
         // Arrange
-        LocalizationManager.SetLanguage("en-US");
+        LocalizationManager.SetLanguage("en-GB");
         const string invalidKey = "NonExistent_Key_12345";
 
         // Act
@@ -48,8 +45,8 @@ public sealed class LocalizationManagerTests
     public void SetLanguage_MultipleCallsWithSameCulture_DoesNotThrow()
     {
         // Act - call multiple times
-        LocalizationManager.SetLanguage("en-US");
-        var action = () => LocalizationManager.SetLanguage("en-US");
+        LocalizationManager.SetLanguage("en-GB");
+        var action = () => LocalizationManager.SetLanguage("en-GB");
 
         // Assert
         action.ShouldNotThrow();
@@ -59,17 +56,17 @@ public sealed class LocalizationManagerTests
     public void CurrentLanguage_ReflecsSetLanguage()
     {
         // Act
-        LocalizationManager.SetLanguage("en-US");
+        LocalizationManager.SetLanguage("en-GB");
 
         // Assert
-        LocalizationManager.CurrentLanguage.ShouldBe("en-US");
+        LocalizationManager.CurrentLanguage.ShouldBe("en-GB");
     }
 
     [Fact]
     public void GetString_AfterSetLanguage_ReturnsConsistentValues()
     {
         // Arrange
-        LocalizationManager.SetLanguage("en-US");
+        LocalizationManager.SetLanguage("en-GB");
 
         // Act
         var result1 = LocalizationManager.GetString("Menu_File");
@@ -84,7 +81,7 @@ public sealed class LocalizationManagerTests
     public void GetString_MultipleKeys_ReturnDifferentValues()
     {
         // Arrange
-        LocalizationManager.SetLanguage("en-US");
+        LocalizationManager.SetLanguage("en-GB");
 
         // Act
         var menuFile = LocalizationManager.GetString("Menu_File");

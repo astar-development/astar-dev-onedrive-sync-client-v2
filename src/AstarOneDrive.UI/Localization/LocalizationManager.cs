@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using Avalonia;
 using Avalonia.Markup.Xaml.Styling;
 
 namespace AstarOneDrive.UI.Localization;
@@ -11,15 +8,14 @@ namespace AstarOneDrive.UI.Localization;
 public static class LocalizationManager
 {
     private const string BaseUri = "avares://AstarOneDrive.UI/";
-    private static string _currentLanguage = "en-US";
-    
+
     // In-memory fallback for unit tests when Application.Current is null
     private static readonly Dictionary<string, string> InMemoryResources = new();
 
     /// <summary>
     /// Sets the application language by loading the corresponding locale dictionary.
     /// </summary>
-    /// <param name="culture">The culture code (e.g., "en-US", "fr-FR")</param>
+    /// <param name="culture">The culture code (e.g., "en-GB", "fr-FR")</param>
     /// <exception cref="InvalidOperationException">Thrown if the locale dictionary cannot be loaded.</exception>
     public static void SetLanguage(string culture)
     {
@@ -55,7 +51,7 @@ public static class LocalizationManager
             LoadInMemoryResources(culture);
         }
 
-        _currentLanguage = culture;
+        CurrentLanguage = culture;
     }
 
     /// <summary>
@@ -87,7 +83,7 @@ public static class LocalizationManager
     /// <summary>
     /// Gets the currently active language code.
     /// </summary>
-    public static string CurrentLanguage => _currentLanguage;
+    public static string CurrentLanguage { get; private set; } = "en-GB";
 
     /// <summary>
     /// Loads hard-coded English resources for unit testing.
@@ -96,7 +92,7 @@ public static class LocalizationManager
     {
         InMemoryResources.Clear();
 
-        if (culture == "en-US")
+        if (culture == "en-GB")
         {
             // Hard-coded English strings for testing
             InMemoryResources["Menu_File"] = "File";

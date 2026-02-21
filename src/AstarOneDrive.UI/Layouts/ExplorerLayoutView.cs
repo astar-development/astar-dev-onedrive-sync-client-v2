@@ -1,20 +1,19 @@
 using AstarOneDrive.UI.Common;
+using ReactiveUI;
 
 namespace AstarOneDrive.UI.Layouts;
 
 public class ExplorerLayoutViewModel : ViewModelBase
 {
-    private string _syncSummary = "Idle";
     public string SyncSummary
     {
-        get => _syncSummary;
-        set { _syncSummary = value; RaisePropertyChanged(); }
-    }
+        get;
+        set { field = value; this.RaiseAndSetIfChanged(ref field, value); }
+    } = "Idle";
 
-    private string _currentTheme = "System";
     public string CurrentTheme
     {
-        get => _currentTheme;
-        set { _currentTheme = value; RaisePropertyChanged(); }
-    }
+        get;
+        set { field = value; this.RaiseAndSetIfChanged(ref field, value); }
+    } = "System";
 }

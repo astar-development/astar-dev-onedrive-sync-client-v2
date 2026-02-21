@@ -1,8 +1,6 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using AstarOneDrive.UI.Home;
 
 namespace AstarOneDrive.UI;
 
@@ -30,8 +28,5 @@ public class ViewLocator : IDataTemplate
         return new TextBlock { Text = "Not Found: " + name };
     }
 
-    public bool Match(object? data)
-    {
-        return data is AstarOneDrive.UI.Common.ViewModelBase;
-    }
+    public bool Match(object? data) => data is Common.ViewModelBase;
 }

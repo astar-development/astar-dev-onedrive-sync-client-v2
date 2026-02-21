@@ -1,5 +1,3 @@
-using System;
-using Avalonia;
 using Avalonia.Markup.Xaml.Styling;
 
 namespace AstarOneDrive.UI.ThemeManager;

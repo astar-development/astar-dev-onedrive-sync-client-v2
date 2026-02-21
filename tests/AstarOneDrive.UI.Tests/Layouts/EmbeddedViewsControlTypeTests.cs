@@ -12,28 +12,15 @@ namespace AstarOneDrive.UI.Tests.Layouts;
 public sealed class EmbeddedViewsControlTypeTests
 {
     [Fact]
-    public void MainWindow_IsTopLevelControl()
-    {
-        typeof(TopLevel).IsAssignableFrom(typeof(MainWindow)).ShouldBeTrue();
-    }
+    public void MainWindow_IsTopLevelControl() => typeof(TopLevel).IsAssignableFrom(typeof(MainWindow)).ShouldBeTrue();
 
-    [Fact]
-    public void EmbeddedViews_AreUsedAsChildren_AreNotTopLevelControls()
-    {
-        Type[] embeddedViewTypes =
-        [
-            typeof(ExplorerLayoutView),
-            typeof(DashboardLayoutView),
-            typeof(TerminalLayoutView),
-            typeof(FolderTreeView),
-            typeof(SyncStatusView),
-            typeof(SettingsView),
-            typeof(LogsView)
-        ];
-
-        foreach (Type embeddedViewType in embeddedViewTypes)
-        {
-            typeof(TopLevel).IsAssignableFrom(embeddedViewType).ShouldBeFalse();
-        }
-    }
+    [Theory]
+    [InlineData(typeof(ExplorerLayoutView))]
+    [InlineData(typeof(DashboardLayoutView))]
+    [InlineData(typeof(TerminalLayoutView))]
+    [InlineData(typeof(FolderTreeView))]
+    [InlineData(typeof(SyncStatusView))]
+    [InlineData(typeof(SettingsView))]
+    [InlineData(typeof(LogsView))]
+    public void EmbeddedViews_HaveExpectedBaseType(Type embeddedViewType) => typeof(UserControl).IsAssignableFrom(embeddedViewType).ShouldBeTrue();
 }

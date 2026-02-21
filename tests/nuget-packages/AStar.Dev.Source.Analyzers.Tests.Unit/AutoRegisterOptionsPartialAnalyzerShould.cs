@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using AStar.Dev.Source.Analyzers.Tests.Unit.Testing;
 using Microsoft.CodeAnalysis.Testing;
 

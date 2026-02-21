@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using AStar.Dev.Source.Generators.ServiceRegistrationGeneration;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

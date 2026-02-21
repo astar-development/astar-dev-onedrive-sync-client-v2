@@ -1,22 +1,20 @@
 using System.Windows.Input;
+using ReactiveUI;
 using AstarOneDrive.UI.Common;
 
 namespace AstarOneDrive.UI.SyncStatus;
 
 public class SyncStatusViewModel : ViewModelBase
 {
-    private string _currentStatus = "Idle";
     public string CurrentStatus
     {
-        get => _currentStatus;
-        set => this.RaiseAndSetIfChanged(ref _currentStatus, value);
-    }
-
-    private int _progress;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "Idle";
     public int Progress
     {
-        get => _progress;
-        set => this.RaiseAndSetIfChanged(ref _progress, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public ICommand SyncNowCommand { get; }
@@ -36,8 +34,5 @@ public class SyncStatusViewModel : ViewModelBase
         // TODO: Implement real sync logic
     }
 
-    private void PauseSync()
-    {
-        CurrentStatus = "Paused";
-    }
+    private void PauseSync() => CurrentStatus = "Paused";
 }

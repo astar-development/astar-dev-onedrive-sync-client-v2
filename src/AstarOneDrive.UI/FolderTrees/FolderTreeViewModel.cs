@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using AstarOneDrive.UI.Common;
+using ReactiveUI;
 
 namespace AstarOneDrive.UI.FolderTrees;
 
@@ -26,12 +27,10 @@ public class FolderTreeViewModel : ViewModelBase
 public class FolderNodeViewModel : ViewModelBase
 {
     public string Name { get; }
-
-    private bool _isSelected;
     public bool IsSelected
     {
-        get => _isSelected;
-        set => this.RaiseAndSetIfChanged(ref _isSelected, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     public ObservableCollection<FolderNodeViewModel> Children { get; } = new();
