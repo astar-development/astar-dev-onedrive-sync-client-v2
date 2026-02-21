@@ -49,34 +49,32 @@ public class MainWindowViewModel : ViewModelBase
         Accounts = new AccountListViewModel();
         FolderTree = new FolderTreeViewModel();
         Sync = new SyncStatusViewModel();
-        Logs = new LogsViewModel();Settings = new SettingsViewModel();
-Settings.ThemeChanged += (_, themeName) => ThemeManager.ThemeManager.ApplyTheme(themeName);
+        Logs = new LogsViewModel(); Settings = new SettingsViewModel();
+        Settings.ThemeChanged += (_, themeName) => ThemeManager.ThemeManager.ApplyTheme(themeName);
 
         // Commands
         SwitchToExplorerCommand = new RelayCommand(_ => CurrentLayout = LayoutType.Explorer);
         SwitchToDashboardCommand = new RelayCommand(_ => CurrentLayout = LayoutType.Dashboard);
         SwitchToTerminalCommand = new RelayCommand(_ => CurrentLayout = LayoutType.Terminal);
 
-        // Default layout
         ApplyLayout(LayoutType.Explorer);
         Settings.LayoutChanged += (_, layoutName) =>
-{
-    switch (layoutName)
-    {
-        case "Explorer":
-            CurrentLayout = LayoutType.Explorer;
-            break;
+                    {
+                        switch (layoutName)
+                        {
+                            case "Explorer":
+                                CurrentLayout = LayoutType.Explorer;
+                                break;
 
-        case "Dashboard":
-            CurrentLayout = LayoutType.Dashboard;
-            break;
+                            case "Dashboard":
+                                CurrentLayout = LayoutType.Dashboard;
+                                break;
 
-        case "Terminal":
-            CurrentLayout = LayoutType.Terminal;
-            break;
-    }
-};
-
+                            case "Terminal":
+                                CurrentLayout = LayoutType.Terminal;
+                                break;
+                        }
+                    };
     }
 
     private void ApplyLayout(LayoutType layout)
@@ -98,7 +96,7 @@ Settings.ThemeChanged += (_, themeName) => ThemeManager.ThemeManager.ApplyTheme(
                 CurrentLayoutView = new TerminalLayoutView { DataContext = this };
                 break;
         }
-        
+
         Settings.SelectedLayout = layout.ToString();
     }
 }

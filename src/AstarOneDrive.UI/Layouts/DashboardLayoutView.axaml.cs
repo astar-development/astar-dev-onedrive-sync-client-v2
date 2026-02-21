@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
-using Avalonia.ReactiveUI;
+using Avalonia.Controls;
 
 namespace AstarOneDrive.UI.Layouts;
 
 [ExcludeFromCodeCoverage]
-public partial class DashboardLayoutView : ReactiveUserControl<DashboardLayoutViewModel>
+public partial class DashboardLayoutView : UserControl
 {
     public DashboardLayoutView()
     {

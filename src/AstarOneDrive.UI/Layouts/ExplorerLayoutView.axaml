@@ -2,11 +2,11 @@
     x:Class="AstarOneDrive.UI.Layouts.ExplorerLayoutView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:vm="clr-namespace:AstarOneDrive.UI.Layouts"
+    xmlns:home="using:AstarOneDrive.UI.Home"
     xmlns:account="using:AstarOneDrive.UI.AccountManagement"
     xmlns:folder="using:AstarOneDrive.UI.FolderTrees"
     xmlns:sync="using:AstarOneDrive.UI.SyncStatus"
-    x:DataType="vm:ExplorerLayoutViewModel">
+    x:DataType="home:MainWindowViewModel">
 
     <DockPanel>
 
@@ -27,21 +27,21 @@
         <!-- Bottom Status Bar -->
         <Border DockPanel.Dock="Bottom" Padding="8,4">
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBlock Text="{Binding SyncSummary}" />
+                <TextBlock Text="{Binding Sync.CurrentStatus}" />
                 <Separator Width="1" />
-                <TextBlock Text="{Binding CurrentTheme}" />
+                <TextBlock Text="{Binding Settings.SelectedTheme}" />
             </StackPanel>
         </Border>
 
         <!-- Main Content -->
         <Grid ColumnDefinitions="250,*">
             <!-- Left: Folder Tree -->
-            <folder:FolderTreeView />
+            <folder:FolderTreeView DataContext="{Binding FolderTree}" />
 
             <!-- Right: Account Details + Sync Status -->
             <Grid RowDefinitions="Auto,*">
-                <account:AccountListView Grid.Row="0" />
-                <sync:SyncStatusView Grid.Row="1" />
+                <account:AccountListView Grid.Row="0" DataContext="{Binding Accounts}" />
+                <sync:SyncStatusView Grid.Row="1" DataContext="{Binding Sync}" />
             </Grid>
         </Grid>
 

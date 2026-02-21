@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
-using Avalonia.ReactiveUI;
+using Avalonia.Controls;
 
 namespace AstarOneDrive.UI.Settings;
 
 [ExcludeFromCodeCoverage]
-public partial class SettingsView : ReactiveUserControl<SettingsViewModel>
+public partial class SettingsView : UserControl
 {
     public SettingsView()
     {

@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
-using Avalonia.ReactiveUI;
+using Avalonia.Controls;
 
 namespace AstarOneDrive.UI.Layouts;
 
 [ExcludeFromCodeCoverage]
-public partial class ExplorerLayoutView : ReactiveUserControl<ExplorerLayoutViewModel>
+public partial class ExplorerLayoutView : UserControl
 {
     public ExplorerLayoutView()
     {

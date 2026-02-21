@@ -117,7 +117,7 @@ public class SettingsViewModel : ViewModelBase
         if (root.TryGetProperty("SelectedLayout", out var layout))
         {
             _selectedLayout = layout.GetString() ?? _selectedLayout;
-            this.RaiseAndSetIfChanged(ref _selectedLayout,  SelectedLayout);
+            this.RaiseAndSetIfChanged(ref _selectedLayout, SelectedLayout);
         }
 
         if (root.TryGetProperty("UserName", out var userName))
