@@ -91,7 +91,7 @@ AstarOneDrive.slnx
 │       │   └── HighContrast.axaml
 │       │
 │       ├── Locales/                         (Localization dictionaries)
-│       │   └── en-US.axaml
+│       │   └── en-GB.axaml
 │       │
 │       ├── ThemeManager/
 │       │   └── ThemeManager.cs
@@ -452,11 +452,11 @@ Localization strings are stored in XAML resource dictionaries, keyed by culture.
 ### Locale Files
 ```
 Locales/
-└── en-US.axaml         — English (US) strings
+└── en-GB.axaml         — English (US) strings
     (Future: fr-FR.axaml, de-DE.axaml, etc.)
 ```
 
-### Example Locale Dictionary (`en-US.axaml`)
+### Example Locale Dictionary (`en-GB.axaml`)
 ```xml
 <ResourceDictionary xmlns="https://github.com/avaloniaui">
     <!-- Menu Items -->

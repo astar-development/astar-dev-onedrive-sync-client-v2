@@ -418,7 +418,7 @@ public class SettingsService
         {
             UserName = "User",
             SelectedTheme = ThemeType.Light,
-            SelectedLanguage = "en-US",
+            SelectedLanguage = "en-GB",
             SyncIntervalMinutes = 30
         };
     }

@@ -787,7 +787,7 @@ Happy coding! 🚀
 ## Additional Resources
 
 - [AStar.Dev.Functional.Extensions GitHub Repository](https://github.com/astar-development/astar-dev-onedrive-sync-client)
-- [Microsoft's Functional Programming Documentation](https://docs.microsoft.com/en-us/dotnet/fsharp/)
+- [Microsoft's Functional Programming Documentation](https://docs.microsoft.com/en-GB/dotnet/fsharp/)
 - [Railway Oriented Programming (Scott Wlaschin)](https://fsharpforfunandprofit.com/rop/)
 
 **Coming Soon:** Post 2 - Deep Dive into Result<T, TError>

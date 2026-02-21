@@ -127,10 +127,12 @@ builder.Services.AddGeneratedServices();
 - `PascalCase` — types, methods, properties
 - `_camelCase` — private fields
 - `IPascalCase` — interfaces
+- Pattern matching
 - Async methods: `MethodNameAsync` (production), optional in tests
 - Tests: `MethodName_Scenario_ExpectedResult`
 - Primary constructors, collection expressions `[]`, pattern matching
 - File-scoped namespaces, expression-bodied members
+- Use auto-properties and `field` for backing fields
 
 ### Mandates
 
