@@ -64,9 +64,6 @@ public sealed class SyncServiceTests
     }
 
     [Fact]
-    public void Constructor_WithNullRepository_ThrowsArgumentNullException()
-    {
-        Should.Throw<ArgumentNullException>(
+    public void Constructor_WithNullRepository_ThrowsArgumentNullException() => Should.Throw<ArgumentNullException>(
             () => new SyncService(null!));
-    }
 }

@@ -6,6 +6,7 @@ using AstarOneDrive.UI.Layouts;
 using AstarOneDrive.UI.Logs;
 using AstarOneDrive.UI.Settings;
 using AstarOneDrive.UI.SyncStatus;
+using ReactiveUI;
 
 namespace AstarOneDrive.UI.Home;
 
@@ -19,25 +20,23 @@ public class MainWindowViewModel : ViewModelBase
     public SettingsViewModel Settings { get; }
 
     // Current layout view (bound to MainWindow ContentControl)
-    private object? _currentLayoutView;
     public object? CurrentLayoutView
     {
-        get => _currentLayoutView;
-        set => this.RaiseAndSetIfChanged(ref _currentLayoutView, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     // Current layout type
-    private LayoutType _currentLayout = LayoutType.Explorer;
     public LayoutType CurrentLayout
     {
-        get => _currentLayout;
+        get;
         set
         {
-            if (_currentLayout == value) return;
-            this.RaiseAndSetIfChanged(ref _currentLayout, value);
+            if (field == value) return;
+            this.RaiseAndSetIfChanged(ref field, value);
             ApplyLayout(value);
         }
-    }
+    } = LayoutType.Explorer;
 
     // Commands for switching layouts
     public ICommand SwitchToExplorerCommand { get; }

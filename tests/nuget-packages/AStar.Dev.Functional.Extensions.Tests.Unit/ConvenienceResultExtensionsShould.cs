@@ -1,5 +1,3 @@
-using AStar.Dev.Functional.Extensions;
-
 namespace AStar.Dev.Functional.Extensions.Tests.Unit;
 
 public class ConvenienceResultExtensionsShould

@@ -23,16 +23,10 @@ public sealed class SyncFileTests
     [InlineData("name.txt", "/local/path", "")]
     [InlineData("name.txt", "/local/path", "  ")]
     public void Constructor_WithNullOrWhitespaceArguments_ThrowsArgumentException(
-        string name, string localPath, string remotePath)
-    {
-        Should.Throw<ArgumentException>(
+        string name, string localPath, string remotePath) => Should.Throw<ArgumentException>(
             () => new SyncFile(name, localPath, remotePath));
-    }
 
     [Fact]
-    public void Constructor_WithNullName_ThrowsArgumentNullException()
-    {
-        Should.Throw<ArgumentNullException>(
+    public void Constructor_WithNullName_ThrowsArgumentNullException() => Should.Throw<ArgumentNullException>(
             () => new SyncFile(null!, "/local/path", "/remote/path"));
-    }
 }

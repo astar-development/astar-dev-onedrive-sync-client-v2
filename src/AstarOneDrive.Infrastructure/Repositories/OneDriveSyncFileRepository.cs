@@ -9,9 +9,7 @@ namespace AstarOneDrive.Infrastructure.Repositories;
 /// </summary>
 public sealed class OneDriveSyncFileRepository : ISyncFileRepository
 {
-    public Task<Result<IReadOnlyList<SyncFile>, string>> GetAllAsync(CancellationToken cancellationToken = default)
-    {
+    public Task<Result<IReadOnlyList<SyncFile>, string>> GetAllAsync(CancellationToken cancellationToken = default) =>
         // TODO: Implement OneDrive API integration
-        return Task.FromResult<Result<IReadOnlyList<SyncFile>, string>>(new List<SyncFile>());
-    }
+        Task.FromResult<Result<IReadOnlyList<SyncFile>, string>>(new List<SyncFile>());
 }

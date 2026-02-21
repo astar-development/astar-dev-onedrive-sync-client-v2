@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AStar.Dev.Source.Generators.Attributes;
+﻿namespace AStar.Dev.Source.Generators.Attributes;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public sealed class AutoRegisterServiceAttribute(ServiceLifetime lifetime = ServiceLifetime.Scoped) : Attribute

@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using AstarOneDrive.UI.Common;
+using ReactiveUI;
 
 namespace AstarOneDrive.UI.AccountManagement;
 
@@ -17,15 +18,13 @@ public class AccountListViewModel : ViewModelBase
         ManageAccountCommand = new RelayCommand(account => ManageAccount(account as AccountViewModel));
     }
 
-    private void AddAccount()
-    {
+    private void AddAccount() =>
         // Placeholder logic
         Accounts.Add(new AccountViewModel
         {
             Email = "new.account@example.com",
             StorageUsed = "0 GB used"
         });
-    }
 
     private void ManageAccount(AccountViewModel? account)
     {
@@ -37,17 +36,14 @@ public class AccountListViewModel : ViewModelBase
 
 public class AccountViewModel : ViewModelBase
 {
-    private string _email = "";
     public string Email
     {
-        get => _email;
-        set => this.RaiseAndSetIfChanged(ref _email, value);
-    }
-
-    private string _storageUsed = "";
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "";
     public string StorageUsed
     {
-        get => _storageUsed;
-        set => this.RaiseAndSetIfChanged(ref _storageUsed, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "";
 }

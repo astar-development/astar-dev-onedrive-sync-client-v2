@@ -1,4 +1,3 @@
-using System;
 using System.Windows.Input;
 
 namespace AstarOneDrive.UI.Common;
@@ -20,5 +19,5 @@ public class RelayCommand : ICommand
 
     public event EventHandler? CanExecuteChanged;
 
-    public void RaiseCanExecuteChanged() { CanExecuteChanged?.Invoke(this, EventArgs.Empty); }
+    public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
 }

@@ -1,9 +1,9 @@
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Text.Json;
 using AStar.Dev.Functional.Extensions;
 using AstarOneDrive.UI.Common;
 using static AstarOneDrive.UI.ThemeManager.ThemeManager;
+using ReactiveUI;
 
 namespace AstarOneDrive.UI.Settings;
 
@@ -19,9 +19,9 @@ public class SettingsViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _userName, value);
     }
 
-    public ObservableCollection<string> AvailableLanguages { get; } = ["en-US"];
+    public ObservableCollection<string> AvailableLanguages { get; } = ["en-GB"];
 
-    private string _selectedLanguage = "en-US";
+    private string _selectedLanguage = "en-GB";
     public string SelectedLanguage
     {
         get => _selectedLanguage;
@@ -90,51 +90,12 @@ public class SettingsViewModel : ViewModelBase
                 return true;
             }
 
-            var json = await File.ReadAllTextAsync(filePath, cancellationToken);
-            var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
-
-            if (root.TryGetProperty("SelectedTheme", out var theme))
-            {
-                SelectedTheme = theme.GetString() ?? "Light";
-            }
-
-            if (root.TryGetProperty("SelectedLanguage", out var language))
-            {
-                SelectedLanguage = language.GetString() ?? "en-US";
-            }
-
-            if (root.TryGetProperty("SelectedLayout", out var layout))
-            {
-                SelectedLayout = layout.GetString() ?? "Explorer";
-            }
-
-            if (root.TryGetProperty("UserName", out var userName))
-            {
-                UserName = userName.GetString() ?? "User";
-            }
+            var json = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
+            ApplySettingsFromJson(json);
 
             return true;
         });
-    public void LoadSettings()
-    {
-        var filePath = GetSettingsFilePath();
-        if (!File.Exists(filePath))
-            return;
 
-        var json = File.ReadAllText(filePath);
-        ApplySettingsFromJson(json);
-    }
-
-    public async Task LoadSettingsAsync(CancellationToken cancellationToken = default)
-    {
-        var filePath = GetSettingsFilePath();
-        if (!File.Exists(filePath))
-            return;
-
-        var json = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
-        ApplySettingsFromJson(json);
-    }
 
     private void ApplySettingsFromJson(string json)
     {
@@ -144,25 +105,25 @@ public class SettingsViewModel : ViewModelBase
         if (root.TryGetProperty("SelectedTheme", out var theme))
         {
             _selectedTheme = theme.GetString() ?? _selectedTheme;
-            RaisePropertyChanged(nameof(SelectedTheme));
+            this.RaiseAndSetIfChanged(ref _selectedTheme, SelectedTheme);
         }
 
         if (root.TryGetProperty("SelectedLanguage", out var language))
         {
             _selectedLanguage = language.GetString() ?? _selectedLanguage;
-            RaisePropertyChanged(nameof(SelectedLanguage));
+            this.RaiseAndSetIfChanged(ref _selectedLanguage, SelectedLanguage);
         }
 
         if (root.TryGetProperty("SelectedLayout", out var layout))
         {
             _selectedLayout = layout.GetString() ?? _selectedLayout;
-            RaisePropertyChanged(nameof(SelectedLayout));
+            this.RaiseAndSetIfChanged(ref _selectedLayout,  SelectedLayout);
         }
 
         if (root.TryGetProperty("UserName", out var userName))
         {
             _userName = userName.GetString() ?? _userName;
-            RaisePropertyChanged(nameof(UserName));
+            this.RaiseAndSetIfChanged(ref _userName, UserName);
         }
     }
 
