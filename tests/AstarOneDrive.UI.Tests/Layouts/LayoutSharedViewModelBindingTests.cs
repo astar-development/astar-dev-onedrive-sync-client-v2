@@ -31,7 +31,7 @@ public sealed class LayoutSharedViewModelBindingTests
     }
 
     private static string GetLayoutPath(string layoutFileName) =>
-        Path.Combine(GetRepositoryRootPath(), "src", "AstarOneDrive.UI", "Layouts", layoutFileName);
+        Path.Combine(GetRepositoryRootPath(), "src", "AstarOneDrive.UI", "Layouts", Path.GetFileName(layoutFileName));
 
     private static string GetRepositoryRootPath()
     {
