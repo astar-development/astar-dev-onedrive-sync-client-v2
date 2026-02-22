@@ -6,9 +6,9 @@ namespace AstarOneDrive.UI;
 
 public static class LoggingBootstrap
 {
-    #if DEBUG 
+     
     public static InMemoryLogSink DebugLogSink { get; private set; } = new();
-    #endif
+    
 
     public static void Initialize()
     {
@@ -21,9 +21,9 @@ public static class LoggingBootstrap
                 "logs/app.log",
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 7);
-#if DEBUG
+
         config = config.WriteTo.Sink(DebugLogSink);
-#endif
+
         Log.Logger = config.CreateLogger();
         
         // --- OpenTelemetry Metrics ---

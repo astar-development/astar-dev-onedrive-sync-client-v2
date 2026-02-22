@@ -14,6 +14,7 @@ sealed class Program
     public static void Main(string[] args)
     {
         LoggingBootstrap.Initialize();
+         ExceptionBootstrap.Initialize();
 
         AppDomain.CurrentDomain.UnhandledException += (sender, e)
             => {
@@ -29,7 +30,7 @@ sealed class Program
         try
         {
             BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+                .StartWithClassicDesktopLifetime(args);
         }
         catch (Exception ex)
         {

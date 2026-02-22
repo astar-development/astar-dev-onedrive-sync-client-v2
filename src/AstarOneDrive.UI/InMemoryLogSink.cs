@@ -3,10 +3,10 @@ using Serilog.Events;
 
 namespace AstarOneDrive.UI;
 
-#if DEBUG
+
 public class InMemoryLogSink : ILogEventSink
 {
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
     private readonly int _maxLines;
     private readonly List<string> _lines = new();
 
@@ -37,4 +37,4 @@ public class InMemoryLogSink : ILogEventSink
             return string.Join(Environment.NewLine, _lines);
     }
 }
-#endif
+

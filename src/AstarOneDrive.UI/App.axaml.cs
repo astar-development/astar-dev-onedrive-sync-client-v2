@@ -33,6 +33,7 @@ public partial class App : Avalonia.Application
 
     private static async Task LoadSettingsAndApplyThemeAsync(MainWindowViewModel mainViewModel)
     {
+         ExceptionBootstrap.HookAvaloniaUIThread();
         var loadResult = await mainViewModel.Settings.LoadSettingsAsync();
 
         if (loadResult is AStar.Dev.Functional.Extensions.Result<bool, Exception>.Error error)

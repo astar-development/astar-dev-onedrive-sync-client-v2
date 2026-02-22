@@ -25,3 +25,17 @@ a version with log level filtering
 a version that shows metrics (OpenTelemetry counters)
 
 a version that shows UI thread FPS and layout timings
+
+Add a Clear Logs button
+
+Add log level filtering
+
+Add a search box
+
+Add a performance tab (FPS, layout time, render time)
+
+add log level filtering
+
+add a collapsible header
+
+add a metrics panel (OpenTelemetry counters live in UI)
