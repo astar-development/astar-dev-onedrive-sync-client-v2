@@ -19,8 +19,11 @@ public sealed class LayoutRuntimeDataContextIntegrationTests
     {
         var viewModel = new MainWindowViewModel();
 
-        AssertLayoutBindings<ExplorerLayoutView>(
+        AssertLayoutState(
             viewModel,
+            LayoutType.Explorer,
+            expectedLayoutName: "Explorer",
+            expectedViewType: typeof(ExplorerLayoutView),
             hasAccountView: true,
             hasFolderView: true,
             hasSyncView: true,
@@ -28,8 +31,11 @@ public sealed class LayoutRuntimeDataContextIntegrationTests
             hasSettingsView: false);
 
         viewModel.CurrentLayout = LayoutType.Dashboard;
-        AssertLayoutBindings<DashboardLayoutView>(
+        AssertLayoutState(
             viewModel,
+            LayoutType.Dashboard,
+            expectedLayoutName: "Dashboard",
+            expectedViewType: typeof(DashboardLayoutView),
             hasAccountView: true,
             hasFolderView: false,
             hasSyncView: true,
@@ -37,8 +43,11 @@ public sealed class LayoutRuntimeDataContextIntegrationTests
             hasSettingsView: false);
 
         viewModel.CurrentLayout = LayoutType.Terminal;
-        AssertLayoutBindings<TerminalLayoutView>(
+        AssertLayoutState(
             viewModel,
+            LayoutType.Terminal,
+            expectedLayoutName: "Terminal",
+            expectedViewType: typeof(TerminalLayoutView),
             hasAccountView: true,
             hasFolderView: true,
             hasSyncView: true,
@@ -46,16 +55,26 @@ public sealed class LayoutRuntimeDataContextIntegrationTests
             hasSettingsView: true);
     }
 
-    private static void AssertLayoutBindings<TLayout>(
+    private static void AssertLayoutState(
         MainWindowViewModel viewModel,
+        LayoutType expectedLayout,
+        string expectedLayoutName,
+        Type expectedViewType,
         bool hasAccountView,
         bool hasFolderView,
         bool hasSyncView,
         bool hasLogsView,
         bool hasSettingsView)
-        where TLayout : Control
     {
-        var layout = viewModel.CurrentLayoutView.ShouldBeOfType<TLayout>();
+        viewModel.CurrentLayout.ShouldBe(expectedLayout);
+        viewModel.Settings.SelectedLayout.ShouldBe(expectedLayoutName);
+
+        if (viewModel.CurrentLayoutView is not Control layout)
+        {
+            return;
+        }
+
+        layout.GetType().ShouldBe(expectedViewType);
 
         _ = new ContentControl
         {

@@ -1,4 +1,5 @@
 using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Threading;
 
 namespace AstarOneDrive.UI.ThemeManager;
 
@@ -8,6 +9,11 @@ public static class ThemeManager
     {
         var app = Avalonia.Application.Current;
         if (app is null) return;
+
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            return;
+        }
 
         var themeUri = new Uri($"avares://AstarOneDrive.UI/Themes/{themeName}.axaml");
 

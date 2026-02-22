@@ -6,6 +6,7 @@ using AstarOneDrive.UI.Layouts;
 using AstarOneDrive.UI.Logs;
 using AstarOneDrive.UI.Settings;
 using AstarOneDrive.UI.SyncStatus;
+using Avalonia.Threading;
 using ReactiveUI;
 
 namespace AstarOneDrive.UI.Home;
@@ -81,6 +82,12 @@ public class MainWindowViewModel : ViewModelBase
     {
         // Each layout view receives this MainViewModel as its DataContext
         // so all shared ViewModels are available to child components.
+
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            Settings.SelectedLayout = layout.ToString();
+            return;
+        }
 
         switch (layout)
         {

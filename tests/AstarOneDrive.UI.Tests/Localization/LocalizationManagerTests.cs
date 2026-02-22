@@ -38,7 +38,7 @@ public sealed class LocalizationManagerTests
         var result = LocalizationManager.GetString(invalidKey);
 
         // Assert
-        result.ShouldBe(invalidKey); // Fallback returns the key itself
+        result.ShouldBe(invalidKey);
     }
 
     [Fact]
@@ -73,7 +73,7 @@ public sealed class LocalizationManagerTests
         var result2 = LocalizationManager.GetString("Menu_File");
 
         // Assert
-        result1.ShouldBe(result2); // Consistent results
+        result1.ShouldBe(result2);
         result1.ShouldNotBeNullOrWhiteSpace();
     }
 
