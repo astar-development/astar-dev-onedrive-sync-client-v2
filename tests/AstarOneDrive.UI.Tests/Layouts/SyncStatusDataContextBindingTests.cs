@@ -10,7 +10,7 @@ public sealed class SyncStatusDataContextBindingTests
     [InlineData("TerminalLayoutView.axaml")]
     public void SyncStatusView_BindsDataContextToSyncViewModel(string layoutFileName)
     {
-        var filePath = Path.Combine(GetRepositoryRootPath(), "src", "AstarOneDrive.UI", "Layouts", layoutFileName);
+        var filePath = Path.Combine(GetRepositoryRootPath(), "src", "AstarOneDrive.UI", "Layouts", Path.GetFileName(layoutFileName));
 
         File.Exists(filePath).ShouldBeTrue();
 
