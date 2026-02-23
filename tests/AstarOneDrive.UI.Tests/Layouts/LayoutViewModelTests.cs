@@ -9,7 +9,7 @@ public sealed class LayoutViewModelTests
     [Fact]
     public void ExplorerLayoutViewModel_CanInstantiateWithMainWindowContext()
     {
-        var mainWindowViewModel = new MainWindowViewModel();
+        var mainWindowViewModel = new MainWindowViewModel(initializeLayoutView: false);
 
         var sut = new ExplorerLayoutViewModel(mainWindowViewModel);
 
@@ -20,7 +20,7 @@ public sealed class LayoutViewModelTests
     [Fact]
     public void DashboardLayoutViewModel_CanInstantiateWithMainWindowContext()
     {
-        var mainWindowViewModel = new MainWindowViewModel();
+        var mainWindowViewModel = new MainWindowViewModel(initializeLayoutView: false);
 
         var sut = new DashboardLayoutViewModel(mainWindowViewModel);
 
@@ -31,7 +31,7 @@ public sealed class LayoutViewModelTests
     [Fact]
     public void TerminalLayoutViewModel_CanInstantiateWithMainWindowContext()
     {
-        var mainWindowViewModel = new MainWindowViewModel();
+        var mainWindowViewModel = new MainWindowViewModel(initializeLayoutView: false);
 
         var sut = new TerminalLayoutViewModel(mainWindowViewModel);
 
@@ -42,7 +42,7 @@ public sealed class LayoutViewModelTests
     [Fact]
     public void ExplorerLayoutCommand_Execute_UpdatesSummary()
     {
-        var mainWindowViewModel = new MainWindowViewModel();
+        var mainWindowViewModel = new MainWindowViewModel(initializeLayoutView: false);
         var sut = new ExplorerLayoutViewModel(mainWindowViewModel);
 
         sut.RefreshSummaryCommand.Execute(null);
@@ -53,7 +53,7 @@ public sealed class LayoutViewModelTests
     [Fact]
     public void DashboardLayoutCommand_Execute_ChangesThemeSelection()
     {
-        var mainWindowViewModel = new MainWindowViewModel();
+        var mainWindowViewModel = new MainWindowViewModel(initializeLayoutView: false);
         var sut = new DashboardLayoutViewModel(mainWindowViewModel);
         var initialTheme = sut.CurrentTheme;
 
@@ -65,7 +65,7 @@ public sealed class LayoutViewModelTests
     [Fact]
     public void TerminalLayoutCommand_Execute_UpdatesTerminalStatus()
     {
-        var mainWindowViewModel = new MainWindowViewModel();
+        var mainWindowViewModel = new MainWindowViewModel(initializeLayoutView: false);
         var sut = new TerminalLayoutViewModel(mainWindowViewModel);
 
         sut.RunHealthCheckCommand.Execute(null);
