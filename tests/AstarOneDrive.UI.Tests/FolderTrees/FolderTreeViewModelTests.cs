@@ -69,8 +69,8 @@ public sealed class FolderTreeViewModelTests
     [Fact]
     public async Task SaveAndLoadTreeAsync_PersistsAndRestoresHierarchy()
     {
-        DeleteTreeFileIfExists();
-        var viewModel = new FolderTreeViewModel();
+        var databasePath = CreateDatabasePath();
+        var viewModel = new FolderTreeViewModel(databasePath);
         var child = CreateNode("child");
         var root = CreateNode("root") with { Children = [child], IsSelected = true, IsExpanded = true };
         viewModel.Nodes.Add(root);
@@ -78,7 +78,7 @@ public sealed class FolderTreeViewModelTests
         var saveResult = await viewModel.SaveTreeAsync(TestContext.Current.CancellationToken);
         Pattern.IsSuccess(saveResult).ShouldBeTrue();
 
-        var loadedViewModel = new FolderTreeViewModel();
+        var loadedViewModel = new FolderTreeViewModel(databasePath);
         var loadResult = await loadedViewModel.LoadTreeAsync(TestContext.Current.CancellationToken);
         Pattern.IsSuccess(loadResult).ShouldBeTrue();
         loadedViewModel.Nodes.Count.ShouldBe(1);
@@ -89,14 +89,6 @@ public sealed class FolderTreeViewModelTests
     private static FolderNode CreateNode(string name) =>
         new(Guid.NewGuid().ToString("N"), name, false, false, []);
 
-    private static void DeleteTreeFileIfExists()
-    {
-        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var astarDir = Path.Combine(appDataPath, "AstarOneDrive");
-        var filePath = Path.Combine(astarDir, "folder-tree.json");
-        if (File.Exists(filePath))
-        {
-            File.Delete(filePath);
-        }
-    }
+    private static string CreateDatabasePath() =>
+        Path.Combine(Path.GetTempPath(), $"astar-ui-folders-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
 }

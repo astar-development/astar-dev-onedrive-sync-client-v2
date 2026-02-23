@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AstarOneDrive.Application\AstarOneDrive.Application.csproj" />
+    <ProjectReference Include="..\AstarOneDrive.Infrastructure\AstarOneDrive.Infrastructure.csproj" />
     <ProjectReference Include="..\nuget-packages\AStar.Dev.Functional.Extensions\AStar.Dev.Functional.Extensions.csproj" />
     <ProjectReference Include="..\nuget-packages\AStar.Dev.Source.Analyzers\AStar.Dev.Source.Analyzers.csproj" />
     <ProjectReference Include="..\nuget-packages\AStar.Dev.Source.Generators.Attributes\AStar.Dev.Source.Generators.Attributes.csproj" />

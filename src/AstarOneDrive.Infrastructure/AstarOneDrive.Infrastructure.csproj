@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AstarOneDrive.Domain\AstarOneDrive.Domain.csproj" />
     <ProjectReference Include="..\AstarOneDrive.Application\AstarOneDrive.Application.csproj" />
   </ItemGroup>

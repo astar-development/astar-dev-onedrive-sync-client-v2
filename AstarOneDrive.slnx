@@ -14,6 +14,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/AstarOneDrive.Application.Tests/AstarOneDrive.Application.Tests.csproj" />
+    <Project Path="tests/AstarOneDrive.Infrastructure.Tests/AstarOneDrive.Infrastructure.Tests.csproj" />
     <Project Path="tests/AstarOneDrive.Domain.Tests/AstarOneDrive.Domain.Tests.csproj" />
     <Project Path="tests/AstarOneDrive.UI.Tests/AstarOneDrive.UI.Tests.csproj" />
   </Folder>

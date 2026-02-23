@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
-using System.Text.Json;
 using System.Windows.Input;
 using AStar.Dev.Functional.Extensions;
+using AstarOneDrive.Infrastructure.Data;
+using AstarOneDrive.Infrastructure.Data.Contracts;
+using AstarOneDrive.Infrastructure.Data.Repositories;
 using AstarOneDrive.UI.Common;
 using ReactiveUI;
 
@@ -9,6 +11,10 @@ namespace AstarOneDrive.UI.FolderTrees;
 
 public class FolderTreeViewModel : ViewModelBase
 {
+    private const string RootNodeKey = "__root__";
+    private readonly SqliteDatabaseMigrator _migrator;
+    private readonly SqliteFolderTreeRepository _folderTreeRepository;
+
     public ObservableCollection<FolderNode> Nodes { get; } = [];
     public ObservableCollection<FolderNode> FolderTree => Nodes;
 
@@ -22,8 +28,11 @@ public class FolderTreeViewModel : ViewModelBase
     public ICommand ExpandNodeCommand { get; }
     public ICommand CollapseNodeCommand { get; }
 
-    public FolderTreeViewModel()
+    public FolderTreeViewModel(string? databasePath = null)
     {
+        _migrator = new SqliteDatabaseMigrator(databasePath);
+        _folderTreeRepository = new SqliteFolderTreeRepository(databasePath);
+
         ToggleNodeSelectionCommand = CreateNodeCommand(node => node with { IsSelected = !node.IsSelected });
         ExpandNodeCommand = CreateNodeCommand(node => node with { IsExpanded = true });
         CollapseNodeCommand = CreateNodeCommand(node => node with { IsExpanded = false });
@@ -64,27 +73,21 @@ public class FolderTreeViewModel : ViewModelBase
         return false;
     }
 
-    public Task<Result<bool, Exception>> SaveTreeAsync(CancellationToken cancellationToken = default)
-    {
-        var json = JsonSerializer.Serialize(Nodes.ToList(), new JsonSerializerOptions { WriteIndented = true });
-        return Try.RunAsync(async () =>
+    public Task<Result<bool, Exception>> SaveTreeAsync(CancellationToken cancellationToken = default) =>
+        Try.RunAsync(async () =>
         {
-            await File.WriteAllTextAsync(GetTreeFilePath(), json, cancellationToken);
+            await _migrator.EnsureMigratedAsync(cancellationToken);
+            var state = FlattenTree(Nodes).ToList();
+            await _folderTreeRepository.SaveAsync(state, cancellationToken);
             return true;
         });
-    }
 
     public Task<Result<bool, Exception>> LoadTreeAsync(CancellationToken cancellationToken = default) =>
         Try.RunAsync(async () =>
         {
-            var filePath = GetTreeFilePath();
-            if (!File.Exists(filePath))
-            {
-                return true;
-            }
-
-            var json = await File.ReadAllTextAsync(filePath, cancellationToken);
-            var restored = JsonSerializer.Deserialize<List<FolderNode>>(json) ?? [];
+            await _migrator.EnsureMigratedAsync(cancellationToken);
+            var state = await _folderTreeRepository.LoadAsync(cancellationToken);
+            var restored = BuildTree(state);
 
             Nodes.Clear();
             foreach (var node in restored)
@@ -95,11 +98,66 @@ public class FolderTreeViewModel : ViewModelBase
             return true;
         });
 
-    private static string GetTreeFilePath()
+    private static IEnumerable<FolderNodeState> FlattenTree(IReadOnlyList<FolderNode> nodes)
     {
-        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var appFolder = Path.Combine(appDataPath, "AstarOneDrive");
-        Directory.CreateDirectory(appFolder);
-        return Path.Combine(appFolder, "folder-tree.json");
+        for (var index = 0; index < nodes.Count; index++)
+        {
+            foreach (var state in FlattenNode(nodes[index], null, index))
+            {
+                yield return state;
+            }
+        }
+    }
+
+    private static IEnumerable<FolderNodeState> FlattenNode(FolderNode node, string? parentId, int sortOrder)
+    {
+        yield return new FolderNodeState(
+            node.Id,
+            parentId,
+            node.Name,
+            node.IsSelected,
+            node.IsExpanded,
+            sortOrder);
+
+        for (var index = 0; index < node.Children.Count; index++)
+        {
+            foreach (var state in FlattenNode(node.Children[index], node.Id, index))
+            {
+                yield return state;
+            }
+        }
+    }
+
+    private static List<FolderNode> BuildTree(IReadOnlyList<FolderNodeState> states)
+    {
+        var childrenLookup = states
+            .GroupBy(x => x.ParentId ?? RootNodeKey)
+            .ToDictionary(x => x.Key, x => x.OrderBy(y => y.SortOrder).ToList(), StringComparer.Ordinal);
+
+        return BuildChildren(RootNodeKey, childrenLookup);
+    }
+
+    private static List<FolderNode> BuildChildren(
+        string parentKey,
+        IReadOnlyDictionary<string, List<FolderNodeState>> childrenLookup)
+    {
+        if (!childrenLookup.TryGetValue(parentKey, out var childrenStates))
+        {
+            return [];
+        }
+
+        var nodes = new List<FolderNode>();
+        foreach (var state in childrenStates)
+        {
+            var node = new FolderNode(
+                state.Id,
+                state.Name,
+                state.IsSelected,
+                state.IsExpanded,
+                new ObservableCollection<FolderNode>(BuildChildren(state.Id, childrenLookup)));
+            nodes.Add(node);
+        }
+
+        return nodes;
     }
 }

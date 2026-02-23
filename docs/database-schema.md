@@ -124,6 +124,12 @@ Each configuration must define:
 2. Ensure startup calls `Database.Migrate()` before repositories are resolved/used.
 3. If migration fails, log failure and return a functional error (`Result<T, TError>`), do not silently continue.
 
+### Tooling Note (Current Repository Constraint)
+- `Microsoft.EntityFrameworkCore.Design` and `Microsoft.EntityFrameworkCore.Tools` currently conflict with the repository's Roslyn dependency graph used by in-repo analyzers/source generators.
+- To keep builds stable, migrations are committed and maintained directly in `src/AstarOneDrive.Infrastructure/Data/Migrations`.
+- Runtime migration application remains the source of truth (`Database.Migrate()`), so deployed databases are still auto-upgraded on startup.
+- When the Roslyn package conflict is resolved, CLI/design-time migration tooling can be re-enabled.
+
 ## JSON-to-DB Transition Mapping
 Legacy JSON payloads map to tables as follows:
 - `settings.json` -> `Settings`
