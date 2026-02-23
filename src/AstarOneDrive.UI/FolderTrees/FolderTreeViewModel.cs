@@ -24,13 +24,13 @@ public class FolderTreeViewModel : ViewModelBase
 
     public FolderTreeViewModel()
     {
-        ToggleNodeSelectionCommand = new RelayCommand(parameter =>
-            UpdateNode(parameter as FolderNode, node => node with { IsSelected = !node.IsSelected }));
-        ExpandNodeCommand = new RelayCommand(parameter =>
-            UpdateNode(parameter as FolderNode, node => node with { IsExpanded = true }));
-        CollapseNodeCommand = new RelayCommand(parameter =>
-            UpdateNode(parameter as FolderNode, node => node with { IsExpanded = false }));
+        ToggleNodeSelectionCommand = CreateNodeCommand(node => node with { IsSelected = !node.IsSelected });
+        ExpandNodeCommand = CreateNodeCommand(node => node with { IsExpanded = true });
+        CollapseNodeCommand = CreateNodeCommand(node => node with { IsExpanded = false });
     }
+
+    private ICommand CreateNodeCommand(Func<FolderNode, FolderNode> update) =>
+        new RelayCommand(parameter => UpdateNode(parameter as FolderNode, update));
 
     private void UpdateNode(FolderNode? node, Func<FolderNode, FolderNode> update)
     {
