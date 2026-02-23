@@ -44,7 +44,7 @@ public class MainWindowViewModel : ViewModelBase
     public ICommand SwitchToDashboardCommand { get; }
     public ICommand SwitchToTerminalCommand { get; }
 
-    public MainWindowViewModel()
+    public MainWindowViewModel(bool initializeLayoutView = true)
     {
         // Instantiate shared ViewModels
         Accounts = new AccountListViewModel();
@@ -58,7 +58,11 @@ public class MainWindowViewModel : ViewModelBase
         SwitchToDashboardCommand = new RelayCommand(_ => CurrentLayout = LayoutType.Dashboard);
         SwitchToTerminalCommand = new RelayCommand(_ => CurrentLayout = LayoutType.Terminal);
 
-        ApplyLayout(LayoutType.Explorer);
+        if (initializeLayoutView)
+        {
+            ApplyLayout(LayoutType.Explorer);
+        }
+
         Settings.LayoutChanged += (_, layoutName) =>
                     {
                         switch (layoutName)
