@@ -92,7 +92,8 @@ public sealed class FolderTreeViewModelTests
     private static void DeleteTreeFileIfExists()
     {
         var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var filePath = Path.Combine(appDataPath, "AstarOneDrive", "folder-tree.json");
+        var astarDir = Path.Combine(appDataPath, "AstarOneDrive");
+        var filePath = Path.Combine(astarDir, "folder-tree.json");
         if (File.Exists(filePath))
         {
             File.Delete(filePath);
