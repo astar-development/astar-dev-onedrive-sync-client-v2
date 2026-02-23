@@ -77,5 +77,6 @@ tests/
 ## Documentation
 
 - Architecture guide: [docs/implementation-overview.md](docs/implementation-overview.md)
+- Architecture decisions (ADR index): [docs/architecture/README.md](docs/architecture/README.md)
 - Implementation plan: [docs/implementation-plan.md](docs/implementation-plan.md)
 - Copilot quick reference: [docs/copilot/quick-reference.md](docs/copilot/quick-reference.md)

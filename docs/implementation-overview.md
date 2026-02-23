@@ -11,6 +11,8 @@ This document outlines the cross‑platform AvaloniaUI application built with **
 
 The solution follows strict dependency rules: UI → Application → Domain, with Infrastructure supporting both Application and Domain.
 
+Architecture decisions are tracked in [docs/architecture/README.md](architecture/README.md).
+
 ## 1. Project Structure
 
 ### Solution Organization (Onion Architecture)

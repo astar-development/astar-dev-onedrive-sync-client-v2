@@ -1,6 +1,6 @@
 ## Plan: Complete UI Implementation (TDD)
 
-**TL;DR:** 15 phases over ~3-4 weeks. Start with resource files (locales), then implement & test each ViewModel in order: AccountList → FolderTree → SyncStatus → Settings → LayoutVMs → Integration. Final phases add OneDrive stub integration and error handling. Each phase has a failing test first, minimal implementation, then verification.
+**TL;DR:** 16 phases over ~3-4 weeks. Start with resource files (locales), then implement & test each ViewModel in order: AccountList → FolderTree → SyncStatus → Settings → LayoutVMs → SQLite/EF Core persistence → Integration. Final phases add OneDrive stub integration and error handling. Each phase has a failing test first, minimal implementation, then verification.
 
 **Steps**
 
@@ -193,6 +193,41 @@ Ensure all three layout ViewModels are functional.
 
 ---
 
+### **Phase 7a: SQLite + EF Core Persistence Foundation**
+Introduce a database-backed persistence layer for configuration, accounts, and file metadata.
+
+Reference: see [docs/database-schema.md](database-schema.md) for table definitions, constraints, indexes, and migration/runtime contract.
+
+1. **Test First** — tests/AstarOneDrive.Infrastructure.Tests/Data/SqlitePersistenceTests.cs
+   - Test: `AstarOneDriveDbContext` can create/connect to SQLite database using platform-specific app data location
+   - Test: Runtime startup applies pending migrations automatically
+   - Test: `Settings`, `Accounts`, and `SyncFiles` entities can be inserted/queried
+   - Test: Required fields reject nulls; optional fields allow null only where explicitly configured
+   - Test: Max length constraints are enforced for configured text columns
+
+2. **Implement Infrastructure** — src/AstarOneDrive.Infrastructure/Data
+   - Add latest EF Core SQLite packages (`Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.Sqlite`, `Microsoft.EntityFrameworkCore.Design`, `Microsoft.EntityFrameworkCore.Tools`)
+   - Create `AstarOneDriveDbContext` with `DbSet` definitions for configuration, account, and file/sync metadata
+   - Add per-entity `IEntityTypeConfiguration<T>` classes to configure schema, keys, indexes, max lengths, and nullability
+   - Store migrations in `src/AstarOneDrive.Infrastructure/Data/Migrations`
+   - Configure DB path from platform-specific application data directory (per OS conventions)
+
+3. **Add Runtime Migration Application**
+   - Update startup/composition root so `Database.Migrate()` runs on app startup before repositories/services execute
+   - Add guard/logging for migration failures and return `Result<T, TError>` from persistence bootstrap where applicable
+
+4. **Refactor Persistence Abstractions**
+   - Replace file/JSON persistence interfaces used by UI/Application with repository abstractions backed by EF Core
+   - Map existing persistence use-cases to tables: settings → `Settings`, accounts → `Accounts`, folder/file state → `SyncFiles` (and related tables if split)
+
+5. **Verify**
+   - Migration files generated under `src/AstarOneDrive.Infrastructure/Data/Migrations`
+   - App startup auto-applies migrations with no manual step
+   - Persistence integration tests pass against SQLite
+   - Existing UI flows (settings/accounts/folder state) read/write via database
+
+---
+
 ### **Phase 8: Layout Switching Integration Test**
 Test that `MainWindowViewModel` correctly orchestrates layout swaps.
 
@@ -202,17 +237,17 @@ Test that `MainWindowViewModel` correctly orchestrates layout swaps.
    - Test: `SwitchToDashboardCommand` sets layout to Dashboard view
    - Test: `SwitchToTerminalCommand` sets layout to Terminal view
    - Test: Shared VMs (Accounts, FolderTree, Sync, Logs, Settings) are same instance across swaps
-   - Test: Layout preference persists via `SettingsViewModel.SelectedLayout`
+   - Test: Layout preference persists via `Settings` table (`SettingsViewModel.SelectedLayout`)
 
 2. **Implement** — MainWindowViewModel.cs
    - Ensure all layout commands work
-   - Persist selected layout to `SettingsViewModel`
-   - Load layout preference on startup
+   - Persist selected layout to `Settings` table via persistence service
+   - Load layout preference from database on startup
 
 3. **Verify**
    - 6 tests pass
    - Launch app, switch between layouts → works
-   - Close app & reopen → last layout is restored
+   - Close app & reopen → last layout is restored from database
 
 ---
 
@@ -229,7 +264,7 @@ Connect Settings view to theme/language/layout switching.
    - Add theme dropdown bound to `SettingsViewModel.AvailableThemes`
    - Add language dropdown (English for now)
    - Add OK / Cancel / Apply buttons
-   - Wire up save/load on dialog open/close
+   - Wire up save/load to `Settings` table on dialog open/close
 
 3. **Verify**
    - 4 tests pass
@@ -253,6 +288,7 @@ Build add/edit account dialog (stub—real OAuth comes later).
 2. **Implement** — src/AstarOneDrive.UI/AccountManagement/AccountDialogViewModel.cs & View
    - Create dialog VM with email, storage info properties
    - Implement Save/Cancel/Login commands
+   - Persist account changes to `Accounts` table via repository
    - Create dialog XAML (TextBox for email, buttons)
 
 3. **Verify**
@@ -273,6 +309,7 @@ Remove hard-coded data, bind to FolderTreeViewModel.
 
 2. **Implement** — FolderTreeView.axaml
    - Replace hard-coded TreeView with binding to `{Binding FolderTree.Nodes}`
+   - Load nodes from database-backed folder/file state tables
    - Bind checkbox to `IsSelected`
    - Bind expand/collapse to commands
 
@@ -308,10 +345,12 @@ Set up dependency injection for Application/Infrastructure layers.
 1. **Test First** — tests/AstarOneDrive.UI.Tests/Composition/CompositionRootTests.cs
    - Test: `ISyncService` can be resolved (returns real impl)
    - Test: `ISyncFileRepository` can be resolved (returns mock OneDrive stub)
+   - Test: `AstarOneDriveDbContext` and persistence repositories can be resolved
 
 2. **Implement** — src/AstarOneDrive.UI/Composition/CompositionRoot.cs
    - Wire up `ISyncService` → `SyncService`
    - Wire up `ISyncFileRepository` → `OneDriveSyncFileRepository` (stub)
+   - Wire up EF Core DbContext + repositories for `Settings`, `Accounts`, and `SyncFiles`
    - Use simple service locator pattern (no external DI container yet)
 
 3. **Verify**
@@ -342,14 +381,14 @@ Connect Sync button to stub sync service.
 Full-stack sanity check.
 
 1. **Test** — Manual explorer:
-   - ✓ App launches, loads saved theme/layout
+   - ✓ App launches, loads saved theme/layout from database
    - ✓ Switch layouts → no crashes
    - ✓ Change theme → app theme updates
    - ✓ Add/remove account → list updates
    - ✓ Expand folder tree → works
    - ✓ Click Sync → status message changes
    - ✓ Settings dialog open/save/cancel works
-   - ✓ Close & relaunch → state restored
+   - ✓ Close & relaunch → state restored from database
 
 2. **Final Build**
    ```bash
@@ -365,8 +404,11 @@ Full-stack sanity check.
 ---
 
 **Decisions**
+- **ADR Index**: [docs/architecture/README.md](architecture/README.md)
+- **ADR**: [docs/architecture/adr-0001-sqlite-ef-core-persistence.md](architecture/adr-0001-sqlite-ef-core-persistence.md)
 - **Localization**: English-only for now (infrastructure ready for future languages)
 - **Test Coverage**: Pragmatic—every ViewModel tested for core properties/commands, but not UI scaffolding
 - **DI**: Simple service locator in CompositionRoot (upgrade to full container later if needed)
 - **OneDrive**: Stubbed (Phase 13 returns empty results; real API comes after UI is solid)
-- **Storage**: JSON to LocalApplicationData folder (no database yet)
+- **Storage**: SQLite (EF Core) in platform-specific app data location; schema managed by EF Core migrations
+- **Schema Source of Truth**: [docs/database-schema.md](database-schema.md)
