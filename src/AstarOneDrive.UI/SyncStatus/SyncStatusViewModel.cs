@@ -7,6 +7,11 @@ namespace AstarOneDrive.UI.SyncStatus;
 
 public class SyncStatusViewModel : ViewModelBase
 {
+    private const string IdleStatus = "Idle";
+    private const string SyncingStatus = "Syncing...";
+    private const string PausedStatus = "Paused";
+    private const string ErrorStatus = "Error";
+
     public string Status
     {
         get;
@@ -18,9 +23,9 @@ public class SyncStatusViewModel : ViewModelBase
             }
 
             this.RaiseAndSetIfChanged(ref field, value);
-            RecentActivity.Add(new SyncActivityEntry(DateTime.UtcNow, "Info", value));
+            AddActivity("Info", value);
         }
-    } = "Idle";
+    } = IdleStatus;
 
     public string CurrentStatus
     {
@@ -51,8 +56,8 @@ public class SyncStatusViewModel : ViewModelBase
                 return;
             }
 
-            Status = "Error";
-            RecentActivity.Add(new SyncActivityEntry(DateTime.UtcNow, "Error", value));
+            Status = ErrorStatus;
+            AddActivity("Error", value);
         }
     } = string.Empty;
 
@@ -72,9 +77,12 @@ public class SyncStatusViewModel : ViewModelBase
 
     private void StartSync()
     {
-        Status = "Syncing...";
+        Status = SyncingStatus;
         ProgressPercentage = 0;
     }
 
-    private void PauseSync() => Status = "Paused";
+    private void PauseSync() => Status = PausedStatus;
+
+    private void AddActivity(string level, string message) =>
+        RecentActivity.Add(new SyncActivityEntry(DateTime.UtcNow, level, message));
 }
