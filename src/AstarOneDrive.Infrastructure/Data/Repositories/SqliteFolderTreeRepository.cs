@@ -97,7 +97,6 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
             currentId = current.ParentId;
         }
 
-        parts.Reverse();
         var path = string.Join('/', parts);
         return isRemote ? $"/{path}" : $"/local/{path}";
     }
