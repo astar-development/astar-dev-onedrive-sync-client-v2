@@ -22,7 +22,7 @@ public static class LocalizationManager
         ArgumentException.ThrowIfNullOrWhiteSpace(culture);
 
         var app = Avalonia.Application.Current;
-        
+
         if (app != null)
         {
             // Clear existing merged dictionaries
@@ -32,7 +32,7 @@ public static class LocalizationManager
             {
                 // Load locale dictionary using ResourceInclude (works just like StyleInclude)
                 var localeUri = new Uri($"{BaseUri}Locales/{culture}.axaml");
-                
+
                 var resourceInclude = new ResourceInclude(new Uri(BaseUri))
                 {
                     Source = localeUri
@@ -64,7 +64,7 @@ public static class LocalizationManager
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
         var app = Avalonia.Application.Current;
-        
+
         if (app != null && app.Resources.TryGetResource(key, null, out var resource) && resource is string localizedString)
         {
             return localizedString;

@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
-using Avalonia.ReactiveUI;
+using Avalonia.Controls;
 
 namespace AstarOneDrive.UI.SyncStatus;
 
 [ExcludeFromCodeCoverage]
-public partial class SyncStatusView : ReactiveUserControl<SyncStatusViewModel>
+public partial class SyncStatusView : UserControl
 {
     public SyncStatusView()
     {
