@@ -173,20 +173,20 @@ Manage sync state and status display.
 
 ---
 
-### **Phase 7: LayoutViewModel Tests & Implementation**
+### **Phase 7: LayoutViewModel Tests & Implementation ✅**
 Ensure all three layout ViewModels are functional.
 
-1. **Test First** — Create tests/AstarOneDrive.UI.Tests/ViewModels/Layouts/LayoutViewModelTests.cs
+1. ✅ **Test First** — Create tests/AstarOneDrive.UI.Tests/ViewModels/Layouts/LayoutViewModelTests.cs
    - Test: Each layout ViewModel (Explorer, Dashboard, Terminal) can be instantiated
    - Test: Each receives `MainWindowViewModel` as context and can access shared VMs
    - Test: Layout-specific commands execute
 
-2. **Implement** — Create/update individual layout VMs if needed
+2. ✅ **Implement** — Create/update individual layout VMs if needed
    - src/AstarOneDrive.UI/Layouts/ExplorerLayoutViewModel.cs — Refactor from placeholder
    - DashboardLayoutViewModel.cs
    - src/AstarOneDrive.UI/Layouts/TerminalLayoutViewModel.cs
 
-3. **Verify**
+3. ✅ **Verify**
    - 3 tests pass (one per layout)
    - All layouts instantiate without error
    - Switching layouts in UI works
