@@ -18,7 +18,6 @@ public partial class App : Avalonia.Application
                 e.Handled = true;
             };
             var mainViewModel = new MainWindowViewModel();
-            ThemeManager.ThemeManager.ApplyTheme(mainViewModel.Settings.SelectedTheme);
 
             desktop.MainWindow = new MainWindow
             {
@@ -39,6 +38,7 @@ public partial class App : Avalonia.Application
         if (loadResult is AStar.Dev.Functional.Extensions.Result<bool, Exception>.Error error)
         {
             Log.Error(error.Reason, "Failed to load settings on startup");
+            ThemeManager.ThemeManager.ApplyTheme(mainViewModel.Settings.SelectedTheme);
             return;
         }
 

@@ -4,32 +4,32 @@
 
 **Steps**
 
-### **Phase 1: Localization Infrastructure (Red)**
+### **Phase 1: Localization Infrastructure (Red) ✅**
 Create minimal localization system and test it.
 
-1. **Test First** — tests/AstarOneDrive.UI.Tests/LocalizationTests.cs
+1. ✅ **Test First** — tests/AstarOneDrive.UI.Tests/LocalizationTests.cs
    - Test: `LocalizationManager` can load en-GB dictionary
    - Test: `DynamicResource` keys resolve from dictionary
    - Test: Fallback behavior when key missing
 
-2. **Create Locale Files**
+2. ✅ **Create Locale Files**
    - src/AstarOneDrive.UI/Locales/en-GB.axaml — All UI strings (Menu, Buttons, Status, etc.)
 
-3. **Implement Manager** — src/AstarOneDrive.UI/Localization/LocalizationManager.cs
+3. ✅ **Implement Manager** — src/AstarOneDrive.UI/Localization/LocalizationManager.cs
    - `SetLanguage(string culture)` — Load XAML dictionary
    - `GetString(key)` — Retrieve localized string
 
-4. **Verify**
+4. ✅ **Verify**
    - Localization tests pass (1 test class)
    - All XAML views updated to use `{DynamicResource}` instead of hard-coded strings
    - Build succeeds
 
 ---
 
-### **Phase 2: SettingsViewModel Implementation & Tests**
+### **Phase 2: SettingsViewModel Implementation & Tests ✅**
 Most foundational—settings affect theme, language, layout memory.
 
-1. **Test First** — tests/AstarOneDrive.UI.Tests/ViewModels/Settings/SettingsViewModelTests.cs
+1. ✅ **Test First** — tests/AstarOneDrive.UI.Tests/ViewModels/Settings/SettingsViewModelTests.cs
    - Test: Constructor initializes with defaults (Theme=Light, Language=en-GB, SelectedLayout=Explorer)
    - Test: Setting `SelectedTheme` fires `PropertyChanged`
    - Test: Setting `SelectedTheme` calls `ThemeManager.ApplyTheme()`
@@ -38,38 +38,38 @@ Most foundational—settings affect theme, language, layout memory.
    - Test: Available themes list is non-empty
    - Test: `ThemeChanged` event fires on theme change
 
-2. **Implement** — Update SettingsViewModel.cs
+2. ✅ **Implement** — Update SettingsViewModel.cs
    - Add `SelectedTheme` property with event
    - Add `SelectedLanguage` property
    - Add `SaveSettings()` / `LoadSettings()` (JSON to disk)
    - Trigger `ThemeManager.ApplyTheme()` on theme change
    - Add `AvailableThemes` list (hardcoded: Light, Dark, Professional, Colorful, Hacker, HighContrast)
 
-3. **Verify**
+3. ✅ **Verify**
    - 7 tests pass in SettingsViewModelTests
    - `dotnet build` succeeds
    - Launch app, switch theme in Settings → app theme changes immediately
 
 ---
 
-### **Phase 3: ThemeManager & System Integration**
+### **Phase 3: ThemeManager & System Integration ✅**
 Wire theme switching through the app.
 
-1. **Test First** — tests/AstarOneDrive.UI.Tests/ThemeManager/ThemeManagerTests.cs
+1. ✅ **Test First** — tests/AstarOneDrive.UI.Tests/ThemeManager/ThemeManagerTests.cs
    - Test: `ApplyTheme("Dark")` loads Dark.axaml without error
    - Test: `ApplyTheme()` clears old theme before applying new
    - Test: Invalid theme name throws `InvalidOperationException`
 
-2. **Implement** — Update ThemeManager.cs
+2. ✅ **Implement** — Update ThemeManager.cs
    - Add error handling for missing theme files
    - Add logging for theme switches
    - Test that `Application.Current.Styles` is updated
 
-3. **Wire in App.axaml.cs**
+3. ✅ **Wire in App.axaml.cs**
    - Remove duplicate theme assignments (line 14 & 26 conflict)
    - Load initial theme from `SettingsViewModel.SelectedTheme` on startup
 
-4. **Verify**
+4. ✅ **Verify**
    - 3 tests pass in ThemeManagerTests
    - App starts with saved theme
    - Theme switching works without crashes
@@ -77,10 +77,10 @@ Wire theme switching through the app.
 
 ---
 
-### **Phase 4: AccountListViewModel Implementation & Tests**
+### **Phase 4: AccountListViewModel Implementation & Tests ✅**
 First main ViewModel—represents account list data.
 
-1. **Test First** — tests/AstarOneDrive.UI.Tests/ViewModels/AccountManagement/AccountListViewModelTests.cs
+1. ✅ **Test First** — tests/AstarOneDrive.UI.Tests/ViewModels/AccountManagement/AccountListViewModelTests.cs
    - Test: Constructor initializes empty `Accounts` collection
    - Test: `Accounts` observable collection notifies on items added
    - Test: `AddAccountCommand` can be executed
@@ -89,19 +89,19 @@ First main ViewModel—represents account list data.
    - Test: `SelectedAccount` property works
    - Test: Accounts list can be saved/loaded from disk (mock file system)
 
-2. **Implement** — Update AccountListViewModel.cs
+2. ✅ **Implement** — Update AccountListViewModel.cs
    - Add `ObservableCollection<AccountInfo>` for accounts
    - Implement `ICommand` properties: `AddAccountCommand`, `RemoveAccountCommand`, `ManageAccountCommand`
    - Add `SelectedAccount` property with `PropertyChanged`
    - Implement save/load persistence
    - Create placeholder `AccountInfo` model class (id, email, quota)
 
-3. **Create Model** — src/AstarOneDrive.UI/AccountManagement/AccountInfo.cs
+3. ✅ **Create Model** — src/AstarOneDrive.UI/AccountManagement/AccountInfo.cs
    ```csharp
    public record AccountInfo(string Id, string Email, long QuotaBytes, long UsedBytes);
    ```
 
-4. **Verify**
+4. ✅ **Verify**
    - 7 tests pass
    - Build succeeds
    - Launch app, add/remove accounts in UI (command executions visible via debug breakpoints)

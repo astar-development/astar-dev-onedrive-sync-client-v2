@@ -6,9 +6,28 @@ using Shouldly;
 
 namespace AstarOneDrive.UI.Tests.ThemeManager;
 
+[Collection(ThemeManagerTestCollection.Name)]
 public sealed class ThemeManagerTests
 {
     private static bool _isAvaloniaInitialized;
+
+    [Fact]
+    public void ApplyTheme_Dark_LoadsWithoutError()
+    {
+        EnsureAvaloniaInitialized();
+
+        var app = global::Avalonia.Application.Current ?? new TestApplication();
+        app.Styles.Clear();
+        app.Styles.Add(new FluentTheme());
+
+        Should.NotThrow(() => global::AstarOneDrive.UI.ThemeManager.ThemeManager.ApplyTheme("Dark"));
+
+        var appThemeInclude = app.Styles
+            .OfType<StyleInclude>()
+            .Single(static style => style.Source?.OriginalString.StartsWith("avares://AstarOneDrive.UI/Themes/", StringComparison.OrdinalIgnoreCase) == true);
+
+        appThemeInclude.Source!.OriginalString.ShouldBe("avares://AstarOneDrive.UI/Themes/Dark.axaml");
+    }
 
     [Fact]
     public void ApplyTheme_ReplacesOnlyAppThemeInclude_AndPreservesFluentTheme()
@@ -34,6 +53,18 @@ public sealed class ThemeManagerTests
 
         appThemeIncludes.Count.ShouldBe(1);
         appThemeIncludes[0].Source!.OriginalString.ShouldBe("avares://AstarOneDrive.UI/Themes/Light.axaml");
+    }
+
+    [Fact]
+    public void ApplyTheme_InvalidTheme_ThrowsInvalidOperationException()
+    {
+        EnsureAvaloniaInitialized();
+
+        var app = global::Avalonia.Application.Current ?? new TestApplication();
+        app.Styles.Clear();
+        app.Styles.Add(new FluentTheme());
+
+        Should.Throw<InvalidOperationException>(() => global::AstarOneDrive.UI.ThemeManager.ThemeManager.ApplyTheme("DoesNotExist"));
     }
 
     private static void EnsureAvaloniaInitialized()
