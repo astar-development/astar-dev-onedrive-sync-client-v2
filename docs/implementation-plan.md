@@ -140,10 +140,10 @@ Handle folder hierarchy data.
 
 ---
 
-### **Phase 6: SyncStatusViewModel Implementation & Tests**
+### **Phase 6: SyncStatusViewModel Implementation & Tests ✅**
 Manage sync state and status display.
 
-1. **Test First** — tests/AstarOneDrive.UI.Tests/ViewModels/SyncStatus/SyncStatusViewModelTests.cs
+1. ✅ **Test First** — tests/AstarOneDrive.UI.Tests/ViewModels/SyncStatus/SyncStatusViewModelTests.cs
    - Test: Constructor initializes `Status` to "Idle"
    - Test: `StartSyncCommand` sets status to "Syncing..."
    - Test: `PauseSyncCommand` sets status to "Paused"
@@ -152,7 +152,7 @@ Manage sync state and status display.
    - Test: `SyncError` property stores errors
    - Test: `PropertyChanged` fires on state changes
 
-2. **Implement** — Update SyncStatusViewModel.cs
+2. ✅ **Implement** — Update SyncStatusViewModel.cs
    - Replace TODO placeholders with real properties
    - Add `Status` property (Idle, Syncing, Paused, Error)
    - Add `ProgressPercentage` property
@@ -160,12 +160,12 @@ Manage sync state and status display.
    - Implement `StartSyncCommand`, `PauseSyncCommand` commands
    - Add event-based activity logging
 
-3. **Create Model** — src/AstarOneDrive.UI/SyncStatus/SyncActivityEntry.cs
+3. ✅ **Create Model** — src/AstarOneDrive.UI/SyncStatus/SyncActivityEntry.cs
    ```csharp
    public record SyncActivityEntry(DateTime Timestamp, string Level, string Message);
    ```
 
-4. **Verify**
+4. ✅ **Verify**
    - 7 tests pass
    - Build succeeds
    - UI shows sync status, starts/pauses sync (command works)
