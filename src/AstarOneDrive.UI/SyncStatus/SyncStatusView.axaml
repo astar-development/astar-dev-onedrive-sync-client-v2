@@ -11,17 +11,17 @@
                    FontWeight="Bold"
                    FontSize="16" />
 
-        <TextBlock Text="{Binding CurrentStatus}" />
+        <TextBlock Text="{Binding Status}" />
 
         <ProgressBar Minimum="0"
                      Maximum="100"
-                     Value="{Binding Progress}" />
+                     Value="{Binding ProgressPercentage}" />
 
         <StackPanel Orientation="Horizontal" Spacing="8">
             <Button Content="{DynamicResource Sync_Now}"
-                    Command="{Binding SyncNowCommand}" />
+                    Command="{Binding StartSyncCommand}" />
             <Button Content="{DynamicResource Sync_Pause}"
-                    Command="{Binding PauseCommand}" />
+                    Command="{Binding PauseSyncCommand}" />
         </StackPanel>
 
     </StackPanel>
