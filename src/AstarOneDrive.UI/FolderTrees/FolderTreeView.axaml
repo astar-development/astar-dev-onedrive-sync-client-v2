@@ -12,10 +12,10 @@
                    FontWeight="Bold"
                    FontSize="16" />
 
-        <TreeView ItemsSource="{Binding FolderTree}">
+        <TreeView ItemsSource="{Binding Nodes}">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate ItemsSource="{Binding Children}"
-                                  x:DataType="vm:FolderNodeViewModel">
+                                  x:DataType="vm:FolderNode">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <CheckBox IsChecked="{Binding IsSelected}" />
                         <TextBlock Text="{Binding Name}" />
