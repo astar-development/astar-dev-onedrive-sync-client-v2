@@ -95,8 +95,8 @@ public class AccountListViewModel : ViewModelBase
     private static string GetAccountsFilePath()
     {
         var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var appFolder = Path.Combine(appDataPath, "AstarOneDrive");
+        var appFolder = Path.Join(appDataPath, "AstarOneDrive");
         Directory.CreateDirectory(appFolder);
-        return Path.Combine(appFolder, "accounts.json");
+        return Path.Join(appFolder, "accounts.json");
     }
 }

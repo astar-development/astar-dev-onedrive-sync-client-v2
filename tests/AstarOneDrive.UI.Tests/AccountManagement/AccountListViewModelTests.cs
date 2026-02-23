@@ -11,7 +11,8 @@ public sealed class AccountListViewModelTests
         get
         {
             var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            return Path.Combine(appDataPath, "AstarOneDrive", "accounts.json");
+            var astarPath = Path.Combine(appDataPath, "AstarOneDrive");
+            return Path.Combine(astarPath, "accounts.json");
         }
     }
 
