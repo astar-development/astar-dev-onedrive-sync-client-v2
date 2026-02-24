@@ -1,0 +1,37 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AstarOneDrive.UI.Logs.DebugLogWindow"
+        MinWidth="1000"
+        MinHeight="600"
+        CanResize="True"
+        Icon="avares://AstarOneDrive.UI/Assets/astar.png"
+        Background="{DynamicResource ThemeBackgroundBrush}"
+        Title="AStar - Debug Logs and Metrics Viewer">
+
+    <Border Background="{DynamicResource ThemeBackgroundBrush}"
+            Padding="4"
+            PointerPressed="DragWindow">
+
+        <TabControl>
+            <TabItem Header="Logs">
+                <ScrollViewer Name="Scroller">
+                    <TextBlock Name="LogText"
+                               FontFamily="Consolas"
+                               Foreground="{DynamicResource ThemeForegroundBrush}"
+                               Text="Waiting for logs..."
+                               TextWrapping="Wrap"/>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Metrics">
+                <StackPanel>
+                    <TextBlock Name="CpuText" Foreground="{DynamicResource ThemeForegroundBrush}" FontFamily="Consolas" Text="CPU: waiting..."/>
+                    <TextBlock Name="MemoryText" Foreground="{DynamicResource ThemeForegroundBrush}" FontFamily="Consolas" Text="Memory: waiting..."/>
+                    <TextBlock Name="GcText" Foreground="{DynamicResource ThemeForegroundBrush}" FontFamily="Consolas" Text="GC: waiting..."/>
+                    <TextBlock Name="ThreadsText" Foreground="{DynamicResource ThemeForegroundBrush}" FontFamily="Consolas" Text="Threads: waiting..."/>
+                    <TextBlock Name="UptimeText" Foreground="{DynamicResource ThemeForegroundBrush}" FontFamily="Consolas" Text="Uptime: waiting..."/>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </Border>
+</Window>
