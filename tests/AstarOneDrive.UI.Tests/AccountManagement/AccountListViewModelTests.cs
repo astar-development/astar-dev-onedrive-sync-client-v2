@@ -6,16 +6,6 @@ namespace AstarOneDrive.UI.Tests.ViewModels.AccountManagement;
 
 public sealed class AccountListViewModelTests
 {
-    private static string AccountsFilePath
-    {
-        get
-        {
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var astarPath = Path.Combine(appDataPath, "AstarOneDrive");
-            return Path.Combine(astarPath, "accounts.json");
-        }
-    }
-
     [Fact]
     public void Constructor_InitializesEmptyAccountsCollection()
     {
@@ -72,34 +62,27 @@ public sealed class AccountListViewModelTests
         var viewModel = new AccountListViewModel();
         var raised = false;
         viewModel.PropertyChanged += (_, args) => raised |= args.PropertyName == nameof(AccountListViewModel.SelectedAccount);
-
         viewModel.SelectedAccount = new AccountInfo("id", "user@example.com", 1000, 100);
 
         raised.ShouldBeTrue();
     }
 
     [Fact]
-    public async Task SaveAndLoadAccounts_PersistsAndRestoresData()
+    public async Task SaveAndLoadAccounts_PersistsAndRestoresDataFromDatabase()
     {
-        DeleteAccountsFileIfExists();
-        var viewModel = new AccountListViewModel();
+        var databasePath = CreateDatabasePath();
+        var viewModel = new AccountListViewModel(databasePath);
         viewModel.Accounts.Add(new AccountInfo("acct-1", "persisted@example.com", 2000, 250));
-
         var saveResult = await viewModel.SaveAccountsAsync(TestContext.Current.CancellationToken);
         Pattern.IsSuccess(saveResult).ShouldBeTrue();
 
-        var loadedViewModel = new AccountListViewModel();
+        var loadedViewModel = new AccountListViewModel(databasePath);
         var loadResult = await loadedViewModel.LoadAccountsAsync(TestContext.Current.CancellationToken);
         Pattern.IsSuccess(loadResult).ShouldBeTrue();
         loadedViewModel.Accounts.Count.ShouldBe(1);
         loadedViewModel.Accounts[0].Email.ShouldBe("persisted@example.com");
     }
 
-    private static void DeleteAccountsFileIfExists()
-    {
-        if (File.Exists(AccountsFilePath))
-        {
-            File.Delete(AccountsFilePath);
-        }
-    }
+    private static string CreateDatabasePath() =>
+        Path.Combine(Path.GetTempPath(), $"astar-ui-accounts-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
 }

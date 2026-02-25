@@ -1,4 +1,5 @@
 using AstarOneDrive.UI.Home;
+using AstarOneDrive.Infrastructure.Data;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
@@ -17,6 +18,8 @@ public partial class App : Avalonia.Application
             Dispatcher.UIThread.UnhandledException += (sender, e) => { Log.Error(e.Exception, "UI thread exception"); 
                 e.Handled = true;
             };
+            ApplyDatabaseMigrations();
+
             var mainViewModel = new MainWindowViewModel();
 
             desktop.MainWindow = new MainWindow
@@ -43,5 +46,18 @@ public partial class App : Avalonia.Application
         }
 
         ThemeManager.ThemeManager.ApplyTheme(mainViewModel.Settings.SelectedTheme);
+    }
+
+    private static void ApplyDatabaseMigrations()
+    {
+        var migrator = new SqliteDatabaseMigrator();
+        try
+        {
+            migrator.EnsureMigrated();
+        }
+        catch (Exception exception)
+        {
+            Log.Error(exception, "Failed to apply database migrations on startup");
+        }
     }
 }

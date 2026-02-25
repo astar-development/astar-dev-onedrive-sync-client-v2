@@ -6,15 +6,6 @@ namespace AstarOneDrive.UI.Tests.ViewModels.Settings;
 
 public class SettingsViewModelTests
 {
-    private static string SettingsFilePath
-    {
-        get
-        {
-            var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            return Path.Combine(appDataPath, "AstarOneDrive", "settings.json");
-        }
-    }
-
     [Fact]
     public void Constructor_InitializesWithDefaults()
     {
@@ -53,7 +44,7 @@ public class SettingsViewModelTests
     [Fact]
     public async Task SaveSettingsAsync_ReturnsOkResult()
     {
-        var viewModel = new SettingsViewModel
+        var viewModel = new SettingsViewModel(CreateDatabasePath())
         {
             SelectedTheme = "Dark",
             SelectedLanguage = "en-GB",
@@ -65,9 +56,9 @@ public class SettingsViewModelTests
     }
 
     [Fact]
-    public async Task SaveSettings_PersistsToFile()
+    public async Task SaveSettings_PersistsToDatabase()
     {
-        var viewModel = new SettingsViewModel
+        var viewModel = new SettingsViewModel(CreateDatabasePath())
         {
             SelectedTheme = "Dark",
             SelectedLanguage = "en-GB",
@@ -81,26 +72,28 @@ public class SettingsViewModelTests
     [Fact]
     public async Task LoadSettingsAsync_ReturnsOkResult()
     {
-        var viewModel = new SettingsViewModel
+        var databasePath = CreateDatabasePath();
+        var viewModel = new SettingsViewModel(databasePath)
         {
             SelectedTheme = "Hacker",
             SelectedLayout = "Terminal"
         };
         await viewModel.SaveSettingsAsync(TestContext.Current.CancellationToken);
-        var newViewModel = new SettingsViewModel();
+        var newViewModel = new SettingsViewModel(databasePath);
 
         var result = await newViewModel.LoadSettingsAsync(TestContext.Current.CancellationToken);
         Pattern.IsSuccess(result).ShouldBeTrue();
     }
 
     [Fact]
-    public async Task LoadSettings_RestoresFromFile()
+    public async Task LoadSettings_RestoresFromDatabase()
     {
-        var viewModel = new SettingsViewModel();
+        var databasePath = CreateDatabasePath();
+        var viewModel = new SettingsViewModel(databasePath);
         viewModel.SelectedTheme = "Dark";
         viewModel.SelectedLayout = "Dashboard";
         await viewModel.SaveSettingsAsync(TestContext.Current.CancellationToken);
-        var newViewModel = new SettingsViewModel();
+        var newViewModel = new SettingsViewModel(databasePath);
 
         var result = await newViewModel.LoadSettingsAsync(TestContext.Current.CancellationToken);
 
@@ -110,13 +103,11 @@ public class SettingsViewModelTests
     }
 
     [Fact]
-    public async Task LoadSettingsAsync_ReturnsErrorResult_WhenJsonIsInvalid()
+    public async Task LoadSettingsAsync_ReturnsOkResult_WhenDatabaseIsEmpty()
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(SettingsFilePath)!);
-        await File.WriteAllTextAsync(SettingsFilePath, "not valid json", TestContext.Current.CancellationToken);
-        var viewModel = new SettingsViewModel();
+        var viewModel = new SettingsViewModel(CreateDatabasePath());
         var result = await viewModel.LoadSettingsAsync(TestContext.Current.CancellationToken);
-        Pattern.IsFailure(result).ShouldBeTrue();
+        Pattern.IsSuccess(result).ShouldBeTrue();
     }
 
     [Fact]
@@ -137,4 +128,7 @@ public class SettingsViewModelTests
         viewModel.SelectedTheme = "Dark";
         changedTheme.ShouldBe("Dark");
     }
+
+    private static string CreateDatabasePath() =>
+        Path.Combine(Path.GetTempPath(), $"astar-ui-settings-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
 }

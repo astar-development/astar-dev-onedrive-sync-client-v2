@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
-using System.Text.Json;
 using System.Windows.Input;
 using AStar.Dev.Functional.Extensions;
+using AstarOneDrive.Infrastructure.Data;
+using AstarOneDrive.Infrastructure.Data.Contracts;
+using AstarOneDrive.Infrastructure.Data.Repositories;
 using AstarOneDrive.UI.Common;
 using ReactiveUI;
 
@@ -11,6 +13,8 @@ public class AccountListViewModel : ViewModelBase
 {
     private readonly RelayCommand _removeAccountCommand;
     private readonly RelayCommand _manageAccountCommand;
+    private readonly SqliteDatabaseMigrator _migrator;
+    private readonly SqliteAccountsRepository _accountsRepository;
 
     public ObservableCollection<AccountInfo> Accounts { get; } = new();
 
@@ -29,8 +33,11 @@ public class AccountListViewModel : ViewModelBase
     public ICommand RemoveAccountCommand => _removeAccountCommand;
     public ICommand ManageAccountCommand { get; }
 
-    public AccountListViewModel()
+    public AccountListViewModel(string? databasePath = null)
     {
+        _migrator = new SqliteDatabaseMigrator(databasePath);
+        _accountsRepository = new SqliteAccountsRepository(databasePath);
+
         AddAccountCommand = new RelayCommand(_ => AddAccount());
         _removeAccountCommand = new RelayCommand(_ => RemoveSelectedAccount(), _ => SelectedAccount is not null);
         _manageAccountCommand = new RelayCommand(account => ManageAccount(account as AccountInfo), _ => SelectedAccount is not null);
@@ -61,42 +68,28 @@ public class AccountListViewModel : ViewModelBase
         SelectedAccount = account;
     }
 
-    public Task<Result<bool, Exception>> SaveAccountsAsync(CancellationToken cancellationToken = default)
-    {
-        var json = JsonSerializer.Serialize(Accounts.ToList(), new JsonSerializerOptions { WriteIndented = true });
-        return Try.RunAsync(async () =>
+    public Task<Result<bool, Exception>> SaveAccountsAsync(CancellationToken cancellationToken = default) =>
+        Try.RunAsync(async () =>
         {
-            await File.WriteAllTextAsync(GetAccountsFilePath(), json, cancellationToken);
+            await _migrator.EnsureMigratedAsync(cancellationToken);
+            var state = Accounts
+                .Select(x => new AccountState(x.Id, x.Email, x.QuotaBytes, x.UsedBytes))
+                .ToList();
+            await _accountsRepository.SaveAsync(state, cancellationToken);
             return true;
         });
-    }
 
     public Task<Result<bool, Exception>> LoadAccountsAsync(CancellationToken cancellationToken = default) =>
         Try.RunAsync(async () =>
         {
-            var filePath = GetAccountsFilePath();
-            if (!File.Exists(filePath))
-            {
-                return true;
-            }
-
-            var json = await File.ReadAllTextAsync(filePath, cancellationToken);
-            var restored = JsonSerializer.Deserialize<List<AccountInfo>>(json) ?? [];
-
+            await _migrator.EnsureMigratedAsync(cancellationToken);
+            var state = await _accountsRepository.LoadAsync(cancellationToken);
             Accounts.Clear();
-            foreach (var account in restored)
+            foreach (var account in state)
             {
-                Accounts.Add(account);
+                Accounts.Add(new AccountInfo(account.Id, account.Email, account.QuotaBytes, account.UsedBytes));
             }
 
             return true;
         });
-
-    private static string GetAccountsFilePath()
-    {
-        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var appFolder = Path.Join(appDataPath, "AstarOneDrive");
-        Directory.CreateDirectory(appFolder);
-        return Path.Join(appFolder, "accounts.json");
-    }
 }
