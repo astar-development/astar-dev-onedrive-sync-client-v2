@@ -1,6 +1,6 @@
-# AstarOneDrive Sync Client
+# AStar.Dev.OneDrive.Sync.Client Sync Client
 
-![AstarOneDrive](src/AstarOneDrive.UI/Assets/astar.png)
+![AStar.Dev.OneDrive.Sync.Client](src/AStar.Dev.OneDrive.Sync.Client.UI/Assets/astar.png)
 
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/astar-development/astar-dev-onedrive-sync-client-v2/actions)
 [![SonarCloud](https://img.shields.io/badge/sonarcloud-quality%20gate-brightgreen)](https://sonarcloud.io)
@@ -40,7 +40,7 @@ dotnet build
 ### Run the UI
 
 ```bash
-dotnet run --project src/AstarOneDrive.UI
+dotnet run --project src/AStar.Dev.OneDrive.Sync.Client.UI
 ```
 
 ### Run tests
@@ -64,14 +64,14 @@ For details, see [docs/implementation-overview.md](docs/implementation-overview.
 
 ```
 src/
-	AstarOneDrive.Domain/
-	AstarOneDrive.Application/
-	AstarOneDrive.Infrastructure/
-	AstarOneDrive.UI/
+	AStar.Dev.OneDrive.Sync.Client.Domain/
+	AStar.Dev.OneDrive.Sync.Client.Application/
+	AStar.Dev.OneDrive.Sync.Client.Infrastructure/
+	AStar.Dev.OneDrive.Sync.Client.UI/
 tests/
-	AstarOneDrive.Domain.Tests/
-	AstarOneDrive.Application.Tests/
-	AstarOneDrive.UI.Tests/
+	AStar.Dev.OneDrive.Sync.Client.Domain.Tests/
+	AStar.Dev.OneDrive.Sync.Client.Application.Tests/
+	AStar.Dev.OneDrive.Sync.Client.UI.Tests/
 ```
 
 ## Documentation

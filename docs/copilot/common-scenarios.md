@@ -1,6 +1,6 @@
 # Common OneDrive Sync Scenarios
 
-This guide provides real-world examples specific to the AstarOneDrive application.
+This guide provides real-world examples specific to the AStar.Dev.OneDrive.Sync.Client application.
 
 ---
 

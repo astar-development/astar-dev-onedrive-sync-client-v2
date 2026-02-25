@@ -1,0 +1,64 @@
+<UserControl
+    x:Class="AStar.Dev.OneDrive.Sync.Client.UI.Layouts.DashboardLayoutView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:home="using:AStar.Dev.OneDrive.Sync.Client.UI.Home"
+    xmlns:account="using:AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement"
+    xmlns:sync="using:AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus"
+    x:DataType="home:MainWindowViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Top App Bar -->
+        <Border Background="{DynamicResource AppBarBackground}" Height="48">
+            <DockPanel>
+                <Button Content="☰" Width="48" />
+                <TextBlock Text="{DynamicResource App_Title}" 
+                           VerticalAlignment="Center"
+                           Margin="12,0,0,0" />
+                <DockPanel DockPanel.Dock="Right">
+                    <ComboBox Width="120"
+                              ItemsSource="{Binding Settings.AvailableThemes}"
+                              SelectedItem="{Binding Settings.SelectedTheme}" />
+                </DockPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*">
+
+            <!-- Left Drawer -->
+            <StackPanel Width="220" Background="{DynamicResource DrawerBackground}">
+                <Button Content="{DynamicResource Menu_File}" />
+                <Button Content="{DynamicResource Account_Email}" />
+                <Button Content="{DynamicResource Sync_Activity}" />
+                <Button Content="{DynamicResource Menu_UserSettings}" />
+                <Button Content="{DynamicResource Menu_AppSettings}" />
+            </StackPanel>
+
+            <!-- Dashboard -->
+            <ScrollViewer Grid.Column="1" Padding="16">
+                <StackPanel Spacing="16">
+
+                    <!-- Account Cards -->
+                    <account:AccountListView DataContext="{Binding Accounts}" />
+
+                    <!-- Add Account Card -->
+                    <Border Background="{DynamicResource CardBackground}"
+                            Padding="20"
+                            CornerRadius="8">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Dashboard_AddAccount}" />
+                            <Button Content="+" Width="48" Height="48" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Sync Panel -->
+                    <sync:SyncStatusView DataContext="{Binding Sync}" />
+
+                </StackPanel>
+            </ScrollViewer>
+
+        </Grid>
+    </Grid>
+</UserControl>

@@ -8,7 +8,7 @@ Architecture decision reference: [docs/architecture/adr-0001-sqlite-ef-core-pers
 
 ## Scope and Constraints
 - Persistence technology: SQLite using latest EF Core packages.
-- Migrations location: `src/AstarOneDrive.Infrastructure/Data/Migrations`.
+- Migrations location: `src/AStar.Dev.OneDrive.Sync.Client.Infrastructure/Data/Migrations`.
 - Mapping style: `IEntityTypeConfiguration<T>` for every entity.
 - Null handling: columns are required by default; nullable only when business-justified.
 - String lengths: explicit max lengths on all text columns.
@@ -16,12 +16,12 @@ Architecture decision reference: [docs/architecture/adr-0001-sqlite-ef-core-pers
 
 ## Runtime Database Location
 Use a platform-specific user data directory and place the DB at:
-- `<app-data>/AstarOneDrive/astar-onedrive.db`
+- `<app-data>/AStar.Dev.OneDrive.Sync.Client/astar-onedrive.db`
 
 Resolution rules:
-- Windows: `%LocalAppData%/AstarOneDrive/astar-onedrive.db`
-- Linux: `$XDG_DATA_HOME/AstarOneDrive/astar-onedrive.db` (fallback: `~/.local/share/AstarOneDrive/astar-onedrive.db`)
-- macOS: `~/Library/Application Support/AstarOneDrive/astar-onedrive.db`
+- Windows: `%LocalAppData%/AStar.Dev.OneDrive.Sync.Client/astar-onedrive.db`
+- Linux: `$XDG_DATA_HOME/AStar.Dev.OneDrive.Sync.Client/astar-onedrive.db` (fallback: `~/.local/share/AStar.Dev.OneDrive.Sync.Client/astar-onedrive.db`)
+- macOS: `~/Library/Application Support/AStar.Dev.OneDrive.Sync.Client/astar-onedrive.db`
 
 Implementation note: centralize path resolution in Infrastructure so UI/Application never build file paths.
 
@@ -120,13 +120,13 @@ Each configuration must define:
 - Foreign keys and delete behavior
 
 ## Migration and Startup Contract
-1. Generate migrations into `src/AstarOneDrive.Infrastructure/Data/Migrations`.
+1. Generate migrations into `src/AStar.Dev.OneDrive.Sync.Client.Infrastructure/Data/Migrations`.
 2. Ensure startup calls `Database.Migrate()` before repositories are resolved/used.
 3. If migration fails, log failure and return a functional error (`Result<T, TError>`), do not silently continue.
 
 ### Tooling Note (Current Repository Constraint)
 - `Microsoft.EntityFrameworkCore.Design` and `Microsoft.EntityFrameworkCore.Tools` currently conflict with the repository's Roslyn dependency graph used by in-repo analyzers/source generators.
-- To keep builds stable, migrations are committed and maintained directly in `src/AstarOneDrive.Infrastructure/Data/Migrations`.
+- To keep builds stable, migrations are committed and maintained directly in `src/AStar.Dev.OneDrive.Sync.Client.Infrastructure/Data/Migrations`.
 - Runtime migration application remains the source of truth (`Database.Migrate()`), so deployed databases are still auto-upgraded on startup.
 - When the Roslyn package conflict is resolved, CLI/design-time migration tooling can be re-enabled.
 

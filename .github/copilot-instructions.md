@@ -1,4 +1,4 @@
-# GitHub Copilot Instructions for AstarOneDrive
+# GitHub Copilot Instructions for AStar.Dev.OneDrive.Sync.Client
 
 > 📋 **Quick Reference**: [`/docs/copilot/quick-reference.md`](/docs/copilot/quick-reference.md)
 >

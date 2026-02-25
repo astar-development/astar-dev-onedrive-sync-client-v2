@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AStar.Dev.OneDrive.Sync.Client.Domain\AStar.Dev.OneDrive.Sync.Client.Domain.csproj" />
+    <ProjectReference Include="..\AStar.Dev.OneDrive.Sync.Client.Application\AStar.Dev.OneDrive.Sync.Client.Application.csproj" />
+  </ItemGroup>
+
+</Project>

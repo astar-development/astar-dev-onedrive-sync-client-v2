@@ -7,15 +7,15 @@
 ### **Phase 1: Localization Infrastructure (Red) ✅**
 Create minimal localization system and test it.
 
-1. ✅ **Test First** — tests/AstarOneDrive.UI.Tests/LocalizationTests.cs
+1. ✅ **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/LocalizationTests.cs
    - Test: `LocalizationManager` can load en-GB dictionary
    - Test: `DynamicResource` keys resolve from dictionary
    - Test: Fallback behavior when key missing
 
 2. ✅ **Create Locale Files**
-   - src/AstarOneDrive.UI/Locales/en-GB.axaml — All UI strings (Menu, Buttons, Status, etc.)
+   - src/AStar.Dev.OneDrive.Sync.Client.UI/Locales/en-GB.axaml — All UI strings (Menu, Buttons, Status, etc.)
 
-3. ✅ **Implement Manager** — src/AstarOneDrive.UI/Localization/LocalizationManager.cs
+3. ✅ **Implement Manager** — src/AStar.Dev.OneDrive.Sync.Client.UI/Localization/LocalizationManager.cs
    - `SetLanguage(string culture)` — Load XAML dictionary
    - `GetString(key)` — Retrieve localized string
 
@@ -29,7 +29,7 @@ Create minimal localization system and test it.
 ### **Phase 2: SettingsViewModel Implementation & Tests ✅**
 Most foundational—settings affect theme, language, layout memory.
 
-1. ✅ **Test First** — tests/AstarOneDrive.UI.Tests/ViewModels/Settings/SettingsViewModelTests.cs
+1. ✅ **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/ViewModels/Settings/SettingsViewModelTests.cs
    - Test: Constructor initializes with defaults (Theme=Light, Language=en-GB, SelectedLayout=Explorer)
    - Test: Setting `SelectedTheme` fires `PropertyChanged`
    - Test: Setting `SelectedTheme` calls `ThemeManager.ApplyTheme()`
@@ -55,7 +55,7 @@ Most foundational—settings affect theme, language, layout memory.
 ### **Phase 3: ThemeManager & System Integration ✅**
 Wire theme switching through the app.
 
-1. ✅ **Test First** — tests/AstarOneDrive.UI.Tests/ThemeManager/ThemeManagerTests.cs
+1. ✅ **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/ThemeManager/ThemeManagerTests.cs
    - Test: `ApplyTheme("Dark")` loads Dark.axaml without error
    - Test: `ApplyTheme()` clears old theme before applying new
    - Test: Invalid theme name throws `InvalidOperationException`
@@ -80,7 +80,7 @@ Wire theme switching through the app.
 ### **Phase 4: AccountListViewModel Implementation & Tests ✅**
 First main ViewModel—represents account list data.
 
-1. ✅ **Test First** — tests/AstarOneDrive.UI.Tests/ViewModels/AccountManagement/AccountListViewModelTests.cs
+1. ✅ **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/ViewModels/AccountManagement/AccountListViewModelTests.cs
    - Test: Constructor initializes empty `Accounts` collection
    - Test: `Accounts` observable collection notifies on items added
    - Test: `AddAccountCommand` can be executed
@@ -96,7 +96,7 @@ First main ViewModel—represents account list data.
    - Implement save/load persistence
    - Create placeholder `AccountInfo` model class (id, email, quota)
 
-3. ✅ **Create Model** — src/AstarOneDrive.UI/AccountManagement/AccountInfo.cs
+3. ✅ **Create Model** — src/AStar.Dev.OneDrive.Sync.Client.UI/AccountManagement/AccountInfo.cs
    ```csharp
    public record AccountInfo(string Id, string Email, long QuotaBytes, long UsedBytes);
    ```
@@ -109,10 +109,10 @@ First main ViewModel—represents account list data.
 
 ---
 
-### **Phase 5: FolderTreeViewModel Implementation & Tests**
+### **Phase 5: FolderTreeViewModel Implementation & Tests ✅**
 Handle folder hierarchy data.
 
-1. **Test First** — tests/AstarOneDrive.UI.Tests/ViewModels/FolderTrees/FolderTreeViewModelTests.cs
+1. ✅ **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/ViewModels/FolderTrees/FolderTreeViewModelTests.cs
    - Test: Constructor initializes with empty node collection
    - Test: `Nodes` (ObservableCollection) notifies on add/remove
    - Test: `SelectedNode` property works
@@ -120,19 +120,19 @@ Handle folder hierarchy data.
    - Test: `ExpandNode` / `CollapseNode` work
    - Test: Folder hierarchy can be persisted/restored
 
-2. **Implement** — Update FolderTreeViewModel.cs
+2. ✅ **Implement** — Update FolderTreeViewModel.cs
    - Add `ObservableCollection<FolderNode>` for tree nodes
    - Add `SelectedNode` property
    - Implement `ToggleNodeSelection`, `ExpandNode`, `CollapseNode` commands
    - Remove placeholder hard-coded data; load from saved state on init
    - Add persistence logic
 
-3. **Create Model** — src/AstarOneDrive.UI/FolderTrees/FolderNode.cs
+3. ✅ **Create Model** — src/AStar.Dev.OneDrive.Sync.Client.UI/FolderTrees/FolderNode.cs
    ```csharp
    public record FolderNode(string Id, string Name, bool IsSelected, bool IsExpanded, ObservableCollection<FolderNode> Children);
    ```
 
-4. **Verify**
+4. ✅ **Verify**
    - 6 tests pass
    - Build succeeds
    - Folder tree renders in UI without hard-coded data
@@ -143,7 +143,7 @@ Handle folder hierarchy data.
 ### **Phase 6: SyncStatusViewModel Implementation & Tests ✅**
 Manage sync state and status display.
 
-1. ✅ **Test First** — tests/AstarOneDrive.UI.Tests/ViewModels/SyncStatus/SyncStatusViewModelTests.cs
+1. ✅ **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/ViewModels/SyncStatus/SyncStatusViewModelTests.cs
    - Test: Constructor initializes `Status` to "Idle"
    - Test: `StartSyncCommand` sets status to "Syncing..."
    - Test: `PauseSyncCommand` sets status to "Paused"
@@ -160,7 +160,7 @@ Manage sync state and status display.
    - Implement `StartSyncCommand`, `PauseSyncCommand` commands
    - Add event-based activity logging
 
-3. ✅ **Create Model** — src/AstarOneDrive.UI/SyncStatus/SyncActivityEntry.cs
+3. ✅ **Create Model** — src/AStar.Dev.OneDrive.Sync.Client.UI/SyncStatus/SyncActivityEntry.cs
    ```csharp
    public record SyncActivityEntry(DateTime Timestamp, string Level, string Message);
    ```
@@ -176,15 +176,15 @@ Manage sync state and status display.
 ### **Phase 7: LayoutViewModel Tests & Implementation ✅**
 Ensure all three layout ViewModels are functional.
 
-1. ✅ **Test First** — Create tests/AstarOneDrive.UI.Tests/ViewModels/Layouts/LayoutViewModelTests.cs
+1. ✅ **Test First** — Create tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/ViewModels/Layouts/LayoutViewModelTests.cs
    - Test: Each layout ViewModel (Explorer, Dashboard, Terminal) can be instantiated
    - Test: Each receives `MainWindowViewModel` as context and can access shared VMs
    - Test: Layout-specific commands execute
 
 2. ✅ **Implement** — Create/update individual layout VMs if needed
-   - src/AstarOneDrive.UI/Layouts/ExplorerLayoutViewModel.cs — Refactor from placeholder
+   - src/AStar.Dev.OneDrive.Sync.Client.UI/Layouts/ExplorerLayoutViewModel.cs — Refactor from placeholder
    - DashboardLayoutViewModel.cs
-   - src/AstarOneDrive.UI/Layouts/TerminalLayoutViewModel.cs
+   - src/AStar.Dev.OneDrive.Sync.Client.UI/Layouts/TerminalLayoutViewModel.cs
 
 3. ✅ **Verify**
    - 3 tests pass (one per layout)
@@ -193,35 +193,35 @@ Ensure all three layout ViewModels are functional.
 
 ---
 
-### **Phase 7a: SQLite + EF Core Persistence Foundation**
+### **Phase 7a: SQLite + EF Core Persistence Foundation ✅**
 Introduce a database-backed persistence layer for configuration, accounts, and file metadata.
 
 Reference: see [docs/database-schema.md](database-schema.md) for table definitions, constraints, indexes, and migration/runtime contract.
 
-1. **Test First** — tests/AstarOneDrive.Infrastructure.Tests/Data/SqlitePersistenceTests.cs
-   - Test: `AstarOneDriveDbContext` can create/connect to SQLite database using platform-specific app data location
+1. ✅ **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.Infrastructure.Tests/Data/SqlitePersistenceTests.cs
+   - Test: `AStar.Dev.OneDrive.Sync.ClientDbContext` can create/connect to SQLite database using platform-specific app data location
    - Test: Runtime startup applies pending migrations automatically
    - Test: `Settings`, `Accounts`, and `SyncFiles` entities can be inserted/queried
    - Test: Required fields reject nulls; optional fields allow null only where explicitly configured
    - Test: Max length constraints are enforced for configured text columns
 
-2. **Implement Infrastructure** — src/AstarOneDrive.Infrastructure/Data
+2. ✅ **Implement Infrastructure** — src/AStar.Dev.OneDrive.Sync.Client.Infrastructure/Data
    - Add latest EF Core SQLite packages (`Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.Sqlite`, `Microsoft.EntityFrameworkCore.Design`, `Microsoft.EntityFrameworkCore.Tools`)
-   - Create `AstarOneDriveDbContext` with `DbSet` definitions for configuration, account, and file/sync metadata
+   - Create `AStar.Dev.OneDrive.Sync.ClientDbContext` with `DbSet` definitions for configuration, account, and file/sync metadata
    - Add per-entity `IEntityTypeConfiguration<T>` classes to configure schema, keys, indexes, max lengths, and nullability
-   - Store migrations in `src/AstarOneDrive.Infrastructure/Data/Migrations`
+   - Store migrations in `src/AStar.Dev.OneDrive.Sync.Client.Infrastructure/Data/Migrations`
    - Configure DB path from platform-specific application data directory (per OS conventions)
 
-3. **Add Runtime Migration Application**
+3. ✅ **Add Runtime Migration Application**
    - Update startup/composition root so `Database.Migrate()` runs on app startup before repositories/services execute
    - Add guard/logging for migration failures and return `Result<T, TError>` from persistence bootstrap where applicable
 
-4. **Refactor Persistence Abstractions**
+4. ✅ **Refactor Persistence Abstractions**
    - Replace file/JSON persistence interfaces used by UI/Application with repository abstractions backed by EF Core
    - Map existing persistence use-cases to tables: settings → `Settings`, accounts → `Accounts`, folder/file state → `SyncFiles` (and related tables if split)
 
-5. **Verify**
-   - Migration files generated under `src/AstarOneDrive.Infrastructure/Data/Migrations`
+5. ✅ **Verify**
+   - Migration files generated under `src/AStar.Dev.OneDrive.Sync.Client.Infrastructure/Data/Migrations`
    - App startup auto-applies migrations with no manual step
    - Persistence integration tests pass against SQLite
    - Existing UI flows (settings/accounts/folder state) read/write via database
@@ -231,7 +231,7 @@ Reference: see [docs/database-schema.md](database-schema.md) for table definitio
 ### **Phase 8: Layout Switching Integration Test**
 Test that `MainWindowViewModel` correctly orchestrates layout swaps.
 
-1. **Test** — tests/AstarOneDrive.UI.Tests/ViewModels/Home/MainWindowViewModelTests.cs (expand existing)
+1. **Test** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/ViewModels/Home/MainWindowViewModelTests.cs (expand existing)
    - Test: `CurrentLayout` property starts as Explorer
    - Test: `SwitchToExplorerCommand` sets layout to Explorer view
    - Test: `SwitchToDashboardCommand` sets layout to Dashboard view
@@ -254,7 +254,7 @@ Test that `MainWindowViewModel` correctly orchestrates layout swaps.
 ### **Phase 9: Settings Dialog Full Integration**
 Connect Settings view to theme/language/layout switching.
 
-1. **Test First** — tests/AstarOneDrive.UI.Tests/Integration/SettingsIntegrationTests.cs
+1. **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Integration/SettingsIntegrationTests.cs
    - Test: Changing theme in dialog updates app theme
    - Test: Changing language in dialog updates UI labels
    - Test: OK button saves all settings
@@ -278,14 +278,14 @@ Connect Settings view to theme/language/layout switching.
 ### **Phase 10: Account Management Dialog**
 Build add/edit account dialog (stub—real OAuth comes later).
 
-1. **Test First** — tests/AstarOneDrive.UI.Tests/ViewModels/AccountManagement/AccountDialogViewModelTests.cs
+1. **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/ViewModels/AccountManagement/AccountDialogViewModelTests.cs
    - Test: Dialog opens with empty fields for new account
    - Test: Dialog opens with populated fields for edit
    - Test: `SaveCommand` validates email format
    - Test: `CancelCommand` closes without saving
    - Test: `LoginCommand` triggers authentication (stub for now)
 
-2. **Implement** — src/AstarOneDrive.UI/AccountManagement/AccountDialogViewModel.cs & View
+2. **Implement** — src/AStar.Dev.OneDrive.Sync.Client.UI/AccountManagement/AccountDialogViewModel.cs & View
    - Create dialog VM with email, storage info properties
    - Implement Save/Cancel/Login commands
    - Persist account changes to `Accounts` table via repository
@@ -302,7 +302,7 @@ Build add/edit account dialog (stub—real OAuth comes later).
 ### **Phase 11: Folder Tree UI Binding**
 Remove hard-coded data, bind to FolderTreeViewModel.
 
-1. **Test** — tests/AstarOneDrive.UI.Tests/Layouts/ExplorerLayoutIntegrationTest.cs
+1. **Test** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Layouts/ExplorerLayoutIntegrationTest.cs
    - Test: FolderTreeView renders nodes from ViewModel
    - Test: Checkboxes reflect `IsSelected` state
    - Test: Expand/collapse works
@@ -323,12 +323,12 @@ Remove hard-coded data, bind to FolderTreeViewModel.
 ### **Phase 12: Error Handling & User Feedback**
 Add error dialog/notification system.
 
-1. **Test First** — tests/AstarOneDrive.UI.Tests/Common/ErrorHandlerTests.cs
+1. **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Common/ErrorHandlerTests.cs
    - Test: `ShowErrorDialog(title, message)` works
    - Test: Errors are logged
    - Test: User can dismiss dialog
 
-2. **Implement** — src/AstarOneDrive.UI/Common/ErrorHandler.cs + ErrorDialog.axaml
+2. **Implement** — src/AStar.Dev.OneDrive.Sync.Client.UI/Common/ErrorHandler.cs + ErrorDialog.axaml
    - Create error dialog window
    - Create `ErrorHandler` static utility
    - Hook exception events in App.axaml.cs to show dialog
@@ -342,12 +342,12 @@ Add error dialog/notification system.
 ### **Phase 13: Infrastructure Wire-Up (Stub)**
 Set up dependency injection for Application/Infrastructure layers.
 
-1. **Test First** — tests/AstarOneDrive.UI.Tests/Composition/CompositionRootTests.cs
+1. **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Composition/CompositionRootTests.cs
    - Test: `ISyncService` can be resolved (returns real impl)
    - Test: `ISyncFileRepository` can be resolved (returns mock OneDrive stub)
-   - Test: `AstarOneDriveDbContext` and persistence repositories can be resolved
+   - Test: `AStar.Dev.OneDrive.Sync.ClientDbContext` and persistence repositories can be resolved
 
-2. **Implement** — src/AstarOneDrive.UI/Composition/CompositionRoot.cs
+2. **Implement** — src/AStar.Dev.OneDrive.Sync.Client.UI/Composition/CompositionRoot.cs
    - Wire up `ISyncService` → `SyncService`
    - Wire up `ISyncFileRepository` → `OneDriveSyncFileRepository` (stub)
    - Wire up EF Core DbContext + repositories for `Settings`, `Accounts`, and `SyncFiles`
@@ -362,7 +362,7 @@ Set up dependency injection for Application/Infrastructure layers.
 ### **Phase 14: Sync Feature Integration (Stub)**
 Connect Sync button to stub sync service.
 
-1. **Test First** — tests/AstarOneDrive.UI.Tests/Integration/SyncIntegrationTests.cs
+1. **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Integration/SyncIntegrationTests.cs
    - Test: Click "Sync Now" → `SyncStatusViewModel.Status` → "Syncing..."
    - Test: Sync completes → Status → "Idle"
    - Test: Sync error → Status → "Error" + message shown

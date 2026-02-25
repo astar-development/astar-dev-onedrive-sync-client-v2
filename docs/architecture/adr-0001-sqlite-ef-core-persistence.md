@@ -25,7 +25,7 @@ Adopt SQLite with EF Core in Infrastructure as the default local persistence mec
 Preferred option:
 - Use EF Core DbContext in Infrastructure
 - Define mappings with one `IEntityTypeConfiguration<T>` per entity
-- Store migrations under `src/AstarOneDrive.Infrastructure/Data/Migrations`
+- Store migrations under `src/AStar.Dev.OneDrive.Sync.Client.Infrastructure/Data/Migrations`
 - Apply migrations at runtime before repositories are used
 - Resolve DB path from platform-specific app data directories
 - Replace JSON write paths with repository-based DB writes
