@@ -39,4 +39,8 @@
         <ProjectReference Include="..\..\..\src\nuget-packages\AStar.Dev.Utilities\AStar.Dev.Utilities.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage"/>
+    </ItemGroup>
+
 </Project>

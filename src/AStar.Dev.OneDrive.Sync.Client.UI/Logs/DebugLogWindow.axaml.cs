@@ -41,7 +41,7 @@ public partial class DebugLogWindow : Window
         var initialLogs = LoggingBootstrap.DebugLogSink.GetText();
         if(!string.IsNullOrWhiteSpace(initialLogs))
         {
-            LogText?.Text = initialLogs;
+            _ = (LogText?.Text = initialLogs);
         }
     }
 

@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AStar.Dev.OneDrive.Sync.Client.Domain\AStar.Dev.OneDrive.Sync.Client.Domain.csproj" />
     <ProjectReference Include="..\AStar.Dev.OneDrive.Sync.Client.Application\AStar.Dev.OneDrive.Sync.Client.Application.csproj" />
+    <ProjectReference Include="..\nuget-packages\AStar.Dev.Utilities\AStar.Dev.Utilities.csproj" />
   </ItemGroup>
 
 </Project>

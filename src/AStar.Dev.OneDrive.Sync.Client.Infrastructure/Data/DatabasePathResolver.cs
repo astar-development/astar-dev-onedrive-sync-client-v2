@@ -1,3 +1,5 @@
+using AStar.Dev.Utilities;
+
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 
 public static class DatabasePathResolver
@@ -8,9 +10,9 @@ public static class DatabasePathResolver
     public static string ResolveDatabasePath()
     {
         var basePath = ResolvePlatformDataDirectory();
-        var appPath = Path.Combine(basePath, AppFolderName);
+        var appPath = basePath.CombinePath(AppFolderName);
         _ = Directory.CreateDirectory(appPath);
-        return Path.Combine(appPath, DatabaseName);
+        return appPath.CombinePath(DatabaseName);
     }
 
     private static string ResolvePlatformDataDirectory()
@@ -23,7 +25,7 @@ public static class DatabasePathResolver
         if(OperatingSystem.IsMacOS())
         {
             var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            return Path.Combine(userProfile, "Library", "Application Support");
+            return userProfile.CombinePath("Library", "Application Support");
         }
 
         var xdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
@@ -33,6 +35,6 @@ public static class DatabasePathResolver
         }
 
         var homePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        return Path.Combine(homePath, ".local", "share");
+        return homePath.CombinePath(".local", "share");
     }
 }

@@ -67,9 +67,10 @@ public sealed partial class OptionsBindingGenerator : IIncrementalGenerator
         {
             // Fallback: parse from syntax
             var attrSyntax = ctx.Attributes[0].ApplicationSyntaxReference?.GetSyntax() as AttributeSyntax;
-            if(attrSyntax?.ArgumentList?.Arguments.Count > 0)
+            AttributeArgumentSyntax? firstArgument = attrSyntax?.ArgumentList?.Arguments.FirstOrDefault();
+            if (firstArgument is { Expression: { } _ })
             {
-                ExpressionSyntax expr = attrSyntax.ArgumentList.Arguments[0].Expression;
+                ExpressionSyntax expr = firstArgument.Expression;
                 if(expr is LiteralExpressionSyntax { Token.Value: string literalValue })
                     sectionName = literalValue;
             }
