@@ -1,3 +1,4 @@
+using AStar.Dev.Utilities;
 using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Layouts;
@@ -31,7 +32,7 @@ public sealed class LayoutSharedViewModelBindingTests
     }
 
     private static string GetLayoutPath(string layoutFileName)
-        => Path.Combine(GetRepositoryRootPath(), "src", "AStar.Dev.OneDrive.Sync.Client.UI", "Layouts", Path.GetFileName(layoutFileName));
+        => GetRepositoryRootPath().CombinePath("src", "AStar.Dev.OneDrive.Sync.Client.UI", "Layouts", Path.GetFileName(layoutFileName));
 
     private static string GetRepositoryRootPath()
     {
@@ -39,7 +40,7 @@ public sealed class LayoutSharedViewModelBindingTests
 
         while(current is not null)
         {
-            var srcFolder = Path.Combine(current.FullName, "src", "AStar.Dev.OneDrive.Sync.Client.UI", "Layouts");
+            var srcFolder = current.FullName.CombinePath("src", "AStar.Dev.OneDrive.Sync.Client.UI", "Layouts");
             if(Directory.Exists(srcFolder))
             {
                 return current.FullName;

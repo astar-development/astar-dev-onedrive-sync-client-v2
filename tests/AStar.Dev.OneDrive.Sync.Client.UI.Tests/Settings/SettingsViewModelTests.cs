@@ -1,5 +1,6 @@
 using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
+using AStar.Dev.Utilities;
 using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels.Settings;
@@ -134,5 +135,5 @@ public class SettingsViewModelTests
     }
 
     private static string CreateDatabasePath()
-        => Path.Combine(Path.GetTempPath(), $"astar-ui-settings-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
+        => Path.GetTempPath().CombinePath($"astar-ui-settings-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
 }

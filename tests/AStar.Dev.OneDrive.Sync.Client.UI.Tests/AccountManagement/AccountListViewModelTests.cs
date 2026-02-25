@@ -1,5 +1,6 @@
 using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
+using AStar.Dev.Utilities;
 using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels.AccountManagement;
@@ -84,5 +85,5 @@ public sealed class AccountListViewModelTests
     }
 
     private static string CreateDatabasePath()
-        => Path.Combine(Path.GetTempPath(), $"astar-ui-accounts-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
+        => Path.GetTempPath().CombinePath($"astar-ui-accounts-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
 }

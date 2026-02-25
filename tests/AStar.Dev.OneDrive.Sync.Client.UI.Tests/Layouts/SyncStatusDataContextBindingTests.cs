@@ -1,3 +1,4 @@
+using AStar.Dev.Utilities;
 using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Layouts;
@@ -10,7 +11,7 @@ public sealed class SyncStatusDataContextBindingTests
     [InlineData("TerminalLayoutView.axaml")]
     public void SyncStatusView_BindsDataContextToSyncViewModel(string layoutFileName)
     {
-        var filePath = Path.Combine(GetRepositoryRootPath(), "src", "AStar.Dev.OneDrive.Sync.Client.UI", "Layouts", Path.GetFileName(layoutFileName));
+        var filePath = GetRepositoryRootPath().CombinePath("src", "AStar.Dev.OneDrive.Sync.Client.UI", "Layouts", Path.GetFileName(layoutFileName));
 
         File.Exists(filePath).ShouldBeTrue();
 
@@ -26,7 +27,7 @@ public sealed class SyncStatusDataContextBindingTests
 
         while(current is not null)
         {
-            var srcFolder = Path.Combine(current.FullName, "src", "AStar.Dev.OneDrive.Sync.Client.UI", "Layouts");
+            var srcFolder = current.FullName.CombinePath("src", "AStar.Dev.OneDrive.Sync.Client.UI", "Layouts");
             if(Directory.Exists(srcFolder))
             {
                 return current.FullName;

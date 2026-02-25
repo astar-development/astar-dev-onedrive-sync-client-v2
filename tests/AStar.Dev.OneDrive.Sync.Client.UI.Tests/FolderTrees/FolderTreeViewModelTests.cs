@@ -1,6 +1,7 @@
 using System.Collections.Specialized;
 using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.UI.FolderTrees;
+using AStar.Dev.Utilities;
 using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels.FolderTrees;
@@ -90,5 +91,5 @@ public sealed class FolderTreeViewModelTests
         => new(Guid.NewGuid().ToString("N"), name, false, false, []);
 
     private static string CreateDatabasePath()
-        => Path.Combine(Path.GetTempPath(), $"astar-ui-folders-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
+        => Path.GetTempPath().CombinePath($"astar-ui-folders-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
 }
