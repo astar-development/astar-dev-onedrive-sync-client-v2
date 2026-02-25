@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 
-public static class ClientDbContextFactory
+public static class AstarOneDriveDbContextFactory
 {
-    public static ClientDbContext Create(string? databasePath = null)
+    public static AstarOneDriveDbContextModel Create(string? databasePath = null)
     {
         var resolvedPath = string.IsNullOrWhiteSpace(databasePath)
             ? DatabasePathResolver.ResolveDatabasePath()
@@ -16,9 +16,9 @@ public static class ClientDbContextFactory
             _ = Directory.CreateDirectory(dbDirectory);
         }
 
-        var optionsBuilder = new DbContextOptionsBuilder<ClientDbContext>();
+        var optionsBuilder = new DbContextOptionsBuilder<AstarOneDriveDbContextModel>();
         _ = optionsBuilder.UseSqlite($"Data Source={resolvedPath}");
 
-        return new ClientDbContext(optionsBuilder.Options);
+        return new AstarOneDriveDbContextModel(optionsBuilder.Options);
     }
 }

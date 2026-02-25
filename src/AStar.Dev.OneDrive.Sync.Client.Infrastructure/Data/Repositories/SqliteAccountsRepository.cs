@@ -8,7 +8,7 @@ public sealed class SqliteAccountsRepository(string? databasePath = null)
 {
     public async Task SaveAsync(IReadOnlyList<AccountState> accounts, CancellationToken cancellationToken = default)
     {
-        await using AStar.Dev.OneDrive.Sync.ClientDbContext context = AStar.Dev.OneDrive.Sync.ClientDbContextFactory.Create(databasePath);
+        await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
         List<AccountEntity> existing = await context.Accounts.ToListAsync(cancellationToken);
         context.Accounts.RemoveRange(existing);
 
@@ -32,7 +32,7 @@ public sealed class SqliteAccountsRepository(string? databasePath = null)
 
     public async Task<IReadOnlyList<AccountState>> LoadAsync(CancellationToken cancellationToken = default)
     {
-        await using AStar.Dev.OneDrive.Sync.ClientDbContext context = AStar.Dev.OneDrive.Sync.ClientDbContextFactory.Create(databasePath);
+        await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
         List<AccountState> accounts = await context.Accounts
             .AsNoTracking()
             .OrderBy(x => x.Email)

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 
-public sealed class ClientDbContext(DbContextOptions<ClientDbContext> options) : DbContext(options)
+public sealed class AstarOneDriveDbContextModel(DbContextOptions<AstarOneDriveDbContextModel> options) : DbContext(options)
 {
     public DbSet<SettingEntity> Settings => Set<SettingEntity>();
 
@@ -13,9 +13,5 @@ public sealed class ClientDbContext(DbContextOptions<ClientDbContext> options) :
     public DbSet<SyncFileEntity> SyncFiles => Set<SyncFileEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        _ = modelBuilder.ApplyConfiguration(new SettingConfiguration());
-        _ = modelBuilder.ApplyConfiguration(new AccountConfiguration());
-        _ = modelBuilder.ApplyConfiguration(new SyncFileConfiguration());
-    }
+        => _ = modelBuilder.ApplyConfigurationsFromAssembly(typeof(AstarOneDriveDbContextModel).Assembly);
 }

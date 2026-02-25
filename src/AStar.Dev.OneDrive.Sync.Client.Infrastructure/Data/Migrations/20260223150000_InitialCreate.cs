@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Migrations;
 
-[DbContext(typeof(AStar.Dev.OneDrive.Sync.ClientDbContext))]
+[DbContext(typeof(AstarOneDriveDbContextModel))]
 [Migration("20260223150000_InitialCreate")]
 public partial class InitialCreate : Migration
 {

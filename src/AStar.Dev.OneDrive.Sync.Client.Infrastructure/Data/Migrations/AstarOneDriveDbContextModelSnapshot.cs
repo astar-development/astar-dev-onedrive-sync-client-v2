@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Migrations;
 
-[DbContext(typeof(ClientDbContext))]
-partial class ClientDbContextModelSnapshot : ModelSnapshot
+[DbContext(typeof(AstarOneDriveDbContextModel))]
+partial class AstarOneDriveDbContextModelSnapshot : ModelSnapshot
 {
     protected override void BuildModel(ModelBuilder modelBuilder)
     {

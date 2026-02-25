@@ -24,7 +24,7 @@ public sealed class SqlitePersistenceTests
 
         await migrator.EnsureMigratedAsync(TestContext.Current.CancellationToken);
 
-        await using AStar.Dev.OneDrive.Sync.ClientDbContext context = AStar.Dev.OneDrive.Sync.ClientDbContextFactory.Create(databasePath);
+        await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
         IEnumerable<string> pending = await context.Database.GetPendingMigrationsAsync(TestContext.Current.CancellationToken);
         pending.ShouldBeEmpty();
     }
@@ -36,7 +36,7 @@ public sealed class SqlitePersistenceTests
         var migrator = new SqliteDatabaseMigrator(databasePath);
         await migrator.EnsureMigratedAsync(TestContext.Current.CancellationToken);
 
-        await using AStar.Dev.OneDrive.Sync.ClientDbContext context = AStar.Dev.OneDrive.Sync.ClientDbContextFactory.Create(databasePath);
+        await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
         var account = new AccountEntity
         {
             Id = "acct-1",
@@ -83,7 +83,7 @@ public sealed class SqlitePersistenceTests
         var migrator = new SqliteDatabaseMigrator(databasePath);
         await migrator.EnsureMigratedAsync(TestContext.Current.CancellationToken);
 
-        await using AStar.Dev.OneDrive.Sync.ClientDbContext context = AStar.Dev.OneDrive.Sync.ClientDbContextFactory.Create(databasePath);
+        await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
         _ = context.Accounts.Add(new AccountEntity
         {
             Id = "acct-null",
@@ -105,7 +105,7 @@ public sealed class SqlitePersistenceTests
         var migrator = new SqliteDatabaseMigrator(databasePath);
         await migrator.EnsureMigratedAsync(TestContext.Current.CancellationToken);
 
-        await using AStar.Dev.OneDrive.Sync.ClientDbContext context = AStar.Dev.OneDrive.Sync.ClientDbContextFactory.Create(databasePath);
+        await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
         var account = new AccountEntity
         {
             Id = "acct-2",

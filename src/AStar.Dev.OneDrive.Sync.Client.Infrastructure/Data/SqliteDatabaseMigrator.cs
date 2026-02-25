@@ -10,13 +10,13 @@ public sealed class SqliteDatabaseMigrator(string? databasePath = null)
 
     public async Task EnsureMigratedAsync(CancellationToken cancellationToken = default)
     {
-        await using AStar.Dev.OneDrive.Sync.ClientDbContext context = AStar.Dev.OneDrive.Sync.ClientDbContextFactory.Create(_databasePath);
+        await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(_databasePath);
         await context.Database.MigrateAsync(cancellationToken);
     }
 
     public void EnsureMigrated()
     {
-        using AStar.Dev.OneDrive.Sync.ClientDbContext context = AStar.Dev.OneDrive.Sync.ClientDbContextFactory.Create(_databasePath);
+        using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(_databasePath);
         context.Database.Migrate();
     }
 }

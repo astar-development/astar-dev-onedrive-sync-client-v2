@@ -199,7 +199,7 @@ Introduce a database-backed persistence layer for configuration, accounts, and f
 Reference: see [docs/database-schema.md](database-schema.md) for table definitions, constraints, indexes, and migration/runtime contract.
 
 1. ✅ **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.Infrastructure.Tests/Data/SqlitePersistenceTests.cs
-   - Test: `AStar.Dev.OneDrive.Sync.ClientDbContext` can create/connect to SQLite database using platform-specific app data location
+   - Test: `AstarOneDriveDbContextModel` can create/connect to SQLite database using platform-specific app data location
    - Test: Runtime startup applies pending migrations automatically
    - Test: `Settings`, `Accounts`, and `SyncFiles` entities can be inserted/queried
    - Test: Required fields reject nulls; optional fields allow null only where explicitly configured
@@ -207,7 +207,7 @@ Reference: see [docs/database-schema.md](database-schema.md) for table definitio
 
 2. ✅ **Implement Infrastructure** — src/AStar.Dev.OneDrive.Sync.Client.Infrastructure/Data
    - Add latest EF Core SQLite packages (`Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.Sqlite`, `Microsoft.EntityFrameworkCore.Design`, `Microsoft.EntityFrameworkCore.Tools`)
-   - Create `AStar.Dev.OneDrive.Sync.ClientDbContext` with `DbSet` definitions for configuration, account, and file/sync metadata
+   - Create `AstarOneDriveDbContextModel` with `DbSet` definitions for configuration, account, and file/sync metadata
    - Add per-entity `IEntityTypeConfiguration<T>` classes to configure schema, keys, indexes, max lengths, and nullability
    - Store migrations in `src/AStar.Dev.OneDrive.Sync.Client.Infrastructure/Data/Migrations`
    - Configure DB path from platform-specific application data directory (per OS conventions)
@@ -345,7 +345,7 @@ Set up dependency injection for Application/Infrastructure layers.
 1. **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Composition/CompositionRootTests.cs
    - Test: `ISyncService` can be resolved (returns real impl)
    - Test: `ISyncFileRepository` can be resolved (returns mock OneDrive stub)
-   - Test: `AStar.Dev.OneDrive.Sync.ClientDbContext` and persistence repositories can be resolved
+   - Test: `AstarOneDriveDbContextModel` and persistence repositories can be resolved
 
 2. **Implement** — src/AStar.Dev.OneDrive.Sync.Client.UI/Composition/CompositionRoot.cs
    - Wire up `ISyncService` → `SyncService`

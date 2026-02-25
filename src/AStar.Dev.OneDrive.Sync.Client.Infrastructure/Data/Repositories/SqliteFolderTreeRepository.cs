@@ -11,7 +11,7 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
 
     public async Task SaveAsync(IReadOnlyList<FolderNodeState> nodes, CancellationToken cancellationToken = default)
     {
-        await using AStar.Dev.OneDrive.Sync.ClientDbContext context = AStar.Dev.OneDrive.Sync.ClientDbContextFactory.Create(databasePath);
+        await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
         await EnsureDefaultAccountAsync(context, cancellationToken);
 
         List<SyncFileEntity> existing = await context.SyncFiles.Where(x => x.AccountId == DefaultAccountId).ToListAsync(cancellationToken);
@@ -42,7 +42,7 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
 
     public async Task<IReadOnlyList<FolderNodeState>> LoadAsync(CancellationToken cancellationToken = default)
     {
-        await using AStar.Dev.OneDrive.Sync.ClientDbContext context = AStar.Dev.OneDrive.Sync.ClientDbContextFactory.Create(databasePath);
+        await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
         List<FolderNodeState> items = await context.SyncFiles
             .AsNoTracking()
             .Where(x => x.AccountId == DefaultAccountId)
@@ -59,7 +59,7 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
         return items;
     }
 
-    private static async Task EnsureDefaultAccountAsync(AStar.Dev.OneDrive.Sync.ClientDbContext context, CancellationToken cancellationToken)
+    private static async Task EnsureDefaultAccountAsync(AstarOneDriveDbContextModel context, CancellationToken cancellationToken)
     {
         AccountEntity? existing = await context.Accounts.SingleOrDefaultAsync(x => x.Id == DefaultAccountId, cancellationToken);
         if(existing is not null)
