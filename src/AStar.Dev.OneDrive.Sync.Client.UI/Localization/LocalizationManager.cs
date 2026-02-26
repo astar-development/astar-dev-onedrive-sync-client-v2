@@ -100,8 +100,26 @@ public static class LocalizationManager
 
         if(culture == "en-GB")
         {
-            // Hard-coded English strings for testing
             InMemoryResources["Menu_File"] = "File";
+            InMemoryResources["Menu_UserSettings"] = "User Settings";
+            InMemoryResources["Menu_AppSettings"] = "Application Settings";
+            InMemoryResources["Menu_Layouts"] = "Layouts";
+            InMemoryResources["Menu_Help"] = "Help";
+            InMemoryResources["Layout_Explorer"] = "Explorer";
+            InMemoryResources["Layout_Dashboard"] = "Dashboard";
+            InMemoryResources["Layout_Terminal"] = "Terminal";
+            InMemoryResources["Btn_SyncNow"] = "Sync Now";
+            InMemoryResources["Btn_AddAccount"] = "Add Account";
+            InMemoryResources["Btn_RemoveAccount"] = "Remove Account";
+            InMemoryResources["Btn_OK"] = "OK";
+            InMemoryResources["Btn_Cancel"] = "Cancel";
+            InMemoryResources["Status_Idle"] = "Idle";
+            InMemoryResources["Status_Syncing"] = "Syncing...";
+        }
+
+        if(culture == "en-US")
+        {
+            InMemoryResources["Menu_File"] = "File (US)";
             InMemoryResources["Menu_UserSettings"] = "User Settings";
             InMemoryResources["Menu_AppSettings"] = "Application Settings";
             InMemoryResources["Menu_Layouts"] = "Layouts";

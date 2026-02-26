@@ -1,9 +1,11 @@
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Contracts;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Repositories;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
+using AStar.Dev.OneDrive.Sync.Client.UI.Localization;
 using ReactiveUI;
 using static AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager.ThemeManager;
 
@@ -13,77 +15,102 @@ public class SettingsViewModel : ViewModelBase
 {
     private readonly SqliteDatabaseMigrator _migrator;
     private readonly SqliteSettingsRepository _settingsRepository;
+    private SettingsState _lastCommittedState;
 
     public SettingsViewModel(string? databasePath = null)
     {
         _migrator = new SqliteDatabaseMigrator(databasePath);
         _settingsRepository = new SqliteSettingsRepository(databasePath);
+        OkCommand = new RelayCommand(_ => SaveSettings());
+        ApplyCommand = new RelayCommand(_ => SaveSettings());
+        CancelCommand = new RelayCommand(_ => RevertToCommittedState());
+        _lastCommittedState = CreateState();
     }
 
-    private string _userName = "User";
     public string UserName
     {
-        get => _userName;
-        set => this.RaiseAndSetIfChanged(ref _userName, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "User";
 
-    public ObservableCollection<string> AvailableLanguages { get; } = ["en-GB"];
+    public ObservableCollection<string> AvailableLanguages { get; } = ["en-GB", "en-US"];
 
-    private string _selectedLanguage = "en-GB";
     public string SelectedLanguage
     {
-        get => _selectedLanguage;
-        set => this.RaiseAndSetIfChanged(ref _selectedLanguage, value);
-    }
-
-    public ObservableCollection<string> AvailableThemes { get; } =
-        ["Light", "Dark", "Auto", "Colorful", "Professional", "Hacker", "HighContrast"];
-
-    private string _selectedTheme = "Light";
-    public string SelectedTheme
-    {
-        get => _selectedTheme;
+        get;
         set
         {
-            if(_selectedTheme == value)
+            if(field == value)
             {
                 return;
             }
 
-            _ = this.RaiseAndSetIfChanged(ref _selectedTheme, value);
+            _ = this.RaiseAndSetIfChanged(ref field, value);
+            LocalizationManager.SetLanguage(value);
+        }
+    } = "en-GB";
+
+    public ObservableCollection<string> AvailableThemes { get; } =
+        ["Light", "Dark", "Auto", "Colorful", "Professional", "Hacker", "HighContrast"];
+
+    public string SelectedTheme
+    {
+        get;
+        set
+        {
+            if(field == value)
+            {
+                return;
+            }
+
+            _ = this.RaiseAndSetIfChanged(ref field, value);
             ApplyTheme(value);
             ThemeChanged?.Invoke(this, value);
         }
-    }
+    } = "Light";
 
     public event EventHandler<string>? ThemeChanged;
     public event EventHandler<string>? LayoutChanged;
 
     public ObservableCollection<string> AvailableLayouts { get; } = ["Explorer", "Dashboard", "Terminal"];
 
-    private string _selectedLayout = "Explorer";
     public string SelectedLayout
     {
-        get => _selectedLayout;
+        get;
         set
         {
-            if(_selectedLayout == value)
+            if(field == value)
             {
                 return;
             }
 
-            _ = this.RaiseAndSetIfChanged(ref _selectedLayout, value);
+            _ = this.RaiseAndSetIfChanged(ref field, value);
             LayoutChanged?.Invoke(this, value);
         }
-    }
+    } = "Explorer";
+
+    /// <summary>
+    /// Saves settings and closes the dialog.
+    /// </summary>
+    public ICommand OkCommand { get; }
+
+    /// <summary>
+    /// Saves settings without closing the dialog.
+    /// </summary>
+    public ICommand ApplyCommand { get; }
+
+    /// <summary>
+    /// Reverts unsaved changes.
+    /// </summary>
+    public ICommand CancelCommand { get; }
 
     public Task<Result<bool, Exception>> SaveSettingsAsync(CancellationToken cancellationToken = default)
         => Try.RunAsync(async () =>
         {
             await _migrator.EnsureMigratedAsync(cancellationToken);
-            await _settingsRepository.SaveAsync(
-                new SettingsState(SelectedTheme, SelectedLanguage, SelectedLayout, UserName),
-                cancellationToken);
+            SettingsState state = CreateState();
+            await _settingsRepository.SaveAsync(state, cancellationToken);
+            _lastCommittedState = state;
             return true;
         });
 
@@ -94,25 +121,35 @@ public class SettingsViewModel : ViewModelBase
             SettingsState? state = await _settingsRepository.LoadAsync(cancellationToken);
             if(state is null)
             {
+                _lastCommittedState = CreateState();
                 return true;
             }
 
             ApplySettings(state);
+            _lastCommittedState = state;
             return true;
         });
 
     private void ApplySettings(SettingsState state)
     {
-        _selectedTheme = state.SelectedTheme;
-        _ = this.RaiseAndSetIfChanged(ref _selectedTheme, SelectedTheme);
-
-        _selectedLanguage = state.SelectedLanguage;
-        _ = this.RaiseAndSetIfChanged(ref _selectedLanguage, SelectedLanguage);
-
-        _selectedLayout = state.SelectedLayout;
-        _ = this.RaiseAndSetIfChanged(ref _selectedLayout, SelectedLayout);
-
-        _userName = state.UserName;
-        _ = this.RaiseAndSetIfChanged(ref _userName, UserName);
+        SelectedTheme = state.SelectedTheme;
+        SelectedLanguage = state.SelectedLanguage;
+        SelectedLayout = state.SelectedLayout;
+        UserName = state.UserName;
     }
+
+    private SettingsState CreateState()
+        => new(SelectedTheme, SelectedLanguage, SelectedLayout, UserName);
+
+    private void RevertToCommittedState()
+    {
+        SettingsState state = _lastCommittedState;
+        SelectedTheme = state.SelectedTheme;
+        SelectedLanguage = state.SelectedLanguage;
+        SelectedLayout = state.SelectedLayout;
+        UserName = state.UserName;
+    }
+
+    private void SaveSettings()
+        => SaveSettingsAsync().GetAwaiter().GetResult();
 }

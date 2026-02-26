@@ -11,7 +11,6 @@
                    FontWeight="Bold"
                    FontSize="18" />
 
-        <!-- User Settings -->
         <Border Padding="8" CornerRadius="4">
             <StackPanel Spacing="8">
                 <TextBlock Text="{DynamicResource Settings_User}" FontWeight="Bold" />
@@ -24,7 +23,6 @@
             </StackPanel>
         </Border>
 
-        <!-- Application Settings -->
         <Border Padding="8" CornerRadius="4">
             <StackPanel Spacing="8">
                 <TextBlock Text="{DynamicResource Settings_App}" FontWeight="Bold" />
@@ -37,6 +35,12 @@
                           SelectedItem="{Binding SelectedLayout}" />
             </StackPanel>
         </Border>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Content="{DynamicResource Btn_OK}" Command="{Binding OkCommand}" />
+            <Button Content="{DynamicResource Btn_Cancel}" Command="{Binding CancelCommand}" />
+            <Button Content="{DynamicResource Btn_Apply}" Command="{Binding ApplyCommand}" />
+        </StackPanel>
 
     </StackPanel>
 </UserControl>
