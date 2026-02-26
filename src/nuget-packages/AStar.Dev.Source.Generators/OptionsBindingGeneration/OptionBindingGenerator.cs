@@ -21,10 +21,8 @@ public sealed partial class OptionsBindingGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(optionsTypes, static (spc, types) =>
         {
             var validTypes = new List<OptionsTypeInfo>();
-            foreach(OptionsTypeInfo? info in types)
+            foreach (OptionsTypeInfo info in types.Where(info => info is not null).Cast<OptionsTypeInfo>())
             {
-                if(info == null)
-                    continue;
                 if(string.IsNullOrWhiteSpace(info.SectionName))
                 {
                     var diag = Diagnostic.Create(
