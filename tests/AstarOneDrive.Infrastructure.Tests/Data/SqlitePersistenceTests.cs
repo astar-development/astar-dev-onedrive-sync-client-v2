@@ -1,3 +1,4 @@
+using AStar.Dev.Utilities;
 using AstarOneDrive.Infrastructure.Data;
 using AstarOneDrive.Infrastructure.Data.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -12,14 +13,14 @@ public sealed class SqlitePersistenceTests
     {
         var path = DatabasePathResolver.ResolveDatabasePath();
 
-        path.ShouldEndWith(Path.Combine("AstarOneDrive", "astar-onedrive.db"));
+        path.ShouldEndWith("AstarOneDrive".CombinePath("astar-onedrive.db"));
         Path.IsPathRooted(path).ShouldBeTrue();
     }
 
     [Fact]
     public async Task EnsureMigratedAsync_AppliesPendingMigrations()
     {
-        var databasePath = Path.Combine(Path.GetTempPath(), $"astar-onedrive-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
+        var databasePath = Path.GetTempPath().CombinePath($"astar-onedrive-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
         var migrator = new SqliteDatabaseMigrator(databasePath);
 
         await migrator.EnsureMigratedAsync(TestContext.Current.CancellationToken);
@@ -32,7 +33,7 @@ public sealed class SqlitePersistenceTests
     [Fact]
     public async Task Context_AllowsInsertAndQuery_ForSettingsAccountsAndSyncFiles()
     {
-        var databasePath = Path.Combine(Path.GetTempPath(), $"astar-onedrive-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
+        var databasePath = Path.GetTempPath().CombinePath($"astar-onedrive-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
         var migrator = new SqliteDatabaseMigrator(databasePath);
         await migrator.EnsureMigratedAsync(TestContext.Current.CancellationToken);
 
@@ -79,7 +80,7 @@ public sealed class SqlitePersistenceTests
     [Fact]
     public async Task Context_RejectsNullForRequiredFields()
     {
-        var databasePath = Path.Combine(Path.GetTempPath(), $"astar-onedrive-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
+        var databasePath = Path.GetTempPath().CombinePath($"astar-onedrive-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
         var migrator = new SqliteDatabaseMigrator(databasePath);
         await migrator.EnsureMigratedAsync(TestContext.Current.CancellationToken);
 
@@ -101,7 +102,7 @@ public sealed class SqlitePersistenceTests
     [Fact]
     public async Task Context_EnforcesConfiguredMaxLength()
     {
-        var databasePath = Path.Combine(Path.GetTempPath(), $"astar-onedrive-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
+        var databasePath = Path.GetTempPath().CombinePath($"astar-onedrive-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
         var migrator = new SqliteDatabaseMigrator(databasePath);
         await migrator.EnsureMigratedAsync(TestContext.Current.CancellationToken);
 

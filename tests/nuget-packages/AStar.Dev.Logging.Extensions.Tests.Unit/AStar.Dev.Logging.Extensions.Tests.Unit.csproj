@@ -54,4 +54,8 @@
         <NoWarn>1701;1702;IDE0058;</NoWarn>
     </PropertyGroup>
 
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage"/>
+    </ItemGroup>
+
 </Project>

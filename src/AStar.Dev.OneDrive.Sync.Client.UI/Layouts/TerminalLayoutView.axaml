@@ -1,0 +1,66 @@
+<UserControl
+    x:Class="AStar.Dev.OneDrive.Sync.Client.UI.Layouts.TerminalLayoutView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:home="using:AStar.Dev.OneDrive.Sync.Client.UI.Home"
+    xmlns:account="using:AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement"
+    xmlns:folder="using:AStar.Dev.OneDrive.Sync.Client.UI.FolderTrees"
+    xmlns:logs="using:AStar.Dev.OneDrive.Sync.Client.UI.Logs"
+    xmlns:settings="using:AStar.Dev.OneDrive.Sync.Client.UI.Settings"
+    xmlns:sync="using:AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus"
+    x:DataType="home:MainWindowViewModel">
+
+    <DockPanel>
+
+        <!-- Top Command Bar -->
+        <Border DockPanel.Dock="Top" Background="{DynamicResource TerminalBarBackground}" Height="36">
+            <DockPanel>
+                <Menu>
+                    <MenuItem Header="{DynamicResource Menu_File}">
+                        <MenuItem Header="{DynamicResource Menu_UserSettings}" />
+                        <MenuItem Header="{DynamicResource Menu_AppSettings}" />
+                    </MenuItem>
+                    <MenuItem Header="{DynamicResource Menu_Layouts}">
+                        <MenuItem Header="Explorer" />
+                        <MenuItem Header="Dashboard" />
+                        <MenuItem Header="Terminal" />
+                    </MenuItem>
+                </Menu>
+                <Button DockPanel.Dock="Right" Content="⌘" Width="36" />
+            </DockPanel>
+        </Border>
+
+        <!-- Bottom Console Status Bar -->
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource TerminalStatusBackground}" Height="28">
+            <TextBlock Text="{Binding Sync.CurrentStatus}" Margin="8,0" />
+        </Border>
+
+        <!-- Main Split View -->
+        <Grid ColumnDefinitions="250,*">
+
+            <!-- Left: Accounts + Folder Tree -->
+            <StackPanel>
+                <account:AccountListView DataContext="{Binding Accounts}" />
+                <Separator />
+                <folder:FolderTreeView DataContext="{Binding FolderTree}" />
+            </StackPanel>
+
+            <!-- Right: Tabbed Content -->
+            <TabControl Grid.Column="1">
+                <TabItem Header="{DynamicResource Tab_Status}">
+                    <sync:SyncStatusView DataContext="{Binding Sync}" />
+                </TabItem>
+
+                <TabItem Header="{DynamicResource Tab_Logs}">
+                    <logs:LogsView DataContext="{Binding Logs}" />
+                </TabItem>
+
+                <TabItem Header="{DynamicResource Tab_Settings}">
+                    <settings:SettingsView DataContext="{Binding Settings}" />
+                </TabItem>
+            </TabControl>
+
+        </Grid>
+
+    </DockPanel>
+</UserControl>

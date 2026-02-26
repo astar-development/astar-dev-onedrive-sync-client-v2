@@ -1,4 +1,4 @@
-# AstarOneDrive Multi‑Layout, Multi‑Theme Application Architecture Guide
+# AStar.Dev.OneDrive.Sync.Client Multi‑Layout, Multi‑Theme Application Architecture Guide
 
 This document outlines the cross‑platform AvaloniaUI application built with **Onion Architecture** that supports:
 
@@ -18,25 +18,25 @@ Architecture decisions are tracked in [docs/architecture/README.md](architecture
 ### Solution Organization (Onion Architecture)
 
 ```
-AstarOneDrive.slnx
+AStar.Dev.OneDrive.Sync.Client.slnx
 ├── src/
-│   ├── AstarOneDrive.Domain/                 (Core entities, interfaces)
+│   ├── AStar.Dev.OneDrive.Sync.Client.Domain/                 (Core entities, interfaces)
 │   │   ├── Entities/
 │   │   │   └── SyncFile.cs
 │   │   └── Interfaces/
 │   │       └── ISyncFileRepository.cs
 │   │
-│   ├── AstarOneDrive.Application/            (Business logic, services)
+│   ├── AStar.Dev.OneDrive.Sync.Client.Application/            (Business logic, services)
 │   │   ├── Interfaces/
 │   │   │   └── ISyncService.cs
 │   │   └── Services/
 │   │       └── SyncService.cs
 │   │
-│   ├── AstarOneDrive.Infrastructure/         (Data access, external services)
+│   ├── AStar.Dev.OneDrive.Sync.Client.Infrastructure/         (Data access, external services)
 │   │   └── Repositories/
 │   │       └── OneDriveSyncFileRepository.cs
 │   │
-│   └── AstarOneDrive.UI/                     (Presentation layer)
+│   └── AStar.Dev.OneDrive.Sync.Client.UI/                     (Presentation layer)
 │       ├── App.axaml
 │       ├── App.axaml.cs
 │       ├── Program.cs
@@ -106,67 +106,67 @@ AstarOneDrive.slnx
 │       └── Assets/                           (Images, icons, resources)
 │
 └── tests/
-    ├── AstarOneDrive.Domain.Tests/
-    ├── AstarOneDrive.Application.Tests/
-    └── AstarOneDrive.UI.Tests/
+    ├── AStar.Dev.OneDrive.Sync.Client.Domain.Tests/
+    ├── AStar.Dev.OneDrive.Sync.Client.Application.Tests/
+    └── AStar.Dev.OneDrive.Sync.Client.UI.Tests/
         ├── ViewModels/
         └── Layouts/
 ```
 
 ## 2. Namespaces & Architecture Layers
 
-### Domain Layer (`AstarOneDrive.Domain`)
+### Domain Layer (`AStar.Dev.OneDrive.Sync.Client.Domain`)
 No external dependencies. Contains:
 - Core entities: `SyncFile`
 - Repository interfaces: `ISyncFileRepository`
 
 **Usage**: Referenced by Application and Infrastructure only.
 
-### Application Layer (`AstarOneDrive.Application`)
+### Application Layer (`AStar.Dev.OneDrive.Sync.Client.Application`)
 Depends only on Domain. Contains:
 - Business logic: `SyncService`
 - Service interfaces: `ISyncService`
 
 **Usage**: Referenced by Infrastructure and UI.
 
-### Infrastructure Layer (`AstarOneDrive.Infrastructure`)
+### Infrastructure Layer (`AStar.Dev.OneDrive.Sync.Client.Infrastructure`)
 Depends on Domain and Application. Contains:
 - Repository implementations: `OneDriveSyncFileRepository`
 - External service integrations (OneDrive API client, database access, etc.)
 
 **Usage**: Wired up in the UI layer's composition root.
 
-### UI Layer (`AstarOneDrive.UI`)
+### UI Layer (`AStar.Dev.OneDrive.Sync.Client.UI`)
 Depends only on Application (never Infrastructure directly).
 Namespaces:
-- `AstarOneDrive.UI.Home` — Main window, host layout container
-- `AstarOneDrive.UI.Layouts` — Three swappable layout implementations
-- `AstarOneDrive.UI.AccountManagement` — Account list view and VM
-- `AstarOneDrive.UI.FolderTrees` — Folder tree view and VM
-- `AstarOneDrive.UI.SyncStatus` — Sync status view and VM
-- `AstarOneDrive.UI.Logs` — Activity log view and VM
-- `AstarOneDrive.UI.Settings` — Settings view and VM
-- `AstarOneDrive.UI.Common` — Base classes, helpers, enums
-- `AstarOneDrive.UI.ThemeManager` — Theme switching logic
+- `AStar.Dev.OneDrive.Sync.Client.UI.Home` — Main window, host layout container
+- `AStar.Dev.OneDrive.Sync.Client.UI.Layouts` — Three swappable layout implementations
+- `AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement` — Account list view and VM
+- `AStar.Dev.OneDrive.Sync.Client.UI.FolderTrees` — Folder tree view and VM
+- `AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus` — Sync status view and VM
+- `AStar.Dev.OneDrive.Sync.Client.UI.Logs` — Activity log view and VM
+- `AStar.Dev.OneDrive.Sync.Client.UI.Settings` — Settings view and VM
+- `AStar.Dev.OneDrive.Sync.Client.UI.Common` — Base classes, helpers, enums
+- `AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager` — Theme switching logic
 
 ## 3. Core UI Architecture: Layout Switching
 
-### MainWindow (`AstarOneDrive.UI.Home.MainWindow`)
+### MainWindow (`AStar.Dev.OneDrive.Sync.Client.UI.Home.MainWindow`)
 Top-level `ReactiveWindow<MainWindowViewModel>` that hosts all layouts.
 
 **XAML**:
 ```xml
 <ReactiveWindow xmlns="https://github.com/avaloniaui"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                xmlns:vm="using:AstarOneDrive.UI.Home"
-                x:Class="AstarOneDrive.UI.Home.MainWindow"
+                xmlns:vm="using:AStar.Dev.OneDrive.Sync.Client.UI.Home"
+                x:Class="AStar.Dev.OneDrive.Sync.Client.UI.Home.MainWindow"
                 x:DataType="vm:MainWindowViewModel">
 
     <ContentControl Content="{Binding CurrentLayoutView}" />
 </ReactiveWindow>
 ```
 
-### MainWindowViewModel (`AstarOneDrive.UI.Home.MainWindowViewModel`)
+### MainWindowViewModel (`AStar.Dev.OneDrive.Sync.Client.UI.Home.MainWindowViewModel`)
 Orchestrates layout switching and holds shared view models.
 
 ```csharp
@@ -228,31 +228,31 @@ public class MainWindowViewModel : ViewModelBase
 
 These view models contain all logic and state. All three layouts bind to the **same instances**.
 
-### `AccountListViewModel` (`AstarOneDrive.UI.AccountManagement`)
+### `AccountListViewModel` (`AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement`)
 - Add/remove OneDrive accounts
 - Store account metadata
 - Expose folder trees per account
 - Trigger sync operations
 
-### `FolderTreeViewModel` (`AstarOneDrive.UI.FolderTrees`)
+### `FolderTreeViewModel` (`AStar.Dev.OneDrive.Sync.Client.UI.FolderTrees`)
 - Represents hierarchical folder structure
 - Supports checkboxes for selective sync
 - Implements expand/collapse logic
 - Tracks selection state
 
-### `SyncStatusViewModel` (`AstarOneDrive.UI.SyncStatus`)
+### `SyncStatusViewModel` (`AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus`)
 - Tracks current sync state (Idle, Syncing, Paused, Error)
 - Exposes sync progress
 - Provides Sync Now / Pause controls
 - Aggregates sync statistics
 
-### `LogsViewModel` (`AstarOneDrive.UI.Logs`)
+### `LogsViewModel` (`AStar.Dev.OneDrive.Sync.Client.UI.Logs`)
 - Real-time sync activity log
 - Filters by status (Info, Warning, Error)
 - Scrolls to latest entries automatically
 - Clears log functionality
 
-### `SettingsViewModel` (`AstarOneDrive.UI.Settings`)
+### `SettingsViewModel` (`AStar.Dev.OneDrive.Sync.Client.UI.Settings`)
 - User settings (folder locations, sync frequency, etc.)
 - Application settings (theme, language, window state, etc.)
 - Persists settings to disk
@@ -308,7 +308,7 @@ SettingsView
     Application settings
 
 These components are layout‑agnostic.
-## 6. The Three Layouts (`AstarOneDrive.UI.Layouts`)
+## 6. The Three Layouts (`AStar.Dev.OneDrive.Sync.Client.UI.Layouts`)
 
 Each layout uses the same shared components, arranged differently. All inherit `ReactiveUserControl<TViewModel>`.
 
@@ -400,7 +400,7 @@ Users can switch layouts via:
 - Command in future versions
 
 Layout preference is persisted to disk and restored on app restart.
-## 7. Theme Support (`AstarOneDrive.UI.Themes` + `AstarOneDrive.UI.ThemeManager`)
+## 7. Theme Support (`AStar.Dev.OneDrive.Sync.Client.UI.Themes` + `AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager`)
 
 Themes are resource dictionaries that apply globally to all layouts.
 
@@ -416,7 +416,7 @@ Themes/
 └── HighContrast.axaml  — Maximum accessibility
 ```
 
-### `ThemeManager.cs` (`AstarOneDrive.UI.ThemeManager`)
+### `ThemeManager.cs` (`AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager`)
 
 ```csharp
 public static class ThemeManager
@@ -426,9 +426,9 @@ public static class ThemeManager
         var app = Application.Current;
         app.Styles.Clear();
 
-        app.Styles.Add(new StyleInclude(new Uri("avares://AstarOneDrive.UI/"))
+        app.Styles.Add(new StyleInclude(new Uri("avares://AStar.Dev.OneDrive.Sync.Client.UI/"))
         {
-            Source = new Uri($"avares://AstarOneDrive.UI/Themes/{themeName}.axaml")
+            Source = new Uri($"avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/{themeName}.axaml")
         });
     }
 }
@@ -447,7 +447,7 @@ Settings.ThemeChanged += (_, themeName) => ThemeManager.ApplyTheme(themeName);
 - Themes apply automatically to all layouts without restart
 - Selected theme is persisted in `SettingsViewModel`
 - All XAML views automatically inherit theme colors/styles
-## 8. Localization (`AstarOneDrive.UI.Locales`)
+## 8. Localization (`AStar.Dev.OneDrive.Sync.Client.UI.Locales`)
 
 Localization strings are stored in XAML resource dictionaries, keyed by culture.
 
@@ -563,9 +563,9 @@ UI never references Infrastructure directly—all service calls go through Appli
 ## 11. Testing Strategy
 
 ### Test Projects
-- `AstarOneDrive.Domain.Tests` — Entity and interface contract tests
-- `AstarOneDrive.Application.Tests` — Service logic tests (mocked Infrastructure)
-- `AstarOneDrive.UI.Tests` — ViewModel and control type tests
+- `AStar.Dev.OneDrive.Sync.Client.Domain.Tests` — Entity and interface contract tests
+- `AStar.Dev.OneDrive.Sync.Client.Application.Tests` — Service logic tests (mocked Infrastructure)
+- `AStar.Dev.OneDrive.Sync.Client.UI.Tests` — ViewModel and control type tests
 
 ### Testing Stack
 - **Framework**: xUnit.net v3

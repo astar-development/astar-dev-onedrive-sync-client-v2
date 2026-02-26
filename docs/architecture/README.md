@@ -1,6 +1,6 @@
 # Architecture Decision Records (ADRs)
 
-This index tracks architecture decisions for AstarOneDrive.
+This index tracks architecture decisions for AStar.Dev.OneDrive.Sync.Client.
 
 ## ADR Index
 

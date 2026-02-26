@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AStar.Dev.Utilities;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
 
@@ -46,11 +47,11 @@ public static class SerilogExtensions
                 ? Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
                 : Environment.GetEnvironmentVariable("XDG_STATE_HOME")
                   ?? Environment.GetEnvironmentVariable("XDG_CONFIG_HOME")
-                  ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".config");
+                ?? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).CombinePath(".config");
 
-            var logDir = Path.Combine(baseDir, "astar-dev", "astar-dev-onedrive-client", "logs");
+            var logDir = baseDir.CombinePath("astar-dev", "astar-dev-onedrive-client", "logs");
             _ = Directory.CreateDirectory(logDir);
-            var logPath = Path.Combine(logDir, "astar-dev-onedrive-client-.log");
+            var logPath = logDir.CombinePath("astar-dev-onedrive-client-.log");
 
             return config.WriteTo.File(logPath, rollingInterval: RollingInterval.Day, restrictedToMinimumLevel: LogEventLevel.Debug, formatProvider: System.Globalization.CultureInfo.InvariantCulture);
         }

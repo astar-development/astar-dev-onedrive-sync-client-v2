@@ -21,10 +21,8 @@ public sealed partial class OptionsBindingGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(optionsTypes, static (spc, types) =>
         {
             var validTypes = new List<OptionsTypeInfo>();
-            foreach(OptionsTypeInfo? info in types)
+            foreach (OptionsTypeInfo info in types.Where(info => info is not null).Cast<OptionsTypeInfo>())
             {
-                if(info == null)
-                    continue;
                 if(string.IsNullOrWhiteSpace(info.SectionName))
                 {
                     var diag = Diagnostic.Create(
@@ -67,9 +65,10 @@ public sealed partial class OptionsBindingGenerator : IIncrementalGenerator
         {
             // Fallback: parse from syntax
             var attrSyntax = ctx.Attributes[0].ApplicationSyntaxReference?.GetSyntax() as AttributeSyntax;
-            if(attrSyntax?.ArgumentList?.Arguments.Count > 0)
+            AttributeArgumentSyntax? firstArgument = attrSyntax?.ArgumentList?.Arguments.FirstOrDefault();
+            if (firstArgument is { Expression: { } _ })
             {
-                ExpressionSyntax expr = attrSyntax.ArgumentList.Arguments[0].Expression;
+                ExpressionSyntax expr = firstArgument.Expression;
                 if(expr is LiteralExpressionSyntax { Token.Value: string literalValue })
                     sectionName = literalValue;
             }

@@ -1,6 +1,6 @@
 # Functional Programming Guide
 
-This guide provides comprehensive examples and patterns for using `Result<T, TError>` and `Option<T>` in the AstarOneDrive project.
+This guide provides comprehensive examples and patterns for using `Result<T, TError>` and `Option<T>` in the AStar.Dev.OneDrive.Sync.Client project.
 
 > 📚 **For detailed explanations and theory**, see the [blog series](/docs/blogs/).
 
@@ -13,7 +13,7 @@ This guide provides comprehensive examples and patterns for using `Result<T, TEr
 #### Domain Layer — Simple String Errors
 
 ```csharp
-namespace AstarOneDrive.Domain.Entities;
+namespace AStar.Dev.OneDrive.Sync.Client.Domain.Entities;
 
 public class SyncFile
 {
@@ -33,7 +33,7 @@ public class SyncFile
 #### Application Layer — ErrorResponse for Business Logic
 
 ```csharp
-namespace AstarOneDrive.Application.Services;
+namespace AStar.Dev.OneDrive.Sync.Client.Application.Services;
 
 public class SyncService : ISyncService
 {
@@ -54,7 +54,7 @@ public class SyncService : ISyncService
 #### Infrastructure Layer — Exception for External Services
 
 ```csharp
-namespace AstarOneDrive.Infrastructure.Repositories;
+namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Repositories;
 
 public class OneDriveSyncFileRepository : ISyncFileRepository
 {
@@ -73,7 +73,7 @@ public class OneDriveSyncFileRepository : ISyncFileRepository
 #### UI Layer — User-Friendly Strings
 
 ```csharp
-namespace AstarOneDrive.UI.ViewModels;
+namespace AStar.Dev.OneDrive.Sync.Client.UI.ViewModels;
 
 public class SyncViewModel : ViewModelBase
 {

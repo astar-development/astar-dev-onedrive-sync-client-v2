@@ -1,0 +1,49 @@
+<UserControl
+    x:Class="AStar.Dev.OneDrive.Sync.Client.UI.Layouts.ExplorerLayoutView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:home="using:AStar.Dev.OneDrive.Sync.Client.UI.Home"
+    xmlns:account="using:AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement"
+    xmlns:folder="using:AStar.Dev.OneDrive.Sync.Client.UI.FolderTrees"
+    xmlns:sync="using:AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus"
+    x:DataType="home:MainWindowViewModel">
+
+    <DockPanel>
+
+        <!-- Top Menu Bar -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="{DynamicResource Menu_File}">
+                <MenuItem Header="{DynamicResource Menu_UserSettings}" />
+                <MenuItem Header="{DynamicResource Menu_AppSettings}" />
+            </MenuItem>
+
+            <MenuItem Header="{DynamicResource Menu_Layouts}">
+                <MenuItem Header="{DynamicResource Layout_Explorer}" />
+                <MenuItem Header="{DynamicResource Layout_Dashboard}" />
+                <MenuItem Header="{DynamicResource Layout_Terminal}" />
+            </MenuItem>
+        </Menu>
+
+        <!-- Bottom Status Bar -->
+        <Border DockPanel.Dock="Bottom" Padding="8,4">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="{Binding Sync.CurrentStatus}" />
+                <Separator Width="1" />
+                <TextBlock Text="{Binding Settings.SelectedTheme}" />
+            </StackPanel>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid ColumnDefinitions="250,*">
+            <!-- Left: Folder Tree -->
+            <folder:FolderTreeView DataContext="{Binding FolderTree}" />
+
+            <!-- Right: Account Details + Sync Status -->
+            <Grid RowDefinitions="Auto,*">
+                <account:AccountListView Grid.Row="0" DataContext="{Binding Accounts}" />
+                <sync:SyncStatusView Grid.Row="1" DataContext="{Binding Sync}" />
+            </Grid>
+        </Grid>
+
+    </DockPanel>
+</UserControl>

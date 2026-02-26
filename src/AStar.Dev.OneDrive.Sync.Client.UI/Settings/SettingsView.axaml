@@ -1,0 +1,42 @@
+<UserControl
+    x:Class="AStar.Dev.OneDrive.Sync.Client.UI.Settings.SettingsView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:AStar.Dev.OneDrive.Sync.Client.UI.Settings"
+    x:DataType="vm:SettingsViewModel">
+
+    <StackPanel Margin="12" Spacing="16">
+
+        <TextBlock Text="{DynamicResource Settings_Title}"
+                   FontWeight="Bold"
+                   FontSize="18" />
+
+        <!-- User Settings -->
+        <Border Padding="8" CornerRadius="4">
+            <StackPanel Spacing="8">
+                <TextBlock Text="{DynamicResource Settings_User}" FontWeight="Bold" />
+                <TextBlock Text="{DynamicResource Settings_UserName}" />
+                <TextBox Text="{Binding UserName}" />
+
+                <TextBlock Text="{DynamicResource Settings_Language}" />
+                <ComboBox ItemsSource="{Binding AvailableLanguages}"
+                          SelectedItem="{Binding SelectedLanguage}" />
+            </StackPanel>
+        </Border>
+
+        <!-- Application Settings -->
+        <Border Padding="8" CornerRadius="4">
+            <StackPanel Spacing="8">
+                <TextBlock Text="{DynamicResource Settings_App}" FontWeight="Bold" />
+                <TextBlock Text="{DynamicResource Settings_Theme}" />
+                <ComboBox ItemsSource="{Binding AvailableThemes}"
+                          SelectedItem="{Binding SelectedTheme}" />
+
+                <TextBlock Text="{DynamicResource Settings_Layout}" />
+                <ComboBox ItemsSource="{Binding AvailableLayouts}"
+                          SelectedItem="{Binding SelectedLayout}" />
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</UserControl>
