@@ -37,10 +37,12 @@ public sealed class ThemeManagerTests
         Avalonia.Application app = global::Avalonia.Application.Current ?? new TestApplication();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
+#pragma warning disable R57
         app.Styles.Add(new StyleInclude(new Uri("avares://AStar.Dev.OneDrive.Sync.Client.UI/"))
         {
             Source = new Uri("avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/Hacker.axaml")
         });
+#pragma warning restore R57
 
         global::AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager.ThemeManager.ApplyTheme("Light");
 

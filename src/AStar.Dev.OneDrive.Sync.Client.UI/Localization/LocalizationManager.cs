@@ -7,7 +7,9 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Localization;
 /// </summary>
 public static class LocalizationManager
 {
+#pragma warning disable R10
     private const string BaseUri = "avares://AStar.Dev.OneDrive.Sync.Client.UI/";
+#pragma warning restore R10
 
     // In-memory fallback for unit tests when Application.Current is null
     private static readonly Dictionary<string, string> InMemoryResources = new();

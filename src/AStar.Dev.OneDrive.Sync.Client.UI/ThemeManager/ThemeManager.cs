@@ -54,10 +54,12 @@ public static class ThemeManager
             }
         }
 
+#pragma warning disable R57
         app.Styles.Add(new StyleInclude(new Uri("avares://AStar.Dev.OneDrive.Sync.Client.UI/"))
         {
             Source = themeUri
         });
+#pragma warning restore R57
 
         // Schedule visual refresh on the UI thread after theme is applied
         // Use BeginInvoke to ensure the change is processed before refresh
