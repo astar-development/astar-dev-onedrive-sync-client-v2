@@ -67,6 +67,28 @@ public sealed class ThemeManagerTests
         _ = Should.Throw<InvalidOperationException>(() => global::AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager.ThemeManager.ApplyTheme("DoesNotExist"));
     }
 
+    [Fact]
+    public void ApplyTheme_PreservesBaseThemeStyles()
+    {
+        EnsureAvaloniaInitialized();
+
+        Avalonia.Application app = global::Avalonia.Application.Current ?? new TestApplication();
+        app.Styles.Clear();
+        app.Styles.Add(new FluentTheme());
+        app.Styles.Add(new StyleInclude(new Uri("avares://AStar.Dev.OneDrive.Sync.Client.UI/"))
+        {
+            Source = new Uri("avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/Base.axaml")
+        });
+
+        global::AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager.ThemeManager.ApplyTheme("Professional");
+
+        StyleInclude? baseThemeInclude = app.Styles
+            .OfType<StyleInclude>()
+            .SingleOrDefault(static style => style.Source?.OriginalString == "avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/Base.axaml");
+
+        _ = baseThemeInclude.ShouldNotBeNull("Base.axaml should be preserved when swapping themes");
+    }
+
     private static void EnsureAvaloniaInitialized()
     {
         if(_isAvaloniaInitialized)

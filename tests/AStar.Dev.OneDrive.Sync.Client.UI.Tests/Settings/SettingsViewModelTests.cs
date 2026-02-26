@@ -45,6 +45,42 @@ public class SettingsViewModelTests
     }
 
     [Fact]
+    public void ThemeChanged_Event_FiresWhenThemeChanges()
+    {
+        var viewModel = new SettingsViewModel();
+        var eventFired = false;
+        string? themeValue = null;
+        viewModel.ThemeChanged += (_, theme) =>
+        {
+            eventFired = true;
+            themeValue = theme;
+        };
+
+        viewModel.SelectedTheme = "Hacker";
+
+        eventFired.ShouldBeTrue();
+        themeValue.ShouldBe("Hacker");
+    }
+
+    [Fact]
+    public void LayoutChanged_Event_FiresWhenLayoutChanges()
+    {
+        var viewModel = new SettingsViewModel();
+        var eventFired = false;
+        string? layoutValue = null;
+        viewModel.LayoutChanged += (_, layout) =>
+        {
+            eventFired = true;
+            layoutValue = layout;
+        };
+
+        viewModel.SelectedLayout = "Terminal";
+
+        eventFired.ShouldBeTrue();
+        layoutValue.ShouldBe("Terminal");
+    }
+
+    [Fact]
     public async Task SaveSettingsAsync_ReturnsOkResult()
     {
         var viewModel = new SettingsViewModel(CreateDatabasePath())

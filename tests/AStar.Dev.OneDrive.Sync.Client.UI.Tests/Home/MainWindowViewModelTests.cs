@@ -53,6 +53,26 @@ public sealed class MainWindowViewModelTests
     }
 
     [Fact]
+    public void SwitchToTerminalCommand_ResetsTerminalTabToStatus()
+    {
+        var vm = new MainWindowViewModel
+        {
+            TerminalSelectedTabIndex = 2
+        };
+        vm.SwitchToTerminalCommand.Execute(null);
+        vm.TerminalSelectedTabIndex.ShouldBe(0);
+    }
+
+    [Fact]
+    public void OpenUserSettingsCommand_SetsTerminalSettingsTab()
+    {
+        var vm = new MainWindowViewModel();
+        vm.OpenUserSettingsCommand.Execute(null);
+        vm.CurrentLayout.ShouldBe(LayoutType.Terminal);
+        vm.TerminalSelectedTabIndex.ShouldBe(2);
+    }
+
+    [Fact]
     public void SharedVMs_RemainSameInstanceAcrossLayoutSwaps()
     {
         var vm = new MainWindowViewModel();
@@ -103,5 +123,47 @@ public sealed class MainWindowViewModelTests
 
         vm.Settings.SelectedLayout = "Terminal";
         vm.CurrentLayout.ShouldBe(LayoutType.Terminal);
+    }
+
+    [Fact]
+    public void OpenUserSettingsCommand_SetsTerminalLayoutWithSettingsTab()
+    {
+        var vm = new MainWindowViewModel();
+        vm.OpenUserSettingsCommand.Execute(null);
+        
+        vm.CurrentLayout.ShouldBe(LayoutType.Terminal);
+        vm.TerminalSelectedTabIndex.ShouldBe(2);
+    }
+
+    [Fact]
+    public void OpenAppSettingsCommand_SetsTerminalLayoutWithSettingsTab()
+    {
+        var vm = new MainWindowViewModel();
+        vm.OpenAppSettingsCommand.Execute(null);
+        
+        vm.CurrentLayout.ShouldBe(LayoutType.Terminal);
+        vm.TerminalSelectedTabIndex.ShouldBe(2);
+    }
+
+    [Fact]
+    public void TerminalSelectedTabIndex_StartsAtZero()
+    {
+        var vm = new MainWindowViewModel();
+        vm.TerminalSelectedTabIndex.ShouldBe(0);
+    }
+
+    [Fact]
+    public void TerminalSelectedTabIndex_RaisesPropertyChanged()
+    {
+        var vm = new MainWindowViewModel();
+        var propertyChanged = false;
+        vm.PropertyChanged += (_, e) =>
+        {
+            if(e.PropertyName == nameof(MainWindowViewModel.TerminalSelectedTabIndex))
+                propertyChanged = true;
+        };
+
+        vm.TerminalSelectedTabIndex = 1;
+        propertyChanged.ShouldBeTrue();
     }
 }

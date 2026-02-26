@@ -2,8 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:AStar.Dev.OneDrive.Sync.Client.UI"
              xmlns:fluent="clr-namespace:Avalonia.Themes.Fluent;assembly=Avalonia.Themes.Fluent"
-             x:Class="AStar.Dev.OneDrive.Sync.Client.UI.App"
-             RequestedThemeVariant="Dark">
+             x:Class="AStar.Dev.OneDrive.Sync.Client.UI.App">
 
     <Application.DataTemplates>
         <local:ViewLocator/>
@@ -11,6 +10,7 @@
 
     <Application.Styles>
         <fluent:FluentTheme/>
+        <StyleInclude Source="avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/Base.axaml" />
     </Application.Styles>
 
 </Application>

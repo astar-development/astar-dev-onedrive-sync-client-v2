@@ -44,6 +44,14 @@ public class MainWindowViewModel : ViewModelBase
     public ICommand SwitchToExplorerCommand { get; }
     public ICommand SwitchToDashboardCommand { get; }
     public ICommand SwitchToTerminalCommand { get; }
+    public ICommand OpenUserSettingsCommand { get; }
+    public ICommand OpenAppSettingsCommand { get; }
+
+    public int TerminalSelectedTabIndex
+    {
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    }
 
     public MainWindowViewModel(bool initializeLayoutView = true)
     {
@@ -58,7 +66,9 @@ public class MainWindowViewModel : ViewModelBase
         // Commands
         SwitchToExplorerCommand = new RelayCommand(_ => CurrentLayout = LayoutType.Explorer);
         SwitchToDashboardCommand = new RelayCommand(_ => CurrentLayout = LayoutType.Dashboard);
-        SwitchToTerminalCommand = new RelayCommand(_ => CurrentLayout = LayoutType.Terminal);
+        SwitchToTerminalCommand = new RelayCommand(_ => SetTerminalLayout(0));
+        OpenUserSettingsCommand = new RelayCommand(_ => SetTerminalLayout(2));
+        OpenAppSettingsCommand = new RelayCommand(_ => SetTerminalLayout(2));
 
         if(initializeLayoutView)
         {
@@ -111,5 +121,11 @@ public class MainWindowViewModel : ViewModelBase
         }
 
         Settings.SelectedLayout = layout.ToString();
+    }
+
+    private void SetTerminalLayout(int tabIndex)
+    {
+        TerminalSelectedTabIndex = tabIndex;
+        CurrentLayout = LayoutType.Terminal;
     }
 }

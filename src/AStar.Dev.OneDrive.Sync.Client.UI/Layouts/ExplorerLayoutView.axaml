@@ -13,14 +13,14 @@
         <!-- Top Menu Bar -->
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="{DynamicResource Menu_File}">
-                <MenuItem Header="{DynamicResource Menu_UserSettings}" />
-                <MenuItem Header="{DynamicResource Menu_AppSettings}" />
+                <MenuItem Header="{DynamicResource Menu_UserSettings}" Command="{Binding OpenUserSettingsCommand}" />
+                <MenuItem Header="{DynamicResource Menu_AppSettings}" Command="{Binding OpenAppSettingsCommand}" />
             </MenuItem>
 
             <MenuItem Header="{DynamicResource Menu_Layouts}">
-                <MenuItem Header="{DynamicResource Layout_Explorer}" />
-                <MenuItem Header="{DynamicResource Layout_Dashboard}" />
-                <MenuItem Header="{DynamicResource Layout_Terminal}" />
+                <MenuItem Header="{DynamicResource Layout_Explorer}" Command="{Binding SwitchToExplorerCommand}" />
+                <MenuItem Header="{DynamicResource Layout_Dashboard}" Command="{Binding SwitchToDashboardCommand}" />
+                <MenuItem Header="{DynamicResource Layout_Terminal}" Command="{Binding SwitchToTerminalCommand}" />
             </MenuItem>
         </Menu>
 

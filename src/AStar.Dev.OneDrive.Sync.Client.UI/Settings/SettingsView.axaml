@@ -17,11 +17,11 @@
             <StackPanel Spacing="8">
                 <TextBlock Text="{DynamicResource Settings_User}" FontWeight="Bold" Foreground="{DynamicResource ThemeForegroundBrush}" />
                 <TextBlock Text="{DynamicResource Settings_UserName}" Foreground="{DynamicResource ThemeForegroundBrush}" />
-                <TextBox Text="{Binding UserName, Mode=TwoWay}" />
+                <TextBox Text="{Binding UserName}" />
 
                 <TextBlock Text="{DynamicResource Settings_Language}" Foreground="{DynamicResource ThemeForegroundBrush}" />
                 <ComboBox ItemsSource="{Binding AvailableLanguages}"
-                          SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}" />
+                          SelectedItem="{Binding SelectedLanguage}" />
             </StackPanel>
         </Border>
 
@@ -30,11 +30,11 @@
                 <TextBlock Text="{DynamicResource Settings_App}" FontWeight="Bold" Foreground="{DynamicResource ThemeForegroundBrush}" />
                 <TextBlock Text="{DynamicResource Settings_Theme}" Foreground="{DynamicResource ThemeForegroundBrush}" />
                 <ComboBox ItemsSource="{Binding AvailableThemes}"
-                          SelectedItem="{Binding SelectedTheme, Mode=TwoWay}" />
+                          SelectedItem="{Binding SelectedTheme}" />
 
                 <TextBlock Text="{DynamicResource Settings_Layout}" Foreground="{DynamicResource ThemeForegroundBrush}" />
                 <ComboBox ItemsSource="{Binding AvailableLayouts}"
-                          SelectedItem="{Binding SelectedLayout, Mode=TwoWay}" />
+                          SelectedItem="{Binding SelectedLayout}" />
             </StackPanel>
         </Border>
 

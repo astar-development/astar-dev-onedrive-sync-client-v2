@@ -1,3 +1,5 @@
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Threading;
 
@@ -41,6 +43,11 @@ public static class ThemeManager
                 continue;
             }
 
+            if(styleInclude.Source.OriginalString.Equals("avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/Base.axaml", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             if(styleInclude.Source.OriginalString.StartsWith("avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/", StringComparison.OrdinalIgnoreCase))
             {
                 app.Styles.RemoveAt(index);
@@ -51,5 +58,43 @@ public static class ThemeManager
         {
             Source = themeUri
         });
+
+        // Schedule visual refresh on the UI thread after theme is applied
+        // Use BeginInvoke to ensure the change is processed before refresh
+        Dispatcher.UIThread.Post(InvalidateAllVisuals, DispatcherPriority.Render);
+    }
+
+    private static void InvalidateAllVisuals()
+    {
+        if(Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { })
+        {
+            // Clear resource caches and force re-layout
+            InvalidateVisualTree(desktop.MainWindow);
+        }
+    }
+
+    private static void InvalidateVisualTree(Control control)
+    {
+        // Invalidate measure and arrange to force layout recalculation
+        control.InvalidateMeasure();
+        control.InvalidateArrange();
+        control.InvalidateVisual();
+
+        // Process all children
+        if(control is Panel panel)
+        {
+            foreach(Control child in panel.Children.OfType<Control>())
+            {
+                InvalidateVisualTree(child);
+            }
+        }
+        else if(control is Decorator decorator && decorator.Child is Control childControl)
+        {
+            InvalidateVisualTree(childControl);
+        }
+        else if(control is ContentControl contentControl && contentControl.Content is Control contentChild)
+        {
+            InvalidateVisualTree(contentChild);
+        }
     }
 }
