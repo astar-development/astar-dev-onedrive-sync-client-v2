@@ -113,8 +113,16 @@ public static class LocalizationManager
             InMemoryResources["Btn_RemoveAccount"] = "Remove Account";
             InMemoryResources["Btn_OK"] = "OK";
             InMemoryResources["Btn_Cancel"] = "Cancel";
+            InMemoryResources["Btn_Apply"] = "Apply";
             InMemoryResources["Status_Idle"] = "Idle";
             InMemoryResources["Status_Syncing"] = "Syncing...";
+            InMemoryResources["Settings_Title"] = "Settings";
+            InMemoryResources["Settings_User"] = "User";
+            InMemoryResources["Settings_UserName"] = "User Name";
+            InMemoryResources["Settings_App"] = "Application";
+            InMemoryResources["Settings_Theme"] = "Theme";
+            InMemoryResources["Settings_Language"] = "Language";
+            InMemoryResources["Settings_Layout"] = "Layout";
         }
 
         if(culture == "en-US")
@@ -132,8 +140,16 @@ public static class LocalizationManager
             InMemoryResources["Btn_RemoveAccount"] = "Remove Account";
             InMemoryResources["Btn_OK"] = "OK";
             InMemoryResources["Btn_Cancel"] = "Cancel";
+            InMemoryResources["Btn_Apply"] = "Apply";
             InMemoryResources["Status_Idle"] = "Idle";
             InMemoryResources["Status_Syncing"] = "Syncing...";
+            InMemoryResources["Settings_Title"] = "Settings";
+            InMemoryResources["Settings_User"] = "User";
+            InMemoryResources["Settings_UserName"] = "User Name";
+            InMemoryResources["Settings_App"] = "Application";
+            InMemoryResources["Settings_Theme"] = "Theme";
+            InMemoryResources["Settings_Language"] = "Language";
+            InMemoryResources["Settings_Layout"] = "Layout";
         }
     }
 }

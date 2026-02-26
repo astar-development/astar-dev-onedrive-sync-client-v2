@@ -69,9 +69,13 @@
 
     <!-- Settings -->
     <system:String x:Key="Settings_Title">Settings</system:String>
+    <system:String x:Key="Settings_User">User</system:String>
+    <system:String x:Key="Settings_UserName">User Name</system:String>
+    <system:String x:Key="Settings_App">Application</system:String>
     <system:String x:Key="Settings_General">General</system:String>
     <system:String x:Key="Settings_Theme">Theme</system:String>
     <system:String x:Key="Settings_Language">Language</system:String>
+    <system:String x:Key="Settings_Layout">Layout</system:String>
     <system:String x:Key="Settings_SyncPath">Sync Path</system:String>
     <system:String x:Key="Settings_SyncFrequency">Sync Frequency</system:String>
     <system:String x:Key="Settings_SyncFrequencyMinutes">minutes</system:String>

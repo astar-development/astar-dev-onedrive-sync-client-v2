@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Include="Locales\**" />
+    <AvaloniaResource Include="Themes\**" />
   </ItemGroup>
 
   <ItemGroup>

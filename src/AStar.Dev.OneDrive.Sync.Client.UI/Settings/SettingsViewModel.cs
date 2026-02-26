@@ -51,7 +51,7 @@ public class SettingsViewModel : ViewModelBase
     } = "en-GB";
 
     public ObservableCollection<string> AvailableThemes { get; } =
-        ["Light", "Dark", "Auto", "Colorful", "Professional", "Hacker", "HighContrast"];
+        ["Light", "Dark", "Colorful", "Professional", "Hacker", "HighContrast"];
 
     public string SelectedTheme
     {

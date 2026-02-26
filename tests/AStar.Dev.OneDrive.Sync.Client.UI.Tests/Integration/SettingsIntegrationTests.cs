@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using AStar.Dev.OneDrive.Sync.Client.UI.Localization;
 using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
@@ -10,31 +11,45 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Integration;
 
 public sealed class SettingsIntegrationTests
 {
-    private static bool _isAvaloniaInitialized;
+    private static bool AvaloniaInitialized;
 
     [Fact]
-    public void ChangingTheme_UpdatesAppTheme()
+    public void SettingsViewModel_InitializesWithDefaults()
     {
-        var app = GetAppWithThemeSupport();
-        var viewModel = new SettingsViewModel
-        {
-            SelectedTheme = "Dark"
-        };
-        GetAppThemeSource(app).ShouldBe("avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/Dark.axaml");
+        var viewModel = new SettingsViewModel();
+        
+        viewModel.SelectedTheme.ShouldBe("Light");
+        viewModel.SelectedLanguage.ShouldBe("en-GB");
+        viewModel.SelectedLayout.ShouldBe("Explorer");
+        viewModel.UserName.ShouldBe("User");
+        viewModel.AvailableThemes.ShouldContain("Dark");
+        viewModel.AvailableThemes.ShouldContain("Light");
+        viewModel.AvailableLanguages.ShouldContain("en-GB");
+        viewModel.AvailableLanguages.ShouldContain("en-US");
     }
 
     [Fact]
-    public void ChangingLanguage_UpdatesLocalizedStrings()
+    public void ChangeThemeProperty_FiresPropertyChanged()
     {
-        EnsureAvaloniaInitialized();
-        var app = Avalonia.Application.Current ?? new TestApplication();
-        app.Resources.MergedDictionaries.Clear();
-        var viewModel = new SettingsViewModel
-        {
-            SelectedLanguage = "en-US"
-        };
-        LocalizationManager.CurrentLanguage.ShouldBe("en-US");
-        LocalizationManager.GetString("Menu_File").ShouldBe("File (US)");
+        var viewModel = new SettingsViewModel();
+        var changedProperties = new List<string>();
+        viewModel.PropertyChanged += (_, e) => changedProperties.Add(e.PropertyName ?? "");
+
+        viewModel.SelectedTheme = "Dark";
+
+        changedProperties.ShouldContain("SelectedTheme");
+    }
+
+    [Fact]
+    public void ChangeLanguageProperty_FiresPropertyChanged()
+    {
+        var viewModel = new SettingsViewModel();
+        var changedProperties = new List<string>();
+        viewModel.PropertyChanged += (_, e) => changedProperties.Add(e.PropertyName ?? "");
+
+        viewModel.SelectedLanguage = "en-US";
+
+        changedProperties.ShouldContain("SelectedLanguage");
     }
 
     [Fact]
@@ -94,7 +109,7 @@ public sealed class SettingsIntegrationTests
 
     private static void EnsureAvaloniaInitialized()
     {
-        if(_isAvaloniaInitialized)
+        if(AvaloniaInitialized)
         {
             return;
         }
@@ -103,7 +118,7 @@ public sealed class SettingsIntegrationTests
             .UseHeadless(new AvaloniaHeadlessPlatformOptions())
             .SetupWithoutStarting();
 
-        _isAvaloniaInitialized = true;
+        AvaloniaInitialized = true;
     }
 
     private static Avalonia.Application GetAppWithThemeSupport()

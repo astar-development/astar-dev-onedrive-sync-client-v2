@@ -3,43 +3,45 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="clr-namespace:AStar.Dev.OneDrive.Sync.Client.UI.Settings"
-    x:DataType="vm:SettingsViewModel">
+    x:DataType="vm:SettingsViewModel"
+    Foreground="{DynamicResource ThemeForegroundBrush}">
 
     <StackPanel Margin="12" Spacing="16">
 
         <TextBlock Text="{DynamicResource Settings_Title}"
                    FontWeight="Bold"
-                   FontSize="18" />
+                   FontSize="18" 
+                   Foreground="{DynamicResource ThemeForegroundBrush}" />
 
-        <Border Padding="8" CornerRadius="4">
+        <Border Padding="8" CornerRadius="4" Background="{DynamicResource CardBackground}">
             <StackPanel Spacing="8">
-                <TextBlock Text="{DynamicResource Settings_User}" FontWeight="Bold" />
-                <TextBlock Text="{DynamicResource Settings_UserName}" />
-                <TextBox Text="{Binding UserName}" />
+                <TextBlock Text="{DynamicResource Settings_User}" FontWeight="Bold" Foreground="{DynamicResource ThemeForegroundBrush}" />
+                <TextBlock Text="{DynamicResource Settings_UserName}" Foreground="{DynamicResource ThemeForegroundBrush}" />
+                <TextBox Text="{Binding UserName, Mode=TwoWay}" />
 
-                <TextBlock Text="{DynamicResource Settings_Language}" />
+                <TextBlock Text="{DynamicResource Settings_Language}" Foreground="{DynamicResource ThemeForegroundBrush}" />
                 <ComboBox ItemsSource="{Binding AvailableLanguages}"
-                          SelectedItem="{Binding SelectedLanguage}" />
+                          SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}" />
             </StackPanel>
         </Border>
 
-        <Border Padding="8" CornerRadius="4">
+        <Border Padding="8" CornerRadius="4" Background="{DynamicResource CardBackground}">
             <StackPanel Spacing="8">
-                <TextBlock Text="{DynamicResource Settings_App}" FontWeight="Bold" />
-                <TextBlock Text="{DynamicResource Settings_Theme}" />
+                <TextBlock Text="{DynamicResource Settings_App}" FontWeight="Bold" Foreground="{DynamicResource ThemeForegroundBrush}" />
+                <TextBlock Text="{DynamicResource Settings_Theme}" Foreground="{DynamicResource ThemeForegroundBrush}" />
                 <ComboBox ItemsSource="{Binding AvailableThemes}"
-                          SelectedItem="{Binding SelectedTheme}" />
+                          SelectedItem="{Binding SelectedTheme, Mode=TwoWay}" />
 
-                <TextBlock Text="{DynamicResource Settings_Layout}" />
+                <TextBlock Text="{DynamicResource Settings_Layout}" Foreground="{DynamicResource ThemeForegroundBrush}" />
                 <ComboBox ItemsSource="{Binding AvailableLayouts}"
-                          SelectedItem="{Binding SelectedLayout}" />
+                          SelectedItem="{Binding SelectedLayout, Mode=TwoWay}" />
             </StackPanel>
         </Border>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-            <Button Content="{DynamicResource Btn_OK}" Command="{Binding OkCommand}" />
-            <Button Content="{DynamicResource Btn_Cancel}" Command="{Binding CancelCommand}" />
-            <Button Content="{DynamicResource Btn_Apply}" Command="{Binding ApplyCommand}" />
+            <Button Content="{DynamicResource Btn_OK}" Command="{Binding OkCommand}" Foreground="{DynamicResource ThemeForegroundBrush}" />
+            <Button Content="{DynamicResource Btn_Cancel}" Command="{Binding CancelCommand}" Foreground="{DynamicResource ThemeForegroundBrush}" />
+            <Button Content="{DynamicResource Btn_Apply}" Command="{Binding ApplyCommand}" Foreground="{DynamicResource ThemeForegroundBrush}" />
         </StackPanel>
 
     </StackPanel>

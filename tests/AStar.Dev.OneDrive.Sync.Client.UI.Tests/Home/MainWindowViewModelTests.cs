@@ -1,5 +1,11 @@
+using AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
+using AStar.Dev.OneDrive.Sync.Client.UI.Common;
+using AStar.Dev.OneDrive.Sync.Client.UI.FolderTrees;
 using AStar.Dev.OneDrive.Sync.Client.UI.Home;
 using AStar.Dev.OneDrive.Sync.Client.UI.Layouts;
+using AStar.Dev.OneDrive.Sync.Client.UI.Logs;
+using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
+using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
 using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels;
@@ -50,10 +56,10 @@ public sealed class MainWindowViewModelTests
     public void SharedVMs_RemainSameInstanceAcrossLayoutSwaps()
     {
         var vm = new MainWindowViewModel();
-        var accountsInstance = vm.Accounts;
-        var folderTreeInstance = vm.FolderTree;
-        var syncInstance = vm.Sync;
-        var logsInstance = vm.Logs;
+        AccountListViewModel accountsInstance = vm.Accounts;
+        FolderTreeViewModel folderTreeInstance = vm.FolderTree;
+        SyncStatusViewModel syncInstance = vm.Sync;
+        LogsViewModel logsInstance = vm.Logs;
         SettingsViewModel settingsInstance = vm.Settings;
 
         vm.SwitchToDashboardCommand.Execute(null);
@@ -89,7 +95,7 @@ public sealed class MainWindowViewModelTests
     public async Task SettingsViewModel_LayoutChanged_UpdatesMainWindowLayout()
     {
         var vm = new MainWindowViewModel();
-        await vm.Settings.LoadSettingsAsync();
+        _ = await vm.Settings.LoadSettingsAsync(TestContext.Current.CancellationToken);
         vm.CurrentLayout.ShouldBe(LayoutType.Explorer);
 
         vm.Settings.SelectedLayout = "Dashboard";

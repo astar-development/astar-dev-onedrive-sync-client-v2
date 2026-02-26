@@ -68,7 +68,7 @@ public sealed class AutoRegisterOptionsPartialAnalyzer : DiagnosticAnalyzer
         if(symbol == null)
             return;
 
-        var autoRegisterAttr = symbol.GetAttributes()
+        AttributeData? autoRegisterAttr = symbol.GetAttributes()
             .FirstOrDefault(attr => attr.AttributeClass?.ToDisplayString() == "AStar.Dev.Source.Generators.Attributes.AutoRegisterOptionsAttribute");
 
         if(autoRegisterAttr is not null)
