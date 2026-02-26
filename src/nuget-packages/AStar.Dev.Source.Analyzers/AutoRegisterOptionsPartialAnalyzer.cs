@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -67,25 +68,23 @@ public sealed class AutoRegisterOptionsPartialAnalyzer : DiagnosticAnalyzer
         if(symbol == null)
             return;
 
-        foreach(AttributeData attr in symbol.GetAttributes())
+        var autoRegisterAttr = symbol.GetAttributes()
+            .FirstOrDefault(attr => attr.AttributeClass?.ToDisplayString() == "AStar.Dev.Source.Generators.Attributes.AutoRegisterOptionsAttribute");
+
+        if(autoRegisterAttr is not null)
         {
-            if(attr.AttributeClass?.ToDisplayString() == "AStar.Dev.Source.Generators.Attributes.AutoRegisterOptionsAttribute")
+            if(!typeDecl.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)))
             {
-                if(!typeDecl.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)))
-                {
-                    var diag = Diagnostic.Create(Rule, typeDecl.Identifier.GetLocation(), symbol.Name);
-                    context.ReportDiagnostic(diag);
-                }
+                var diag = Diagnostic.Create(Rule, typeDecl.Identifier.GetLocation(), symbol.Name);
+                context.ReportDiagnostic(diag);
+            }
 
-                if(typeDecl is RecordDeclarationSyntax recordDecl &&
-                   recordDecl.ClassOrStructKeyword.IsKind(SyntaxKind.StructKeyword) &&
-                   !recordDecl.Modifiers.Any(m => m.IsKind(SyntaxKind.ReadOnlyKeyword)))
-                {
-                    var diag = Diagnostic.Create(ReadonlyRecordRule, recordDecl.Identifier.GetLocation(), symbol.Name);
-                    context.ReportDiagnostic(diag);
-                }
-
-                break;
+            if(typeDecl is RecordDeclarationSyntax recordDecl &&
+               recordDecl.ClassOrStructKeyword.IsKind(SyntaxKind.StructKeyword) &&
+               !recordDecl.Modifiers.Any(m => m.IsKind(SyntaxKind.ReadOnlyKeyword)))
+            {
+                var diag = Diagnostic.Create(ReadonlyRecordRule, recordDecl.Identifier.GetLocation(), symbol.Name);
+                context.ReportDiagnostic(diag);
             }
         }
     }
