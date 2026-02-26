@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AStar.Dev.OneDrive.Sync.Client.UI.Localization;
 using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
+using AStar.Dev.Utilities;
 using Avalonia.Headless;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Themes.Fluent;
@@ -105,7 +106,7 @@ public sealed class SettingsIntegrationTests
     }
 
     private static string CreateDatabasePath()
-        => Path.Combine(Path.GetTempPath(), "astar-ui-settings-integration", Guid.NewGuid().ToString("N"), "astar-onedrive.db");
+        => Path.GetTempPath().CombinePath("astar-ui-settings-integration", Guid.NewGuid().ToString("N"), "astar-onedrive.db");
 
     private static void EnsureAvaloniaInitialized()
     {
