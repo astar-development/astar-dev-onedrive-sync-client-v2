@@ -47,25 +47,17 @@ internal sealed class ServiceModel(ServiceLifetime lifetime, string implFqn, str
 
     private static INamedTypeSymbol? ExtractAsType(AttributeData attr)
     {
-        foreach(KeyValuePair<string, TypedConstant> na in attr.NamedArguments)
-        {
-            if(na.Key == "As" && na.Value.Value is INamedTypeSymbol ts)
-                return ts;
-        }
+        KeyValuePair<string, TypedConstant> match = attr.NamedArguments.FirstOrDefault(na => na.Key == "As" && na.Value.Value is INamedTypeSymbol);
 
-        return null;
+        return !match.Equals(default(KeyValuePair<string, TypedConstant>)) && match.Value.Value is INamedTypeSymbol ts ? ts : null;
     }
 
     private static bool ExtractAsSelf(AttributeData attr)
-    {
-        foreach(KeyValuePair<string, TypedConstant> na in attr.NamedArguments)
-        {
-            if(na.Key == "AsSelf" && na.Value.Value is bool b)
-                return b;
-        }
-
-        return false;
-    }
+        => attr.NamedArguments
+             .Where(na => na.Key == "AsSelf")
+             .Select(na => na.Value.Value)
+             .OfType<bool>()
+             .FirstOrDefault();
 
     private static INamedTypeSymbol? InferServiceType(INamedTypeSymbol impl)
     {
