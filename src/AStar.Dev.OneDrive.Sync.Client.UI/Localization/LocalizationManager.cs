@@ -40,8 +40,14 @@ public static class LocalizationManager
 
                 app.Resources.MergedDictionaries.Add(resourceInclude);
             }
-            catch(Exception ex)
+            catch(InvalidOperationException ex)
             {
+                // Wrap expected resource loading issues in a domain-specific exception
+                throw new InvalidOperationException($"Failed to load locale '{culture}'", ex);
+            }
+            catch(UriFormatException ex)
+            {
+                // Wrap invalid URI issues (e.g., malformed culture code) in a domain-specific exception
                 throw new InvalidOperationException($"Failed to load locale '{culture}'", ex);
             }
         }
