@@ -139,10 +139,8 @@ public class AccountDialogViewModel : ViewModelBase
     /// </summary>
     public event EventHandler<bool>? CloseRequested;
 
-    private async void Save()
-    {
-        await ValidateEmail(Email)
-            .MapFailure(message => new InvalidOperationException(message))
+    private async void Save() => await ValidateEmail(Email)
+            .MapFailure(message => (Exception)new InvalidOperationException(message))
             .BindAsync(_ => SaveAccountAsync())
             .MatchAsync(
                 _ =>
@@ -158,7 +156,6 @@ public class AccountDialogViewModel : ViewModelBase
                     ValidationError = error.Message;
                     return Task.CompletedTask;
                 });
-    }
 
     private async Task<Result<AccountInfo, Exception>> SaveAccountAsync(CancellationToken cancellationToken = default)
         => await Try.RunAsync(async () =>

@@ -90,7 +90,7 @@ public class MainWindowViewModel : ViewModelBase
 
     private void ApplyLayout(LayoutType layout)
     {
-        if(!Dispatcher.UIThread.CheckAccess())
+        if(Dispatcher.UIThread is null || !Dispatcher.UIThread.CheckAccess())
         {
             Settings.SelectedLayout = layout.ToString();
             return;

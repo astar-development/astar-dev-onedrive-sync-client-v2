@@ -160,7 +160,7 @@ public class AccountListViewModel : ViewModelBase
             return;
         }
 
-        await LoadAccountsAsync()
+        _ = await LoadAccountsAsync()
             .MatchAsync(
                 _ => Task.CompletedTask,
                 _ => Task.CompletedTask);
