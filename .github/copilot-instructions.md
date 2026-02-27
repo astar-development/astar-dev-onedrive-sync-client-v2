@@ -12,13 +12,19 @@
 
 ## Test-Driven Development (TDD) — MANDATORY
 
+## Test-Driven Development (TDD) — MANDATORY
+
 **TDD is non-negotiable. Every feature branch MUST demonstrate Red → Green → Refactor.**
 
-1. Write failing test → Commit (RED)
-2. Write minimum code to pass → Commit (GREEN)  
-3. Refactor while keeping tests green → Commit (REFACTOR)
+1. Write failing tests for the feature → Commit (RED)
+2. Pause and request review of the tests before implementation → Request Review
+3. Commit the tests without implementation → Commit (RED) with suitable Title (e.g., "test: Add failing tests for feature X") and descriptive body if needed
+4. Write minimum code to pass → Commit (GREEN)  
+5. Pause and request review of the implementation before refactoring → Request Review
+6. Commit the implementation → Commit (GREEN) with suitable Title (e.g., "feat: Implement feature X") and descriptive body if needed
+7. Refactor while keeping tests green → Commit (REFACTOR)
 
-> ❌ **PRs without a prior failing-test commit will be rejected.**
+> ❌ **PRs that do not follow the Red → Green → Refactor cycle (including the intermediate commits) above will be rejected.**
 
 ---
 

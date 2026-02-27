@@ -228,10 +228,10 @@ Reference: see [docs/database-schema.md](database-schema.md) for table definitio
 
 ---
 
-### **Phase 8: Layout Switching Integration Test**
+### **Phase 8: Layout Switching Integration Test ✅**
 Test that `MainWindowViewModel` correctly orchestrates layout swaps.
 
-1. **Test** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/ViewModels/Home/MainWindowViewModelTests.cs (expand existing)
+1. ✅ **Test** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/ViewModels/Home/MainWindowViewModelTests.cs (expand existing)
    - Test: `CurrentLayout` property starts as Explorer
    - Test: `SwitchToExplorerCommand` sets layout to Explorer view
    - Test: `SwitchToDashboardCommand` sets layout to Dashboard view
@@ -239,34 +239,34 @@ Test that `MainWindowViewModel` correctly orchestrates layout swaps.
    - Test: Shared VMs (Accounts, FolderTree, Sync, Logs, Settings) are same instance across swaps
    - Test: Layout preference persists via `Settings` table (`SettingsViewModel.SelectedLayout`)
 
-2. **Implement** — MainWindowViewModel.cs
+2. ✅ **Implement** — MainWindowViewModel.cs
    - Ensure all layout commands work
    - Persist selected layout to `Settings` table via persistence service
    - Load layout preference from database on startup
 
-3. **Verify**
+3. ✅ **Verify**
    - 6 tests pass
    - Launch app, switch between layouts → works
    - Close app & reopen → last layout is restored from database
 
 ---
 
-### **Phase 9: Settings Dialog Full Integration**
+### **Phase 9: Settings Dialog Full Integration ✅**
 Connect Settings view to theme/language/layout switching.
 
-1. **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Integration/SettingsIntegrationTests.cs
+1. ✅ **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Integration/SettingsIntegrationTests.cs
    - Test: Changing theme in dialog updates app theme
    - Test: Changing language in dialog updates UI labels
    - Test: OK button saves all settings
    - Test: Cancel button discards changes
 
-2. **Implement** — SettingsView.axaml & code-behind
+2. ✅ **Implement** — SettingsView.axaml & code-behind
    - Add theme dropdown bound to `SettingsViewModel.AvailableThemes`
    - Add language dropdown (English for now)
    - Add OK / Cancel / Apply buttons
    - Wire up save/load to `Settings` table on dialog open/close
 
-3. **Verify**
+3. ✅ **Verify**
    - 4 tests pass
    - Open Settings in app → all controls populated
    - Change theme → app theme updates (live)
@@ -275,7 +275,7 @@ Connect Settings view to theme/language/layout switching.
 
 ---
 
-### **Phase 10: Account Management Dialog**
+### **Phase 10: Account Management Dialog ✅**
 Build add/edit account dialog (stub—real OAuth comes later).
 
 1. **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/ViewModels/AccountManagement/AccountDialogViewModelTests.cs

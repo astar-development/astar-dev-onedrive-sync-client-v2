@@ -18,6 +18,7 @@ public class AccountListViewModel : ViewModelBase
     private readonly RelayCommand _manageAccountCommand;
     private readonly SqliteDatabaseMigrator _migrator;
     private readonly SqliteAccountsRepository _accountsRepository;
+    private readonly string? _databasePath;
 
     public ObservableCollection<AccountInfo> Accounts { get; } = [];
 
@@ -57,17 +58,23 @@ public class AccountListViewModel : ViewModelBase
     public ICommand ManageAccountCommand { get; }
 
     /// <summary>
+    /// Raised when the UI should open the account dialog for add/edit.
+    /// </summary>
+    public event EventHandler<AccountDialogViewModel>? AccountDialogRequested;
+
+    /// <summary>
     /// Initializes a new instance of the AccountListViewModel class. This constructor sets up the database migrator and accounts repository, and initializes the commands for adding, removing, and managing accounts. The database path can be optionally provided; if not, it will use a default location.
     /// </summary>
     /// <param name="databasePath">The optional path to the database file. If not provided, a default location will be used.</param>
     public AccountListViewModel(string? databasePath = null)
     {
+        _databasePath = databasePath;
         _migrator = new SqliteDatabaseMigrator(databasePath);
         _accountsRepository = new SqliteAccountsRepository(databasePath);
 
         AddAccountCommand = new RelayCommand(_ => AddAccount());
         _removeAccountCommand = new RelayCommand(_ => RemoveSelectedAccount(), _ => SelectedAccount is not null);
-        _manageAccountCommand = new RelayCommand(account => ManageAccount(account as AccountInfo), _ => SelectedAccount is not null);
+        _manageAccountCommand = new RelayCommand(account => ManageAccount(account as AccountInfo), CanManageAccount);
         ManageAccountCommand = _manageAccountCommand;
     }
 
@@ -107,7 +114,11 @@ public class AccountListViewModel : ViewModelBase
         });
 
     private void AddAccount()
-        => Accounts.Add(new AccountInfo(Guid.NewGuid().ToString("N"), "new.account@example.com", 0, 0));
+    {
+        var dialogViewModel = new AccountDialogViewModel(_databasePath);
+        dialogViewModel.CloseRequested += OnDialogCloseRequested;
+        AccountDialogRequested?.Invoke(this, dialogViewModel);
+    }
 
     private void RemoveSelectedAccount()
     {
@@ -128,5 +139,30 @@ public class AccountListViewModel : ViewModelBase
         }
 
         SelectedAccount = account;
+        var dialogViewModel = new AccountDialogViewModel(account, _databasePath);
+        dialogViewModel.CloseRequested += OnDialogCloseRequested;
+        AccountDialogRequested?.Invoke(this, dialogViewModel);
+    }
+
+    private bool CanManageAccount(object? parameter)
+        => parameter is AccountInfo || SelectedAccount is not null;
+
+    private async void OnDialogCloseRequested(object? sender, bool saved)
+    {
+        if(sender is not AccountDialogViewModel dialogViewModel)
+        {
+            return;
+        }
+
+        dialogViewModel.CloseRequested -= OnDialogCloseRequested;
+        if(!saved)
+        {
+            return;
+        }
+
+        await LoadAccountsAsync()
+            .MatchAsync(
+                _ => Task.CompletedTask,
+                _ => Task.CompletedTask);
     }
 }
