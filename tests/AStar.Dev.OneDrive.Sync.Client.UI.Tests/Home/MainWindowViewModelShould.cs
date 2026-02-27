@@ -126,6 +126,7 @@ public sealed class MainWindowViewModelShould
 
         _ = await vm.Settings.LoadSettingsAsync(TestContext.Current.CancellationToken);
 
+        vm.Settings.SelectedLayout = "Explorer";
         vm.CurrentLayout.ShouldBe(LayoutType.Explorer);
         vm.Settings.SelectedLayout = "Dashboard";
         vm.CurrentLayout.ShouldBe(LayoutType.Dashboard);

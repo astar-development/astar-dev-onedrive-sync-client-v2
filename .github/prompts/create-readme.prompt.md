@@ -40,7 +40,7 @@ Primary objective: produce a concise, high-signal `README.md` that is attractive
 ## Suggested Section Order
 
 1. Title + logo
-2. Badges
+2. GitHub and SonarCloud Badges
 3. Short project summary
 4. Features
 5. Getting Started
