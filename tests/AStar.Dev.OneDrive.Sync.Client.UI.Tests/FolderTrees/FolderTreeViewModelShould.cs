@@ -1,12 +1,10 @@
-using System.Collections.Specialized;
 using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.UI.FolderTrees;
 using AStar.Dev.Utilities;
-using Shouldly;
 
-namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels.FolderTrees;
+namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.FolderTrees;
 
-public sealed class FolderTreeViewModelTests
+public sealed class FolderTreeViewModelShould
 {
     [Fact]
     public void Constructor_InitializesWithEmptyNodesCollection()

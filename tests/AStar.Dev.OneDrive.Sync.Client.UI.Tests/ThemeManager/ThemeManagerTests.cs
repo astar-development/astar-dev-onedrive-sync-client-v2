@@ -1,8 +1,6 @@
-using System.Linq;
 using Avalonia.Headless;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Themes.Fluent;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ThemeManager;
 
@@ -38,9 +36,9 @@ public sealed class ThemeManagerTests
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
 #pragma warning disable R57
-        app.Styles.Add(new StyleInclude(new Uri("avares://AStar.Dev.OneDrive.Sync.Client.UI/"))
+        app.Styles.Add(new StyleInclude(new Uri($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/"))
         {
-            Source = new Uri("avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/Hacker.axaml")
+            Source = new Uri($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/Hacker.axaml")
         });
 #pragma warning restore R57
 
@@ -50,11 +48,11 @@ public sealed class ThemeManagerTests
 
         var appThemeIncludes = app.Styles
             .OfType<StyleInclude>()
-            .Where(static style => style.Source?.OriginalString.StartsWith("avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/", StringComparison.OrdinalIgnoreCase) == true)
+            .Where(static style => style.Source?.OriginalString.StartsWith($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/", StringComparison.OrdinalIgnoreCase) == true)
             .ToList();
 
         appThemeIncludes.Count.ShouldBe(1);
-        appThemeIncludes[0].Source!.OriginalString.ShouldBe("avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/Light.axaml");
+        appThemeIncludes[0].Source!.OriginalString.ShouldBe($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/Light.axaml");
     }
 
     [Fact]
@@ -77,16 +75,16 @@ public sealed class ThemeManagerTests
         Avalonia.Application app = global::Avalonia.Application.Current ?? new TestApplication();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
-        app.Styles.Add(new StyleInclude(new Uri("avares://AStar.Dev.OneDrive.Sync.Client.UI/"))
+        app.Styles.Add(new StyleInclude(new Uri($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/"))
         {
-            Source = new Uri("avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/Base.axaml")
+            Source = new Uri($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/Base.axaml")
         });
 
         global::AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager.ThemeManager.ApplyTheme("Professional");
 
         StyleInclude? baseThemeInclude = app.Styles
             .OfType<StyleInclude>()
-            .SingleOrDefault(static style => style.Source?.OriginalString == "avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/Base.axaml");
+            .SingleOrDefault(static style => style.Source?.OriginalString == $"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/Base.axaml");
 
         _ = baseThemeInclude.ShouldNotBeNull("Base.axaml should be preserved when swapping themes");
     }

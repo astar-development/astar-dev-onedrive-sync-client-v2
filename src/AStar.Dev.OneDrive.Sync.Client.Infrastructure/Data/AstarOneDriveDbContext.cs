@@ -1,4 +1,3 @@
-using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Configurations;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 

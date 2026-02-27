@@ -1,9 +1,8 @@
 using AStar.Dev.Utilities;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Layouts;
 
-public sealed class LayoutSharedViewModelBindingTests
+public sealed class LayoutSharedViewModelBindingShould
 {
     [Theory]
     [InlineData("ExplorerLayoutView.axaml")]

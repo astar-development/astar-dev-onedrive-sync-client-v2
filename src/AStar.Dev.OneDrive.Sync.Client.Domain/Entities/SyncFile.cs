@@ -3,22 +3,11 @@ namespace AStar.Dev.OneDrive.Sync.Client.Domain.Entities;
 /// <summary>
 /// Represents a file that is tracked for synchronization with OneDrive.
 /// </summary>
-public sealed class SyncFile
+public sealed class SyncFile(string name, string localPath, string remotePath)
 {
-    public SyncFile(string name, string localPath, string remotePath)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        ArgumentException.ThrowIfNullOrWhiteSpace(localPath);
-        ArgumentException.ThrowIfNullOrWhiteSpace(remotePath);
+    public string Name { get; } = name;
 
-        Name = name;
-        LocalPath = localPath;
-        RemotePath = remotePath;
-    }
+    public string LocalPath { get; } = localPath;
 
-    public string Name { get; }
-
-    public string LocalPath { get; }
-
-    public string RemotePath { get; }
+    public string RemotePath { get; } = remotePath;
 }

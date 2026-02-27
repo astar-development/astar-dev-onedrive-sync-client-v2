@@ -8,11 +8,10 @@ using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
 using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
 using Avalonia.Controls;
 using Avalonia.LogicalTree;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Layouts;
 
-public sealed class LayoutRuntimeDataContextIntegrationTests
+public sealed class LayoutRuntimeDataContextIntegrationShould
 {
     [Fact]
     public void MainWindowViewModel_CurrentLayoutView_ContainsExpectedEmbeddedViewsAcrossLayouts()

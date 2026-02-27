@@ -1,16 +1,12 @@
-using System.Collections.Generic;
-using System.Linq;
-using AStar.Dev.OneDrive.Sync.Client.UI.Localization;
 using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
 using AStar.Dev.Utilities;
 using Avalonia.Headless;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Themes.Fluent;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Integration;
 
-public sealed class SettingsIntegrationTests
+public sealed class SettingsIntegrationShould
 {
     private static bool AvaloniaInitialized;
 

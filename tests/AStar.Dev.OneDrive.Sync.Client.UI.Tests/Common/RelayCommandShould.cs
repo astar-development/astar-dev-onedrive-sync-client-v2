@@ -1,10 +1,8 @@
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
-using Shouldly;
-using Xunit;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Common;
 
-public class RelayCommandTest
+public class RelayCommandShould
 {
     [Fact]
     public void CanExecute_WhenCanExecuteDelegateIsMissing_ReturnsTrue()

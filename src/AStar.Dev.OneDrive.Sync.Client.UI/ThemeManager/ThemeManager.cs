@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Threading;
@@ -43,19 +42,19 @@ public static class ThemeManager
                 continue;
             }
 
-            if(styleInclude.Source.OriginalString.Equals("avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/Base.axaml", StringComparison.OrdinalIgnoreCase))
+            if(styleInclude.Source.OriginalString.Equals($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/Base.axaml", StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
 
-            if(styleInclude.Source.OriginalString.StartsWith("avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/", StringComparison.OrdinalIgnoreCase))
+            if(styleInclude.Source.OriginalString.StartsWith($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/", StringComparison.OrdinalIgnoreCase))
             {
                 app.Styles.RemoveAt(index);
             }
         }
 
 #pragma warning disable R57
-        app.Styles.Add(new StyleInclude(new Uri("avares://AStar.Dev.OneDrive.Sync.Client.UI/"))
+        app.Styles.Add(new StyleInclude(new Uri($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/"))
         {
             Source = themeUri
         });

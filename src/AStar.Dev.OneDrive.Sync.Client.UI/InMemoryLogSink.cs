@@ -3,15 +3,13 @@ using Serilog.Events;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI;
 
-public class InMemoryLogSink : ILogEventSink
+public class InMemoryLogSink(int maxLines = 200) : ILogEventSink
 {
     private readonly Lock _lock = new();
-    private readonly int _maxLines;
+    private readonly int _maxLines = maxLines;
     private readonly List<string> _lines = new();
 
     public event Action? Updated;
-
-    public InMemoryLogSink(int maxLines = 200) => _maxLines = maxLines;
 
     public void Emit(LogEvent logEvent)
     {

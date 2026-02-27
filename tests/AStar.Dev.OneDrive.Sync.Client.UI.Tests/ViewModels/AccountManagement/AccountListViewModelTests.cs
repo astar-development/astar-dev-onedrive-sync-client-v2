@@ -1,11 +1,10 @@
 using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 using AStar.Dev.Utilities;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels.AccountManagement;
 
-public sealed class AccountListViewModelTests
+public sealed class AccountListViewModelShould
 {
     [Fact]
     public void Constructor_InitializesEmptyAccountsCollection()

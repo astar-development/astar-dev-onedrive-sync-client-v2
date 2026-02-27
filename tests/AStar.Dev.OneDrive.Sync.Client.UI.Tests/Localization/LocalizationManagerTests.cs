@@ -1,5 +1,4 @@
 using AStar.Dev.OneDrive.Sync.Client.UI.Localization;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Localization;
 

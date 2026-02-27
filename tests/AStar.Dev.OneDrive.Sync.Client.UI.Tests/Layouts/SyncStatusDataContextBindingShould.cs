@@ -1,9 +1,8 @@
 using AStar.Dev.Utilities;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Layouts;
 
-public sealed class SyncStatusDataContextBindingTests
+public sealed class SyncStatusDataContextBindingShould
 {
     [Theory]
     [InlineData("ExplorerLayoutView.axaml")]

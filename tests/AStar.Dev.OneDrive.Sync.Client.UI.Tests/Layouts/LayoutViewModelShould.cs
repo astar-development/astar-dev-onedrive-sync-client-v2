@@ -1,10 +1,9 @@
 using AStar.Dev.OneDrive.Sync.Client.UI.Home;
 using AStar.Dev.OneDrive.Sync.Client.UI.Layouts;
-using Shouldly;
 
-namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels.Layouts;
+namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Layouts;
 
-public sealed class LayoutViewModelTests
+public sealed class LayoutViewModelShould
 {
     [Fact]
     public void ExplorerLayoutViewModel_CanInstantiateWithMainWindowContext()

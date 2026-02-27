@@ -5,11 +5,10 @@ using AStar.Dev.OneDrive.Sync.Client.UI.Logs;
 using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
 using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
 using Avalonia.Controls;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Layouts;
 
-public sealed class EmbeddedViewsControlTypeTests
+public sealed class EmbeddedViewsControlTypeShould
 {
     [Fact]
     public void MainWindow_IsTopLevelControl() => typeof(TopLevel).IsAssignableFrom(typeof(MainWindow)).ShouldBeTrue();

@@ -2,11 +2,10 @@ using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Entities;
 using AStar.Dev.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Tests.Data;
 
-public sealed class SqlitePersistenceTests
+public sealed class SqlitePersistenceShould
 {
     [Fact]
     public void ResolveDatabasePath_UsesPlatformSpecificLocation()

@@ -2,15 +2,13 @@ using AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
 using AStar.Dev.OneDrive.Sync.Client.UI.FolderTrees;
 using AStar.Dev.OneDrive.Sync.Client.UI.Home;
-using AStar.Dev.OneDrive.Sync.Client.UI.Layouts;
 using AStar.Dev.OneDrive.Sync.Client.UI.Logs;
 using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
 using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
-using Shouldly;
 
-namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels;
+namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Home;
 
-public sealed class MainWindowViewModelTests
+public sealed class MainWindowViewModelShould
 {
     [Fact]
     public void CurrentLayout_StartsAsExplorer()
