@@ -1,6 +1,7 @@
 using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using AStar.Dev.OneDrive.Sync.Client.UI.Home;
+using AStar.Dev.OneDrive.Sync.Client.UI.Localization;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
@@ -22,6 +23,7 @@ public partial class App : Avalonia.Application
                 e.Handled = true;
             };
             ApplyDatabaseMigrations();
+            ExceptionBootstrap.HookAvaloniaUIThread();
 
             var mainViewModel = new MainWindowViewModel();
 
@@ -30,24 +32,27 @@ public partial class App : Avalonia.Application
                 DataContext = mainViewModel
             };
 
-            _ = LoadSettingsAndApplyThemeAsync(mainViewModel);
+            LoadSettingsAndApplyThemeSync(mainViewModel);
         }
 
         base.OnFrameworkInitializationCompleted();
     }
 
-    private static async Task LoadSettingsAndApplyThemeAsync(MainWindowViewModel mainViewModel)
+    private static void LoadSettingsAndApplyThemeSync(MainWindowViewModel mainViewModel)
     {
-        ExceptionBootstrap.HookAvaloniaUIThread();
-        Result<bool, Exception> loadResult = await mainViewModel.Settings.LoadSettingsAsync();
+        LocalizationManager.SetLanguage(mainViewModel.Settings.SelectedLanguage);
 
-        if(loadResult is AStar.Dev.Functional.Extensions.Result<bool, Exception>.Error error)
+        Result<bool, Exception> loadResult = mainViewModel.Settings.LoadSettingsAsync().Result;
+
+        if(loadResult is Result<bool, Exception>.Error error)
         {
             Log.Error(error.Reason, "Failed to load settings on startup");
+            LocalizationManager.SetLanguage(mainViewModel.Settings.SelectedLanguage);
             ThemeManager.ThemeManager.ApplyTheme(mainViewModel.Settings.SelectedTheme);
             return;
         }
 
+        LocalizationManager.SetLanguage(mainViewModel.Settings.SelectedLanguage);
         ThemeManager.ThemeManager.ApplyTheme(mainViewModel.Settings.SelectedTheme);
     }
 

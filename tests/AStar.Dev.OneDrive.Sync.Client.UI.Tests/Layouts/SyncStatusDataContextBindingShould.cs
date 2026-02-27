@@ -1,15 +1,14 @@
 using AStar.Dev.Utilities;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Layouts;
 
-public sealed class SyncStatusDataContextBindingTests
+public sealed class SyncStatusDataContextBindingShould
 {
     [Theory]
     [InlineData("ExplorerLayoutView.axaml")]
     [InlineData("DashboardLayoutView.axaml")]
     [InlineData("TerminalLayoutView.axaml")]
-    public void SyncStatusView_BindsDataContextToSyncViewModel(string layoutFileName)
+    public void BindDataContextToSyncViewModel(string layoutFileName)
     {
         var filePath = GetRepositoryRootPath().CombinePath("src", "AStar.Dev.OneDrive.Sync.Client.UI", "Layouts", Path.GetFileName(layoutFileName));
 

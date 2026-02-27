@@ -1,12 +1,11 @@
 using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels.SyncStatus;
 
-public sealed class SyncStatusViewModelTests
+public sealed class SyncStatusViewModelShould
 {
     [Fact]
-    public void Constructor_InitializesStatusToIdle()
+    public void InitializeStatusToIdle()
     {
         var viewModel = new SyncStatusViewModel();
 
@@ -14,7 +13,7 @@ public sealed class SyncStatusViewModelTests
     }
 
     [Fact]
-    public void StartSyncCommand_SetsStatusToSyncing()
+    public void SetStatusToSyncingWhenStartSyncCommandIsExecuted()
     {
         var viewModel = new SyncStatusViewModel();
 
@@ -24,7 +23,7 @@ public sealed class SyncStatusViewModelTests
     }
 
     [Fact]
-    public void PauseSyncCommand_SetsStatusToPaused()
+    public void SetStatusToPausedWhenPauseSyncCommandIsExecuted()
     {
         var viewModel = new SyncStatusViewModel();
 
@@ -34,7 +33,7 @@ public sealed class SyncStatusViewModelTests
     }
 
     [Fact]
-    public void ProgressPercentage_Set_UpdatesValue()
+    public void UpdateProgressPercentageWhenSet()
     {
         var viewModel = new SyncStatusViewModel
         {
@@ -45,7 +44,7 @@ public sealed class SyncStatusViewModelTests
     }
 
     [Fact]
-    public void RecentActivity_LogsEntries_OnStateChanges()
+    public void LogRecentActivityOnStateChanges()
     {
         var viewModel = new SyncStatusViewModel();
 
@@ -55,7 +54,7 @@ public sealed class SyncStatusViewModelTests
     }
 
     [Fact]
-    public void SyncError_Set_StoresMessage()
+    public void StoreSyncErrorMessageWhenSet()
     {
         var viewModel = new SyncStatusViewModel
         {
@@ -66,7 +65,7 @@ public sealed class SyncStatusViewModelTests
     }
 
     [Fact]
-    public void PropertyChanged_FiresOnStateChanges()
+    public void FirePropertyChangedEventOnStateChanges()
     {
         var viewModel = new SyncStatusViewModel();
         var raised = false;

@@ -1,5 +1,3 @@
-using System;
-using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 

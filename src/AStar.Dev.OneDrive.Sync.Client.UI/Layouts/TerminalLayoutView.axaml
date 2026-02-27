@@ -17,13 +17,13 @@
             <DockPanel>
                 <Menu>
                     <MenuItem Header="{DynamicResource Menu_File}">
-                        <MenuItem Header="{DynamicResource Menu_UserSettings}" />
-                        <MenuItem Header="{DynamicResource Menu_AppSettings}" />
+                        <MenuItem Header="{DynamicResource Menu_UserSettings}" Command="{Binding OpenUserSettingsCommand}" />
+                        <MenuItem Header="{DynamicResource Menu_AppSettings}" Command="{Binding OpenAppSettingsCommand}" />
                     </MenuItem>
                     <MenuItem Header="{DynamicResource Menu_Layouts}">
-                        <MenuItem Header="Explorer" />
-                        <MenuItem Header="Dashboard" />
-                        <MenuItem Header="Terminal" />
+                        <MenuItem Header="Explorer" Command="{Binding SwitchToExplorerCommand}" />
+                        <MenuItem Header="Dashboard" Command="{Binding SwitchToDashboardCommand}" />
+                        <MenuItem Header="Terminal" Command="{Binding SwitchToTerminalCommand}" />
                     </MenuItem>
                 </Menu>
                 <Button DockPanel.Dock="Right" Content="⌘" Width="36" />
@@ -46,7 +46,7 @@
             </StackPanel>
 
             <!-- Right: Tabbed Content -->
-            <TabControl Grid.Column="1">
+            <TabControl Grid.Column="1" SelectedIndex="{Binding TerminalSelectedTabIndex}">
                 <TabItem Header="{DynamicResource Tab_Status}">
                     <sync:SyncStatusView DataContext="{Binding Sync}" />
                 </TabItem>

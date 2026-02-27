@@ -1,15 +1,14 @@
 using AStar.Dev.Utilities;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Layouts;
 
-public sealed class LayoutSharedViewModelBindingTests
+public sealed class LayoutSharedViewModelBindingShould
 {
     [Theory]
     [InlineData("ExplorerLayoutView.axaml")]
     [InlineData("DashboardLayoutView.axaml")]
     [InlineData("TerminalLayoutView.axaml")]
-    public void Layouts_UseMainWindowViewModelAsDataType(string layoutFileName)
+    public void UseMainWindowViewModelAsDataType(string layoutFileName)
     {
         var xaml = File.ReadAllText(GetLayoutPath(layoutFileName));
 
@@ -24,7 +23,7 @@ public sealed class LayoutSharedViewModelBindingTests
     [InlineData("TerminalLayoutView.axaml", "<folder:FolderTreeView DataContext=\"{Binding FolderTree}\" />")]
     [InlineData("TerminalLayoutView.axaml", "<logs:LogsView DataContext=\"{Binding Logs}\" />")]
     [InlineData("TerminalLayoutView.axaml", "<settings:SettingsView DataContext=\"{Binding Settings}\" />")]
-    public void EmbeddedViews_BindToSharedViewModels(string layoutFileName, string expectedBindingSnippet)
+    public void BindToSharedViewModels(string layoutFileName, string expectedBindingSnippet)
     {
         var xaml = File.ReadAllText(GetLayoutPath(layoutFileName));
 

@@ -8,16 +8,9 @@ namespace AStar.Dev.OneDrive.Sync.Client.Application.Services;
 /// <summary>
 /// Orchestrates file synchronisation operations.
 /// </summary>
-public sealed class SyncService : ISyncService
+public sealed class SyncService(ISyncFileRepository syncFileRepository) : ISyncService
 {
-    private readonly ISyncFileRepository _syncFileRepository;
-
-    public SyncService(ISyncFileRepository syncFileRepository)
-    {
-        ArgumentNullException.ThrowIfNull(syncFileRepository);
-        _syncFileRepository = syncFileRepository;
-    }
-
+    ///  <inheritdoc/>
     public Task<Result<IReadOnlyList<SyncFile>, string>> GetSyncFilesAsync(CancellationToken cancellationToken = default)
-        => _syncFileRepository.GetAllAsync(cancellationToken);
+        => syncFileRepository.GetAllAsync(cancellationToken);
 }

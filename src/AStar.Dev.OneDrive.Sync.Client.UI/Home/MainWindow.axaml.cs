@@ -29,6 +29,10 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
 
     }
 
+    /// <summary>
+    /// Overrides the OnKeyDown method to listen for specific key combinations. When the user presses Ctrl+Shift+L, it toggles the visibility of a debug log window. If the debug window is not currently open, it creates a new instance of DebugLogWindow, shows it, and sets up an event handler to nullify the reference when the window is closed. If the debug window is already open, it closes the window and nullifies the reference. This allows developers to quickly access logging information while using the application without needing to navigate through menus or settings.
+    /// </summary>
+    /// <param name="e">The KeyEventArgs instance containing information about the key event.</param>
     protected override void OnKeyDown(KeyEventArgs e)
     {
         base.OnKeyDown(e);

@@ -2,20 +2,12 @@
 
 namespace AStar.Dev.Source.Generators.OptionsBindingGeneration;
 
-public sealed class OptionsTypeInfo : IEquatable<OptionsTypeInfo>
+public sealed class OptionsTypeInfo(string typeName, string fullTypeName, string sectionName, Location location) : IEquatable<OptionsTypeInfo>
 {
-    public string TypeName { get; }
-    public string FullTypeName { get; }
-    public string SectionName { get; }
-    public Location Location { get; }
-
-    public OptionsTypeInfo(string typeName, string fullTypeName, string sectionName, Location location)
-    {
-        TypeName = typeName ?? string.Empty;
-        FullTypeName = fullTypeName ?? string.Empty;
-        SectionName = sectionName;
-        Location = location;
-    }
+    public string TypeName { get; } = typeName ?? string.Empty;
+    public string FullTypeName { get; } = fullTypeName ?? string.Empty;
+    public string SectionName { get; } = sectionName;
+    public Location Location { get; } = location;
 
     public override bool Equals(object obj) => Equals((OptionsTypeInfo)obj);
 

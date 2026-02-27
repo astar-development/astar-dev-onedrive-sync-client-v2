@@ -32,8 +32,8 @@
                 <Button Content="{DynamicResource Menu_File}" />
                 <Button Content="{DynamicResource Account_Email}" />
                 <Button Content="{DynamicResource Sync_Activity}" />
-                <Button Content="{DynamicResource Menu_UserSettings}" />
-                <Button Content="{DynamicResource Menu_AppSettings}" />
+                <Button Content="{DynamicResource Menu_UserSettings}" Command="{Binding OpenUserSettingsCommand}" />
+                <Button Content="{DynamicResource Menu_AppSettings}" Command="{Binding OpenAppSettingsCommand}" />
             </StackPanel>
 
             <!-- Dashboard -->

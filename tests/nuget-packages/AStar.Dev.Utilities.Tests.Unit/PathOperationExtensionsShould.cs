@@ -1,5 +1,3 @@
-using AStar.Dev.Utilities;
-
 namespace AStar.Dev.Utilities.Tests.Unit;
 
 public sealed class PathOperationExtensionsShould
@@ -30,10 +28,4 @@ public sealed class PathOperationExtensionsShould
 
         _ = Should.Throw<ArgumentException>(() => "base".CombinePath(rootedSegment));
     }
-
-    [Fact]
-    public void CombinePath_ThrowsWhenSegmentsArrayIsNull() => Should.Throw<ArgumentNullException>(() => "base".CombinePath(null!));
-
-    [Fact]
-    public void CombinePath_ThrowsWhenAnySegmentIsNull() => Should.Throw<ArgumentNullException>(() => "base".CombinePath(new[] { "child", (string)null! }));
 }

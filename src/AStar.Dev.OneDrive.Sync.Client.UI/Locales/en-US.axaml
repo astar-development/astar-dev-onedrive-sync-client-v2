@@ -2,19 +2,16 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:system="clr-namespace:System;assembly=System.Runtime">
 
-    <!-- Menu Items -->
-    <system:String x:Key="Menu_File">File</system:String>
+    <system:String x:Key="Menu_File">File (US)</system:String>
     <system:String x:Key="Menu_UserSettings">User Settings</system:String>
     <system:String x:Key="Menu_AppSettings">Application Settings</system:String>
     <system:String x:Key="Menu_Layouts">Layouts</system:String>
     <system:String x:Key="Menu_Help">Help</system:String>
 
-    <!-- Layout Names -->
     <system:String x:Key="Layout_Explorer">Explorer</system:String>
     <system:String x:Key="Layout_Dashboard">Dashboard</system:String>
     <system:String x:Key="Layout_Terminal">Terminal</system:String>
 
-    <!-- Buttons -->
     <system:String x:Key="Btn_AddAccount">Add Account</system:String>
     <system:String x:Key="Btn_RemoveAccount">Remove Account</system:String>
     <system:String x:Key="Btn_ManageAccount">Manage</system:String>
@@ -30,35 +27,30 @@
     <system:String x:Key="Btn_Close">Close</system:String>
     <system:String x:Key="Btn_Clear">Clear</system:String>
 
-    <!-- Status Messages -->
     <system:String x:Key="Status_Idle">Idle</system:String>
     <system:String x:Key="Status_Syncing">Syncing...</system:String>
     <system:String x:Key="Status_Paused">Paused</system:String>
     <system:String x:Key="Status_Error">Error</system:String>
     <system:String x:Key="Status_Completed">Completed</system:String>
 
-    <!-- Account Management -->
     <system:String x:Key="Account_Email">Email</system:String>
     <system:String x:Key="Account_Storage">Storage</system:String>
     <system:String x:Key="Account_Used">Used</system:String>
     <system:String x:Key="Account_Available">Available</system:String>
     <system:String x:Key="Account_NoAccounts">No accounts linked</system:String>
 
-    <!-- Folder Tree -->
     <system:String x:Key="FolderTree_Root">OneDrive</system:String>
     <system:String x:Key="FolderTree_SelectAll">Select All</system:String>
     <system:String x:Key="FolderTree_DeselectAll">Deselect All</system:String>
     <system:String x:Key="FolderTree_Expand">Expand All</system:String>
     <system:String x:Key="FolderTree_Collapse">Collapse All</system:String>
 
-    <!-- Sync Status -->
     <system:String x:Key="Sync_Progress">Progress</system:String>
     <system:String x:Key="Sync_FilesProcessed">Files Processed</system:String>
     <system:String x:Key="Sync_LastSync">Last Sync</system:String>
     <system:String x:Key="Sync_Activity">Activity</system:String>
     <system:String x:Key="Sync_Error">Sync Error</system:String>
 
-    <!-- Logs -->
     <system:String x:Key="Log_Level">Level</system:String>
     <system:String x:Key="Log_Message">Message</system:String>
     <system:String x:Key="Log_Timestamp">Time</system:String>
@@ -67,7 +59,6 @@
     <system:String x:Key="Log_Warning">Warning</system:String>
     <system:String x:Key="Log_Error">Error</system:String>
 
-    <!-- Settings -->
     <system:String x:Key="Settings_Title">Settings</system:String>
     <system:String x:Key="Settings_User">User</system:String>
     <system:String x:Key="Settings_UserName">User Name</system:String>
@@ -84,7 +75,6 @@
     <system:String x:Key="Settings_SavedSuccessfully">Settings saved successfully</system:String>
     <system:String x:Key="Settings_FailedToSave">Failed to save settings</system:String>
 
-    <!-- Dialogs -->
     <system:String x:Key="Dialog_ConfirmDelete">Are you sure?</system:String>
     <system:String x:Key="Dialog_ConfirmLogout">Are you sure you want to logout?</system:String>
     <system:String x:Key="Dialog_Error">Error</system:String>
@@ -92,7 +82,6 @@
     <system:String x:Key="Dialog_Information">Information</system:String>
     <system:String x:Key="Dialog_Confirm">Confirm</system:String>
 
-    <!-- Theme Names -->
     <system:String x:Key="Theme_Light">Light</system:String>
     <system:String x:Key="Theme_Dark">Dark</system:String>
     <system:String x:Key="Theme_Professional">Professional</system:String>

@@ -17,15 +17,10 @@ public static class PathOperationExtensions
 	/// <exception cref="ArgumentException">Thrown when any segment is rooted.</exception>
 	public static string CombinePath(this string basePath, params string[] segments)
 	{
-		ArgumentNullException.ThrowIfNull(basePath);
-		ArgumentNullException.ThrowIfNull(segments);
-
 		var combined = basePath;
 
-		foreach(var segment in segments)
+		foreach(var segment in segments.Where(s => s is not null))
 		{
-			ArgumentNullException.ThrowIfNull(segment);
-
 			if(Path.IsPathRooted(segment))
 			{
 				throw new ArgumentException("Path segments must be relative.", nameof(segments));

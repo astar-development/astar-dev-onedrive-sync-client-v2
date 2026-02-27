@@ -4,23 +4,22 @@ using AStar.Dev.OneDrive.Sync.Client.Application.Services;
 using AStar.Dev.OneDrive.Sync.Client.Domain.Entities;
 using AStar.Dev.OneDrive.Sync.Client.Domain.Interfaces;
 using NSubstitute;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Application.Tests.Services;
 
-public sealed class SyncServiceTests
+public sealed class SyncServiceShould
 {
     private readonly ISyncFileRepository _repository;
     private readonly ISyncService _sut;
 
-    public SyncServiceTests()
+    public SyncServiceShould()
     {
         _repository = Substitute.For<ISyncFileRepository>();
         _sut = new SyncService(_repository);
     }
 
     [Fact]
-    public async Task GetSyncFilesAsync_WhenRepositoryReturnsFiles_ReturnsOkWithFiles()
+    public async Task ReturnOkWithFilesWhenRepositoryContainsFiles()
     {
         var expectedFiles = new List<SyncFile>
         {
@@ -38,7 +37,7 @@ public sealed class SyncServiceTests
     }
 
     [Fact]
-    public async Task GetSyncFilesAsync_WhenRepositoryReturnsEmptyList_ReturnsOkWithEmptyList()
+    public async Task ReturnOkWithEmptyListWhenRepositoryContainsNoFiles()
     {
         Result<IReadOnlyList<SyncFile>, string> repositoryResult = new List<SyncFile>();
         _ = _repository.GetAllAsync(Arg.Any<CancellationToken>())
@@ -51,7 +50,7 @@ public sealed class SyncServiceTests
     }
 
     [Fact]
-    public async Task GetSyncFilesAsync_WhenRepositoryReturnsError_ReturnsError()
+    public async Task ReturnErrorWhenRepositoryReturnsError()
     {
         Result<IReadOnlyList<SyncFile>, string> repositoryResult = "retrieval failed";
         _ = _repository.GetAllAsync(Arg.Any<CancellationToken>())
@@ -62,8 +61,4 @@ public sealed class SyncServiceTests
         Result<IReadOnlyList<SyncFile>, string>.Error error = result.ShouldBeOfType<Result<IReadOnlyList<SyncFile>, string>.Error>();
         error.Reason.ShouldBe("retrieval failed");
     }
-
-    [Fact]
-    public void Constructor_WithNullRepository_ThrowsArgumentNullException() => Should.Throw<ArgumentNullException>(
-            () => new SyncService(null!));
 }

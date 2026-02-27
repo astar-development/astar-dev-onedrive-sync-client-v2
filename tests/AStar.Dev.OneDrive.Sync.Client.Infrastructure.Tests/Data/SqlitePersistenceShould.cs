@@ -2,14 +2,13 @@ using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Entities;
 using AStar.Dev.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Tests.Data;
 
-public sealed class SqlitePersistenceTests
+public sealed class SqlitePersistenceShould
 {
     [Fact]
-    public void ResolveDatabasePath_UsesPlatformSpecificLocation()
+    public void ResolveDatabasePathUsingPlatformSpecificLocation()
     {
         var path = DatabasePathResolver.ResolveDatabasePath();
 
@@ -18,7 +17,7 @@ public sealed class SqlitePersistenceTests
     }
 
     [Fact]
-    public async Task EnsureMigratedAsync_AppliesPendingMigrations()
+    public async Task EnsurePendingMigrationsAreApplied()
     {
         var databasePath = Path.GetTempPath().CombinePath($"astar-onedrive-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
         var migrator = new SqliteDatabaseMigrator(databasePath);
@@ -31,7 +30,7 @@ public sealed class SqlitePersistenceTests
     }
 
     [Fact]
-    public async Task Context_AllowsInsertAndQuery_ForSettingsAccountsAndSyncFiles()
+    public async Task AllowInsertAndQueriesForSettingsAccountsAndSyncFiles()
     {
         var databasePath = Path.GetTempPath().CombinePath($"astar-onedrive-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
         var migrator = new SqliteDatabaseMigrator(databasePath);
@@ -78,7 +77,7 @@ public sealed class SqlitePersistenceTests
     }
 
     [Fact]
-    public async Task Context_RejectsNullForRequiredFields()
+    public async Task RejectNullForRequiredFields()
     {
         var databasePath = Path.GetTempPath().CombinePath($"astar-onedrive-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
         var migrator = new SqliteDatabaseMigrator(databasePath);
@@ -100,7 +99,7 @@ public sealed class SqlitePersistenceTests
     }
 
     [Fact]
-    public async Task Context_EnforcesConfiguredMaxLength()
+    public async Task EnforceConfiguredMaxLength()
     {
         var databasePath = Path.GetTempPath().CombinePath($"astar-onedrive-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
         var migrator = new SqliteDatabaseMigrator(databasePath);

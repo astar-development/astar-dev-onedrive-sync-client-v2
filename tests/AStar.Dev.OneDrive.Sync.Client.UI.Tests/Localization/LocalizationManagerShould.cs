@@ -1,94 +1,78 @@
 using AStar.Dev.OneDrive.Sync.Client.UI.Localization;
-using Shouldly;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Localization;
 
-public sealed class LocalizationManagerTests
+public sealed class LocalizationManagerShould
 {
     [Fact]
-    public void SetLanguage_WithEnGb_DoesNotThrow()
+    public void SetLanguageToEnGbAndNotThrow()
     {
-        // Act & Assert
         Action action = () => LocalizationManager.SetLanguage("en-GB");
+
         action.ShouldNotThrow();
     }
 
     [Fact]
-    public void GetString_WithValidKey_ReturnsNonEmptyString()
+    public void ReturnNonEmptyStringWhenGetStringWithValidKey()
     {
-        // Arrange
         LocalizationManager.SetLanguage("en-GB");
 
-        // Act
         var result = LocalizationManager.GetString("Menu_File");
 
-        // Assert
         result.ShouldNotBeNullOrWhiteSpace();
-        result.ShouldNotBe("Menu_File"); // Should be actual value, not fallback
+        result.ShouldNotBe("Menu_File"); 
     }
 
     [Fact]
-    public void GetString_WithInvalidKey_ReturnsFallbackValue()
+    public void ReturnFallbackValueWhenGetStringWithInvalidKey()
     {
-        // Arrange
         LocalizationManager.SetLanguage("en-GB");
         const string invalidKey = "NonExistent_Key_12345";
 
-        // Act
         var result = LocalizationManager.GetString(invalidKey);
 
-        // Assert
         result.ShouldBe(invalidKey);
     }
 
     [Fact]
-    public void SetLanguage_MultipleCallsWithSameCulture_DoesNotThrow()
+    public void NotThrowWhenSetLanguageIsCalledMultipleTimesWithSameCulture()
     {
-        // Act - call multiple times
         LocalizationManager.SetLanguage("en-GB");
+        
         Action action = () => LocalizationManager.SetLanguage("en-GB");
 
-        // Assert
         action.ShouldNotThrow();
     }
 
     [Fact]
-    public void CurrentLanguage_ReflecsSetLanguage()
+    public void ReflectSetLanguageInCurrentLanguage()
     {
-        // Act
         LocalizationManager.SetLanguage("en-GB");
 
-        // Assert
         LocalizationManager.CurrentLanguage.ShouldBe("en-GB");
     }
 
     [Fact]
-    public void GetString_AfterSetLanguage_ReturnsConsistentValues()
+    public void ReturnConsistentValuesWhenGetStringIsCalledAfterSetLanguage()
     {
-        // Arrange
         LocalizationManager.SetLanguage("en-GB");
 
-        // Act
         var result1 = LocalizationManager.GetString("Menu_File");
         var result2 = LocalizationManager.GetString("Menu_File");
 
-        // Assert
         result1.ShouldBe(result2);
         result1.ShouldNotBeNullOrWhiteSpace();
     }
 
     [Fact]
-    public void GetString_MultipleKeys_ReturnDifferentValues()
+    public void ReturnDifferentValuesWhenGetStringIsCalledWithMultipleKeys()
     {
-        // Arrange
         LocalizationManager.SetLanguage("en-GB");
 
-        // Act
         var menuFile = LocalizationManager.GetString("Menu_File");
         var menuLayouts = LocalizationManager.GetString("Menu_Layouts");
         var btnSync = LocalizationManager.GetString("Btn_SyncNow");
 
-        // Assert
         menuFile.ShouldNotBe(menuLayouts);
         menuLayouts.ShouldNotBe(btnSync);
         menuFile.ShouldNotBeNullOrWhiteSpace();
