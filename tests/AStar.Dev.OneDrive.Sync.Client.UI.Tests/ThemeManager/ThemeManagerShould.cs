@@ -14,7 +14,7 @@ public sealed class ThemeManagerShould
     {
         EnsureAvaloniaInitialized();
 
-        Avalonia.Application app = global::Avalonia.Application.Current ?? new TestApplication();
+        Avalonia.Application app = Avalonia.Application.Current ?? new TestApplication();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
 
@@ -32,7 +32,7 @@ public sealed class ThemeManagerShould
     {
         EnsureAvaloniaInitialized();
 
-        Avalonia.Application app = global::Avalonia.Application.Current ?? new TestApplication();
+        Avalonia.Application app = Avalonia.Application.Current ?? new TestApplication();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
         app.Styles.Add(new StyleInclude(new Uri($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/"))
@@ -58,7 +58,7 @@ public sealed class ThemeManagerShould
     {
         EnsureAvaloniaInitialized();
 
-        Avalonia.Application app = global::Avalonia.Application.Current ?? new TestApplication();
+        Avalonia.Application app = Avalonia.Application.Current ?? new TestApplication();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
 
@@ -70,7 +70,7 @@ public sealed class ThemeManagerShould
     {
         EnsureAvaloniaInitialized();
 
-        Avalonia.Application app = global::Avalonia.Application.Current ?? new TestApplication();
+        Avalonia.Application app = Avalonia.Application.Current ?? new TestApplication();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
         app.Styles.Add(new StyleInclude(new Uri($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/"))
@@ -94,12 +94,12 @@ public sealed class ThemeManagerShould
             return;
         }
 
-        _ = global::Avalonia.AppBuilder.Configure<TestApplication>()
+        _ = Avalonia.AppBuilder.Configure<TestApplication>()
             .UseHeadless(new AvaloniaHeadlessPlatformOptions())
             .SetupWithoutStarting();
 
         _isAvaloniaInitialized = true;
     }
 
-    private sealed class TestApplication : global::Avalonia.Application;
+    private sealed class TestApplication : Avalonia.Application;
 }

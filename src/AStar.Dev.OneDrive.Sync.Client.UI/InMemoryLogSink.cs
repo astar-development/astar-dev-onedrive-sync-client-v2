@@ -7,7 +7,7 @@ public class InMemoryLogSink(int maxLines = 200) : ILogEventSink
 {
     private readonly Lock _lock = new();
     private readonly int _maxLines = maxLines;
-    private readonly List<string> _lines = new();
+    private readonly List<string> _lines = [];
 
     public event Action? Updated;
 

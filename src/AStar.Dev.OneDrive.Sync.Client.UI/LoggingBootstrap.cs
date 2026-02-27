@@ -17,7 +17,7 @@ public static class LoggingBootstrap
             .Enrich.FromLogContext()
             .WriteTo.Console()
             .WriteTo.File(
-                "logs/app.log",
+                "astar-logs/app.log",
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 7);
 

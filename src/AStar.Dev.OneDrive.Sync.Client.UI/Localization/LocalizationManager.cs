@@ -9,8 +9,7 @@ public static class LocalizationManager
 {
     private readonly static string BaseUri = $"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/";
 
-    // In-memory fallback for unit tests when Application.Current is null
-    private static readonly Dictionary<string, string> InMemoryResources = new();
+    private static readonly Dictionary<string, string> InMemoryResources = [];
 
     /// <summary>
     /// Sets the application language by loading the corresponding locale dictionary.
@@ -19,8 +18,6 @@ public static class LocalizationManager
     /// <exception cref="InvalidOperationException">Thrown if the locale dictionary cannot be loaded.</exception>
     public static void SetLanguage(string culture)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(culture);
-
         Avalonia.Application? app = Avalonia.Application.Current;
 
         if(app != null)
@@ -44,7 +41,7 @@ public static class LocalizationManager
             }
             catch(UriFormatException ex)
             {
-                throw new InvalidOperationException($"Failed to load locale '{culture}'", ex);
+                throw new InvalidOperationException($"Failed to load locale '{culture}' - Format error", ex);
             }
         }
         else
@@ -81,57 +78,67 @@ public static class LocalizationManager
 
         if(culture == "en-GB")
         {
-            InMemoryResources["Menu_File"] = "File";
-            InMemoryResources["Menu_UserSettings"] = "User Settings";
-            InMemoryResources["Menu_AppSettings"] = "Application Settings";
-            InMemoryResources["Menu_Layouts"] = "Layouts";
-            InMemoryResources["Menu_Help"] = "Help";
-            InMemoryResources["Layout_Explorer"] = "Explorer";
-            InMemoryResources["Layout_Dashboard"] = "Dashboard";
-            InMemoryResources["Layout_Terminal"] = "Terminal";
-            InMemoryResources["Btn_SyncNow"] = "Sync Now";
-            InMemoryResources["Btn_AddAccount"] = "Add Account";
-            InMemoryResources["Btn_RemoveAccount"] = "Remove Account";
-            InMemoryResources["Btn_OK"] = "OK";
-            InMemoryResources["Btn_Cancel"] = "Cancel";
-            InMemoryResources["Btn_Apply"] = "Apply";
-            InMemoryResources["Status_Idle"] = "Idle";
-            InMemoryResources["Status_Syncing"] = "Syncing...";
-            InMemoryResources["Settings_Title"] = "Settings";
-            InMemoryResources["Settings_User"] = "User";
-            InMemoryResources["Settings_UserName"] = "User Name";
-            InMemoryResources["Settings_App"] = "Application";
-            InMemoryResources["Settings_Theme"] = "Theme";
-            InMemoryResources["Settings_Language"] = "Language";
-            InMemoryResources["Settings_Layout"] = "Layout";
+            DefineGBCultureMessages();
         }
 
         if(culture == "en-US")
         {
-            InMemoryResources["Menu_File"] = "File (US)";
-            InMemoryResources["Menu_UserSettings"] = "User Settings";
-            InMemoryResources["Menu_AppSettings"] = "Application Settings";
-            InMemoryResources["Menu_Layouts"] = "Layouts";
-            InMemoryResources["Menu_Help"] = "Help";
-            InMemoryResources["Layout_Explorer"] = "Explorer";
-            InMemoryResources["Layout_Dashboard"] = "Dashboard";
-            InMemoryResources["Layout_Terminal"] = "Terminal";
-            InMemoryResources["Btn_SyncNow"] = "Sync Now";
-            InMemoryResources["Btn_AddAccount"] = "Add Account";
-            InMemoryResources["Btn_RemoveAccount"] = "Remove Account";
-            InMemoryResources["Btn_OK"] = "OK";
-            InMemoryResources["Btn_Cancel"] = "Cancel";
-            InMemoryResources["Btn_Apply"] = "Apply";
-            InMemoryResources["Status_Idle"] = "Idle";
-            InMemoryResources["Status_Syncing"] = "Syncing...";
-            InMemoryResources["Settings_Title"] = "Settings";
-            InMemoryResources["Settings_User"] = "User";
-            InMemoryResources["Settings_UserName"] = "User Name";
-            InMemoryResources["Settings_App"] = "Application";
-            InMemoryResources["Settings_Theme"] = "Theme";
-            InMemoryResources["Settings_Language"] = "Language";
-            InMemoryResources["Settings_Layout"] = "Layout";
+            DefineUSCultureMessages();
         }
+    }
+
+    private static void DefineGBCultureMessages()
+    {
+        InMemoryResources["Menu_File"] = "File";
+        InMemoryResources["Menu_UserSettings"] = "User Settings";
+        InMemoryResources["Menu_AppSettings"] = "Application Settings";
+        InMemoryResources["Menu_Layouts"] = "Layouts";
+        InMemoryResources["Menu_Help"] = "Help";
+        InMemoryResources["Layout_Explorer"] = "Explorer";
+        InMemoryResources["Layout_Dashboard"] = "Dashboard";
+        InMemoryResources["Layout_Terminal"] = "Terminal";
+        InMemoryResources["Btn_SyncNow"] = "Sync Now";
+        InMemoryResources["Btn_AddAccount"] = "Add Account";
+        InMemoryResources["Btn_RemoveAccount"] = "Remove Account";
+        InMemoryResources["Btn_OK"] = "OK";
+        InMemoryResources["Btn_Cancel"] = "Cancel";
+        InMemoryResources["Btn_Apply"] = "Apply";
+        InMemoryResources["Status_Idle"] = "Idle";
+        InMemoryResources["Status_Syncing"] = "Syncing...";
+        InMemoryResources["Settings_Title"] = "Settings";
+        InMemoryResources["Settings_User"] = "User";
+        InMemoryResources["Settings_UserName"] = "User Name";
+        InMemoryResources["Settings_App"] = "Application";
+        InMemoryResources["Settings_Theme"] = "Theme";
+        InMemoryResources["Settings_Language"] = "Language";
+        InMemoryResources["Settings_Layout"] = "Layout";
+    }
+
+    private static void DefineUSCultureMessages()
+    {
+        InMemoryResources["Menu_File"] = "File (US)";
+        InMemoryResources["Menu_UserSettings"] = "User Settings";
+        InMemoryResources["Menu_AppSettings"] = "Application Settings";
+        InMemoryResources["Menu_Layouts"] = "Layouts";
+        InMemoryResources["Menu_Help"] = "Help";
+        InMemoryResources["Layout_Explorer"] = "Explorer";
+        InMemoryResources["Layout_Dashboard"] = "Dashboard";
+        InMemoryResources["Layout_Terminal"] = "Terminal";
+        InMemoryResources["Btn_SyncNow"] = "Sync Now";
+        InMemoryResources["Btn_AddAccount"] = "Add Account";
+        InMemoryResources["Btn_RemoveAccount"] = "Remove Account";
+        InMemoryResources["Btn_OK"] = "OK";
+        InMemoryResources["Btn_Cancel"] = "Cancel";
+        InMemoryResources["Btn_Apply"] = "Apply";
+        InMemoryResources["Status_Idle"] = "Idle";
+        InMemoryResources["Status_Syncing"] = "Syncing...";
+        InMemoryResources["Settings_Title"] = "Settings";
+        InMemoryResources["Settings_User"] = "User";
+        InMemoryResources["Settings_UserName"] = "User Name";
+        InMemoryResources["Settings_App"] = "Application";
+        InMemoryResources["Settings_Theme"] = "Theme";
+        InMemoryResources["Settings_Language"] = "Language";
+        InMemoryResources["Settings_Layout"] = "Layout";
     }
 
     private static (bool, string) HaveLocalisedString(string key, Avalonia.Application? app)

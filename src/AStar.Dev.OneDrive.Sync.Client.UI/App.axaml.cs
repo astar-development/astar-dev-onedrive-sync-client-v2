@@ -32,7 +32,6 @@ public partial class App : Avalonia.Application
                 DataContext = mainViewModel
             };
 
-            // Load settings synchronously BEFORE showing window to ensure theme and localization are applied
             LoadSettingsAndApplyThemeSync(mainViewModel);
         }
 
@@ -41,13 +40,11 @@ public partial class App : Avalonia.Application
 
     private static void LoadSettingsAndApplyThemeSync(MainWindowViewModel mainViewModel)
     {
-        // First, ensure localization is initialized so menu items resolve
         LocalizationManager.SetLanguage(mainViewModel.Settings.SelectedLanguage);
 
-        // Then load settings from database
         Result<bool, Exception> loadResult = mainViewModel.Settings.LoadSettingsAsync().Result;
 
-        if(loadResult is AStar.Dev.Functional.Extensions.Result<bool, Exception>.Error error)
+        if(loadResult is Result<bool, Exception>.Error error)
         {
             Log.Error(error.Reason, "Failed to load settings on startup");
             LocalizationManager.SetLanguage(mainViewModel.Settings.SelectedLanguage);
@@ -55,7 +52,6 @@ public partial class App : Avalonia.Application
             return;
         }
 
-        // Apply loaded settings
         LocalizationManager.SetLanguage(mainViewModel.Settings.SelectedLanguage);
         ThemeManager.ThemeManager.ApplyTheme(mainViewModel.Settings.SelectedTheme);
     }

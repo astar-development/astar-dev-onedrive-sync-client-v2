@@ -6,15 +6,16 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager;
 
 public static class ThemeManager
 {
-    private static readonly HashSet<string> SupportedThemes = new(StringComparer.OrdinalIgnoreCase)
-    {
+    private static readonly HashSet<string> SupportedThemes =
+    [
+with(StringComparer.OrdinalIgnoreCase),
         "Light",
         "Dark",
         "Colorful",
         "Professional",
         "Hacker",
         "HighContrast"
-    };
+    ];
 
     public static void ApplyTheme(string themeName)
     {

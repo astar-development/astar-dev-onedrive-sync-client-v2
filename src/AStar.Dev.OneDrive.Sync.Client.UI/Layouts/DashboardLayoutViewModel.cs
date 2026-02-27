@@ -11,7 +11,7 @@ public class DashboardLayoutViewModel : ViewModelBase
     public MainWindowViewModel MainWindow { get; }
 
     public ObservableCollection<string> Themes { get; } =
-        new() { "Light", "Dark", "System" };
+        ["Light", "Dark", "System"];
 
     public ICommand CycleThemeCommand { get; }
 
