@@ -5,7 +5,7 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Common;
 public class RelayCommandShould
 {
     [Fact]
-    public void CanExecute_WhenCanExecuteDelegateIsMissing_ReturnsTrue()
+    public void ReturnTrueFromCanExecuteWhenCanExecuteDelegateIsMissing()
     {
         var command = new RelayCommand(_ => { });
 
@@ -15,7 +15,7 @@ public class RelayCommandShould
     }
 
     [Fact]
-    public void CanExecute_WhenCanExecuteDelegateReturnsTrue_ReturnsTrue()
+    public void ReturnTrueFromCanExecuteWhenCanExecuteDelegateReturnsTrue()
     {
         var command = new RelayCommand(_ => { }, _ => true);
 
@@ -25,7 +25,7 @@ public class RelayCommandShould
     }
 
     [Fact]
-    public void CanExecute_WhenCanExecuteDelegateReturnsFalse_ReturnsFalse()
+    public void ReturnFalseFromCanExecuteWhenCanExecuteDelegateReturnsFalse()
     {
         var command = new RelayCommand(_ => { }, _ => false);
 
@@ -35,7 +35,7 @@ public class RelayCommandShould
     }
 
     [Fact]
-    public void CanExecute_WhenCalled_PassesParameterToCanExecuteDelegate()
+    public void PassParameterToCanExecuteDelegateWhenCalled()
     {
         object? received = null;
         var parameter = new object();
@@ -47,7 +47,7 @@ public class RelayCommandShould
     }
 
     [Fact]
-    public void Execute_WhenCalled_InvokesExecuteDelegate()
+    public void ExecuteDelegateWhenExecuteIsCalled()
     {
         var callCount = 0;
         var command = new RelayCommand(_ => callCount++);
@@ -58,7 +58,7 @@ public class RelayCommandShould
     }
 
     [Fact]
-    public void Execute_WhenParameterIsNotNull_PassesParameterToExecuteDelegate()
+    public void PassParameterToExecuteDelegateWhenParameterIsNotNull()
     {
         object? received = null;
         var parameter = new object();
@@ -70,7 +70,7 @@ public class RelayCommandShould
     }
 
     [Fact]
-    public void Execute_WhenParameterIsNull_PassesNullToExecuteDelegate()
+    public void PassNullToExecuteDelegateWhenParameterIsNull()
     {
         var received = new object();
         var command = new RelayCommand(p => received = p);
@@ -81,7 +81,7 @@ public class RelayCommandShould
     }
 
     [Fact]
-    public void RaiseCanExecuteChanged_WhenCalled_RaisesCanExecuteChangedEvent()
+    public void RaiseCanExecuteChangedWhenCalled()
     {
         var callCount = 0;
         var command = new RelayCommand(_ => { });
@@ -93,7 +93,7 @@ public class RelayCommandShould
     }
 
     [Fact]
-    public void RaiseCanExecuteChanged_WhenMultipleHandlersSubscribed_InvokesAllHandlers()
+    public void RaiseCanExecuteChangedWhenMultipleHandlersAreSubscribed()
     {
         var first = 0;
         var second = 0;

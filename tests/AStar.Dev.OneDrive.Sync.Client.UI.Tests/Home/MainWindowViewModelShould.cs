@@ -11,69 +11,80 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Home;
 public sealed class MainWindowViewModelShould
 {
     [Fact]
-    public void CurrentLayout_StartsAsExplorer()
+    public void HaveDefaultCurrentLayoutSetAsExplorer()
     {
         var vm = new MainWindowViewModel();
         vm.CurrentLayout.ShouldBe(LayoutType.Explorer);
     }
 
     [Fact]
-    public void SwitchToExplorerCommand_SetsLayoutToExplorer()
+    public void SetLayoutToExplorerWhenSwitchToExplorerCommandIsExecuted()
     {
         var vm = new MainWindowViewModel
         {
             CurrentLayout = LayoutType.Dashboard
         };
+
         vm.SwitchToExplorerCommand.Execute(null);
+
         vm.CurrentLayout.ShouldBe(LayoutType.Explorer);
     }
 
     [Fact]
-    public void SwitchToDashboardCommand_SetsLayoutToDashboard()
+    public void SetLayoutToDashboardWhenSwitchToDashboardCommandIsExecuted()
     {
         var vm = new MainWindowViewModel
         {
             CurrentLayout = LayoutType.Explorer
         };
+
         vm.SwitchToDashboardCommand.Execute(null);
+
         vm.CurrentLayout.ShouldBe(LayoutType.Dashboard);
     }
 
     [Fact]
-    public void SwitchToTerminalCommand_SetsLayoutToTerminal()
+    public void SetLayoutToTerminalWhenSwitchToTerminalCommandIsExecuted()
     {
         var vm = new MainWindowViewModel
         {
             CurrentLayout = LayoutType.Explorer
         };
+
         vm.SwitchToTerminalCommand.Execute(null);
+
         vm.CurrentLayout.ShouldBe(LayoutType.Terminal);
     }
 
     [Fact]
-    public void SwitchToTerminalCommand_ResetsTerminalTabToStatus()
+    public void ResetTerminalTabToStatusWhenSwitchToTerminalCommandIsExecuted()
     {
         var vm = new MainWindowViewModel
         {
             TerminalSelectedTabIndex = 2
         };
+
         vm.SwitchToTerminalCommand.Execute(null);
+
         vm.TerminalSelectedTabIndex.ShouldBe(0);
     }
 
     [Fact]
-    public void OpenUserSettingsCommand_SetsTerminalSettingsTab()
+    public void SetTerminalLayoutWithSettingsTabWhenOpenUserSettingsCommandIsExecuted()
     {
         var vm = new MainWindowViewModel();
+
         vm.OpenUserSettingsCommand.Execute(null);
+
         vm.CurrentLayout.ShouldBe(LayoutType.Terminal);
         vm.TerminalSelectedTabIndex.ShouldBe(2);
     }
 
     [Fact]
-    public void SharedVMs_RemainSameInstanceAcrossLayoutSwaps()
+    public void MaintainTheSameViewModelAcrossLayoutSwaps()
     {
         var vm = new MainWindowViewModel();
+
         AccountListViewModel accountsInstance = vm.Accounts;
         FolderTreeViewModel folderTreeInstance = vm.FolderTree;
         SyncStatusViewModel syncInstance = vm.Sync;
@@ -96,37 +107,37 @@ public sealed class MainWindowViewModelShould
     }
 
     [Fact]
-    public void LayoutChange_UpdatesSettingsViewModel()
+    public void UpdateSettingsViewModelWhenTheLayoutChanges()
     {
         var vm = new MainWindowViewModel();
+
         vm.SwitchToDashboardCommand.Execute(null);
         vm.Settings.SelectedLayout.ShouldBe("Dashboard");
-
         vm.SwitchToTerminalCommand.Execute(null);
         vm.Settings.SelectedLayout.ShouldBe("Terminal");
-
         vm.SwitchToExplorerCommand.Execute(null);
         vm.Settings.SelectedLayout.ShouldBe("Explorer");
     }
 
     [Fact]
-    public async Task SettingsViewModel_LayoutChanged_UpdatesMainWindowLayout()
+    public async Task UpdateMainWindowLayoutWhenSettingsViewModelLayoutChanges()
     {
         var vm = new MainWindowViewModel();
-        _ = await vm.Settings.LoadSettingsAsync(TestContext.Current.CancellationToken);
-        vm.CurrentLayout.ShouldBe(LayoutType.Explorer);
 
+        _ = await vm.Settings.LoadSettingsAsync(TestContext.Current.CancellationToken);
+
+        vm.CurrentLayout.ShouldBe(LayoutType.Explorer);
         vm.Settings.SelectedLayout = "Dashboard";
         vm.CurrentLayout.ShouldBe(LayoutType.Dashboard);
-
         vm.Settings.SelectedLayout = "Terminal";
         vm.CurrentLayout.ShouldBe(LayoutType.Terminal);
     }
 
     [Fact]
-    public void OpenUserSettingsCommand_SetsTerminalLayoutWithSettingsTab()
+    public void SetTerminalLayoutToSettingsTabWhenOpenUserSettingsCommandIsExecuted()
     {
         var vm = new MainWindowViewModel();
+
         vm.OpenUserSettingsCommand.Execute(null);
         
         vm.CurrentLayout.ShouldBe(LayoutType.Terminal);
@@ -134,9 +145,10 @@ public sealed class MainWindowViewModelShould
     }
 
     [Fact]
-    public void OpenAppSettingsCommand_SetsTerminalLayoutWithSettingsTab()
+    public void SetTerminalLayoutToSettingsTabWhenOpenAppSettingsCommandIsExecuted()
     {
         var vm = new MainWindowViewModel();
+
         vm.OpenAppSettingsCommand.Execute(null);
         
         vm.CurrentLayout.ShouldBe(LayoutType.Terminal);
@@ -144,14 +156,15 @@ public sealed class MainWindowViewModelShould
     }
 
     [Fact]
-    public void TerminalSelectedTabIndex_StartsAtZero()
+    public void SetTheTerminalSelectedTabIndexToZeroWhenWindowIsInitialized()
     {
         var vm = new MainWindowViewModel();
+
         vm.TerminalSelectedTabIndex.ShouldBe(0);
     }
 
     [Fact]
-    public void TerminalSelectedTabIndex_RaisesPropertyChanged()
+    public void RaisePropertyChangedWhenTerminalSelectedTabIndexChanges()
     {
         var vm = new MainWindowViewModel();
         var propertyChanged = false;
@@ -162,6 +175,7 @@ public sealed class MainWindowViewModelShould
         };
 
         vm.TerminalSelectedTabIndex = 1;
+
         propertyChanged.ShouldBeTrue();
     }
 }

@@ -12,6 +12,7 @@ public static class DatabasePathResolver
         var basePath = ResolvePlatformDataDirectory();
         var appPath = basePath.CombinePath(AppFolderName);
         _ = Directory.CreateDirectory(appPath);
+        
         return appPath.CombinePath(DatabaseName);
     }
 

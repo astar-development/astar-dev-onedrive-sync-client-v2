@@ -11,59 +11,40 @@ using Avalonia.LogicalTree;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Layouts;
 
-public sealed class LayoutRuntimeDataContextIntegrationShould
+public sealed class LayoutsShould
 {
     [Fact]
-    public void MainWindowViewModel_CurrentLayoutView_ContainsExpectedEmbeddedViewsAcrossLayouts()
+    public void ContainExpectedEmbeddedViewsAcrossLayouts()
     {
         var viewModel = new MainWindowViewModel();
 
-        AssertLayoutState(
-            viewModel,
-            LayoutType.Explorer,
-            expectedLayoutName: "Explorer",
-            expectedViewType: typeof(ExplorerLayoutView),
-            hasAccountView: true,
-            hasFolderView: true,
-            hasSyncView: true,
-            hasLogsView: false,
-            hasSettingsView: false);
+        AssertLayoutState(viewModel, LayoutType.Explorer, expectedLayoutName: "Explorer", expectedViewType: typeof(ExplorerLayoutView), hasAccountView: true, hasFolderView: true,
+            hasSyncView: true, hasLogsView: false, hasSettingsView: false);
 
         viewModel.CurrentLayout = LayoutType.Dashboard;
-        AssertLayoutState(
-            viewModel,
-            LayoutType.Dashboard,
-            expectedLayoutName: "Dashboard",
-            expectedViewType: typeof(DashboardLayoutView),
-            hasAccountView: true,
-            hasFolderView: false,
-            hasSyncView: true,
-            hasLogsView: false,
-            hasSettingsView: false);
+        AssertLayoutState(viewModel, LayoutType.Dashboard, expectedLayoutName: "Dashboard", expectedViewType: typeof(DashboardLayoutView), hasAccountView: true,
+            hasFolderView: false, hasSyncView: true, hasLogsView: false, hasSettingsView: false);
 
         viewModel.CurrentLayout = LayoutType.Terminal;
-        AssertLayoutState(
-            viewModel,
-            LayoutType.Terminal,
-            expectedLayoutName: "Terminal",
-            expectedViewType: typeof(TerminalLayoutView),
-            hasAccountView: true,
-            hasFolderView: true,
-            hasSyncView: true,
-            hasLogsView: true,
-            hasSettingsView: true);
+        AssertLayoutState(viewModel, LayoutType.Terminal, expectedLayoutName: "Terminal", expectedViewType: typeof(TerminalLayoutView), hasAccountView: true,
+            hasFolderView: true, hasSyncView: true, hasLogsView: true, hasSettingsView: true);
     }
 
-    private static void AssertLayoutState(
-        MainWindowViewModel viewModel,
-        LayoutType expectedLayout,
-        string expectedLayoutName,
-        Type expectedViewType,
-        bool hasAccountView,
-        bool hasFolderView,
-        bool hasSyncView,
-        bool hasLogsView,
-        bool hasSettingsView)
+    [Fact]
+    public void DefineMainWindowAsTheTopLevelControl() => typeof(TopLevel).IsAssignableFrom(typeof(MainWindow)).ShouldBeTrue();
+
+    [Theory]
+    [InlineData(typeof(ExplorerLayoutView))]
+    [InlineData(typeof(DashboardLayoutView))]
+    [InlineData(typeof(TerminalLayoutView))]
+    [InlineData(typeof(FolderTreeView))]
+    [InlineData(typeof(SyncStatusView))]
+    [InlineData(typeof(SettingsView))]
+    [InlineData(typeof(LogsView))]
+    public void HaveTheExpectedBaseTypeForViews(Type embeddedViewType) => typeof(UserControl).IsAssignableFrom(embeddedViewType).ShouldBeTrue();
+
+    private static void AssertLayoutState(MainWindowViewModel viewModel, LayoutType expectedLayout, string expectedLayoutName, Type expectedViewType,
+        bool hasAccountView, bool hasFolderView, bool hasSyncView, bool hasLogsView, bool hasSettingsView)
     {
         viewModel.CurrentLayout.ShouldBe(expectedLayout);
         viewModel.Settings.SelectedLayout.ShouldBe(expectedLayoutName);

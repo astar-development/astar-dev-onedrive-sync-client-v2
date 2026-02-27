@@ -7,7 +7,7 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.FolderTrees;
 public sealed class FolderTreeViewModelShould
 {
     [Fact]
-    public void Constructor_InitializesWithEmptyNodesCollection()
+    public void InitializeWithEmptyNodesCollection()
     {
         var viewModel = new FolderTreeViewModel();
 
@@ -15,7 +15,7 @@ public sealed class FolderTreeViewModelShould
     }
 
     [Fact]
-    public void Nodes_CollectionChanged_FiresOnAddAndRemove()
+    public void FireOnAddAndRemoveWhenNodesAreUpdated()
     {
         var viewModel = new FolderTreeViewModel();
         var changeCount = 0;
@@ -29,7 +29,7 @@ public sealed class FolderTreeViewModelShould
     }
 
     [Fact]
-    public void SelectedNode_Set_RaisesPropertyChanged()
+    public void RaisePropertyChangedWhenSettingSelectedNodeIsUpdated()
     {
         var viewModel = new FolderTreeViewModel();
         var raised = false;
@@ -41,7 +41,7 @@ public sealed class FolderTreeViewModelShould
     }
 
     [Fact]
-    public void ToggleNodeSelectionCommand_TogglesNodeSelection()
+    public void ToggleNodeSelectionWhenToggled()
     {
         var viewModel = new FolderTreeViewModel();
         FolderNode node = CreateNode("root");
@@ -53,7 +53,7 @@ public sealed class FolderTreeViewModelShould
     }
 
     [Fact]
-    public void ExpandAndCollapseCommands_UpdateNodeExpandedState()
+    public void UpdateNodeExpandedStateWhenExpandOrCollapseCommandsAreExecuted()
     {
         var viewModel = new FolderTreeViewModel();
         FolderNode node = CreateNode("root");
@@ -66,7 +66,7 @@ public sealed class FolderTreeViewModelShould
     }
 
     [Fact]
-    public async Task SaveAndLoadTreeAsync_PersistsAndRestoresHierarchy()
+    public async Task PersistAndRestoreHierarchyWhenSaveAndLoadTreeAsyncIsCalled()
     {
         var databasePath = CreateDatabasePath();
         var viewModel = new FolderTreeViewModel(databasePath);

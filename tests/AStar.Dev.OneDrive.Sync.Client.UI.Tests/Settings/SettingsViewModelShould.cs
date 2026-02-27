@@ -7,16 +7,17 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels.Settings;
 public class SettingsViewModelShould
 {
     [Fact]
-    public void Constructor_InitializesWithDefaults()
+    public void InitializeWithDefaults()
     {
         var viewModel = new SettingsViewModel();
+
         viewModel.SelectedTheme.ShouldBe("Light");
         viewModel.SelectedLanguage.ShouldBe("en-GB");
         viewModel.SelectedLayout.ShouldBe("Explorer");
     }
 
     [Fact]
-    public void SelectedTheme_Set_RaisesPropertyChanged()
+    public void RaisePropertyChangedWhenSelectedThemeIsSet()
     {
         var viewModel = new SettingsViewModel();
         var propertyChangedRaised = false;
@@ -33,7 +34,7 @@ public class SettingsViewModelShould
     }
 
     [Fact]
-    public async Task SelectedTheme_Set_CallsThemeManagerApplyTheme()
+    public async Task CallThemeManagerApplyThemeWhenSelectedThemeIsSet()
     {
         var viewModel = new SettingsViewModel
         {
@@ -44,7 +45,7 @@ public class SettingsViewModelShould
     }
 
     [Fact]
-    public void ThemeChanged_Event_FiresWhenThemeChanges()
+    public void FireThemeChangedEventWhenThemeChanges()
     {
         var viewModel = new SettingsViewModel();
         var eventFired = false;
@@ -62,7 +63,7 @@ public class SettingsViewModelShould
     }
 
     [Fact]
-    public void LayoutChanged_Event_FiresWhenLayoutChanges()
+    public void FireLayoutChangedEventWhenLayoutChanges()
     {
         var viewModel = new SettingsViewModel();
         var eventFired = false;
@@ -80,7 +81,7 @@ public class SettingsViewModelShould
     }
 
     [Fact]
-    public async Task SaveSettingsAsync_ReturnsOkResult()
+    public async Task ReturnOkResultWhenSaveSettingsAsyncIsCalled()
     {
         var viewModel = new SettingsViewModel(CreateDatabasePath())
         {
@@ -94,7 +95,7 @@ public class SettingsViewModelShould
     }
 
     [Fact]
-    public async Task SaveSettings_PersistsToDatabase()
+    public async Task PersistChangesToDatabaseWhenSaveSettingsIsCalled()
     {
         var viewModel = new SettingsViewModel(CreateDatabasePath())
         {
@@ -108,7 +109,7 @@ public class SettingsViewModelShould
     }
 
     [Fact]
-    public async Task LoadSettingsAsync_ReturnsOkResult()
+    public async Task ReturnOkResultWhenLoadSettingsAsyncIsCalled()
     {
         var databasePath = CreateDatabasePath();
         var viewModel = new SettingsViewModel(databasePath)
@@ -124,7 +125,7 @@ public class SettingsViewModelShould
     }
 
     [Fact]
-    public async Task LoadSettings_RestoresFromDatabase()
+    public async Task RestoreSettingsFromDatabaseWhenLoadSettingsIsCalled()
     {
         var databasePath = CreateDatabasePath();
         var viewModel = new SettingsViewModel(databasePath)
@@ -143,7 +144,7 @@ public class SettingsViewModelShould
     }
 
     [Fact]
-    public async Task LoadSettingsAsync_ReturnsOkResult_WhenDatabaseIsEmpty()
+    public async Task ReturnOkResultWhenLoadSettingsAsyncIsCalledAndDatabaseIsEmpty()
     {
         var viewModel = new SettingsViewModel(CreateDatabasePath());
         Result<bool, Exception> result = await viewModel.LoadSettingsAsync(TestContext.Current.CancellationToken);
@@ -151,7 +152,7 @@ public class SettingsViewModelShould
     }
 
     [Fact]
-    public void AvailableThemes_IsNotEmpty()
+    public void ContainTheExpectedThemes()
     {
         var viewModel = new SettingsViewModel();
         viewModel.AvailableThemes.ShouldNotBeEmpty();
@@ -160,12 +161,14 @@ public class SettingsViewModelShould
     }
 
     [Fact]
-    public void ThemeChanged_FiredWhenThemeChanges()
+    public void FireThemeChangedEventWhenThemeChanged()
     {
         var viewModel = new SettingsViewModel();
         string? changedTheme = null;
         viewModel.ThemeChanged += (sender, theme) => changedTheme = theme;
+
         viewModel.SelectedTheme = "Dark";
+        
         changedTheme.ShouldBe("Dark");
     }
 

@@ -20,8 +20,7 @@
                 <TextBox Text="{Binding UserName}" />
 
                 <TextBlock Text="{DynamicResource Settings_Language}" Foreground="{DynamicResource ThemeForegroundBrush}" />
-                <ComboBox ItemsSource="{Binding AvailableLanguages}"
-                          SelectedItem="{Binding SelectedLanguage}" />
+                <ComboBox ItemsSource="{Binding AvailableLanguages}" SelectedItem="{Binding SelectedLanguage}" />
             </StackPanel>
         </Border>
 
@@ -29,12 +28,10 @@
             <StackPanel Spacing="8">
                 <TextBlock Text="{DynamicResource Settings_App}" FontWeight="Bold" Foreground="{DynamicResource ThemeForegroundBrush}" />
                 <TextBlock Text="{DynamicResource Settings_Theme}" Foreground="{DynamicResource ThemeForegroundBrush}" />
-                <ComboBox ItemsSource="{Binding AvailableThemes}"
-                          SelectedItem="{Binding SelectedTheme}" />
+                <ComboBox ItemsSource="{Binding AvailableThemes}" SelectedItem="{Binding SelectedTheme}" />
 
                 <TextBlock Text="{DynamicResource Settings_Layout}" Foreground="{DynamicResource ThemeForegroundBrush}" />
-                <ComboBox ItemsSource="{Binding AvailableLayouts}"
-                          SelectedItem="{Binding SelectedLayout}" />
+                <ComboBox ItemsSource="{Binding AvailableLayouts}" SelectedItem="{Binding SelectedLayout}" />
             </StackPanel>
         </Border>
 

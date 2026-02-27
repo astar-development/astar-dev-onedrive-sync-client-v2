@@ -8,7 +8,6 @@ public static class ThemeManager
 {
     private static readonly HashSet<string> SupportedThemes =
     [
-with(StringComparer.OrdinalIgnoreCase),
         "Light",
         "Dark",
         "Colorful",

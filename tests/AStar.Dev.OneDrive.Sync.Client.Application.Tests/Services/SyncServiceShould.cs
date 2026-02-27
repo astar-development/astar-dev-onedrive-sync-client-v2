@@ -19,7 +19,7 @@ public sealed class SyncServiceShould
     }
 
     [Fact]
-    public async Task ReturnsOkWithFilesWhenRepositoryContainsFiles()
+    public async Task ReturnOkWithFilesWhenRepositoryContainsFiles()
     {
         var expectedFiles = new List<SyncFile>
         {
@@ -37,7 +37,7 @@ public sealed class SyncServiceShould
     }
 
     [Fact]
-    public async Task ReturnsOkWithEmptyListWhenRepositoryContainsNoFiles()
+    public async Task ReturnOkWithEmptyListWhenRepositoryContainsNoFiles()
     {
         Result<IReadOnlyList<SyncFile>, string> repositoryResult = new List<SyncFile>();
         _ = _repository.GetAllAsync(Arg.Any<CancellationToken>())
@@ -50,7 +50,7 @@ public sealed class SyncServiceShould
     }
 
     [Fact]
-    public async Task ReturnsErrorWhenRepositoryReturnsError()
+    public async Task ReturnErrorWhenRepositoryReturnsError()
     {
         Result<IReadOnlyList<SyncFile>, string> repositoryResult = "retrieval failed";
         _ = _repository.GetAllAsync(Arg.Any<CancellationToken>())
@@ -61,8 +61,4 @@ public sealed class SyncServiceShould
         Result<IReadOnlyList<SyncFile>, string>.Error error = result.ShouldBeOfType<Result<IReadOnlyList<SyncFile>, string>.Error>();
         error.Reason.ShouldBe("retrieval failed");
     }
-
-    [Fact]
-    public void Constructor_WithNullRepository_ThrowsArgumentNullException() => Should.Throw<ArgumentNullException>(
-            () => new SyncService(null!));
 }

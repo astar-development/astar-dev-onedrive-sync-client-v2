@@ -10,7 +10,7 @@ public sealed class ThemeManagerShould
     private static bool _isAvaloniaInitialized;
 
     [Fact]
-    public void ApplyTheme_Dark_LoadsWithoutError()
+    public void LoadWithoutErrorWhenApplyThemeDarkIsApplied()
     {
         EnsureAvaloniaInitialized();
 
@@ -28,7 +28,7 @@ public sealed class ThemeManagerShould
     }
 
     [Fact]
-    public void ApplyTheme_ReplacesOnlyAppThemeInclude_AndPreservesFluentTheme()
+    public void ReplaceOnlyAppThemeIncludeAndPreserveFluentThemeWhenApplyThemeIsCalled()
     {
         EnsureAvaloniaInitialized();
 
@@ -54,7 +54,7 @@ public sealed class ThemeManagerShould
     }
 
     [Fact]
-    public void ApplyTheme_InvalidTheme_ThrowsInvalidOperationException()
+    public void ThrowInvalidOperationExceptionWhenApplyThemeWithInvalidThemeIsCalled()
     {
         EnsureAvaloniaInitialized();
 
@@ -66,7 +66,7 @@ public sealed class ThemeManagerShould
     }
 
     [Fact]
-    public void ApplyTheme_PreservesBaseThemeStyles()
+    public void PreserveBaseThemeStylesWhenApplyThemeIsCalled()
     {
         EnsureAvaloniaInitialized();
 

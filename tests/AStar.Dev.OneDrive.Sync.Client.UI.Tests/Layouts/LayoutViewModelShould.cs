@@ -6,7 +6,7 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Layouts;
 public sealed class LayoutViewModelShould
 {
     [Fact]
-    public void ExplorerLayoutViewModel_CanInstantiateWithMainWindowContext()
+    public void InstantiateWithMainWindowContextWithExplorerLayoutViewModel()
     {
         MainWindowViewModel mainWindowViewModel = CreateMainWindowContext();
 
@@ -17,7 +17,7 @@ public sealed class LayoutViewModelShould
     }
 
     [Fact]
-    public void DashboardLayoutViewModel_CanInstantiateWithMainWindowContext()
+    public void InstantiateWithMainWindowContextWithDashboardLayoutViewModel()
     {
         MainWindowViewModel mainWindowViewModel = CreateMainWindowContext();
 
@@ -28,7 +28,7 @@ public sealed class LayoutViewModelShould
     }
 
     [Fact]
-    public void TerminalLayoutViewModel_CanInstantiateWithMainWindowContext()
+    public void InstantiateWithMainWindowContextWithTerminalLayoutViewModel()
     {
         MainWindowViewModel mainWindowViewModel = CreateMainWindowContext();
 
@@ -39,7 +39,7 @@ public sealed class LayoutViewModelShould
     }
 
     [Fact]
-    public void ExplorerLayoutCommand_Execute_UpdatesSummary()
+    public void UpdateSummaryWhenExplorerLayoutCommandIsExecuted()
     {
         MainWindowViewModel mainWindowViewModel = CreateMainWindowContext();
         var sut = new ExplorerLayoutViewModel(mainWindowViewModel);
@@ -50,7 +50,7 @@ public sealed class LayoutViewModelShould
     }
 
     [Fact]
-    public void DashboardLayoutCommand_Execute_ChangesThemeSelection()
+    public void ChangeThemeWhenDashboardLayoutCommandIsExecuted()
     {
         MainWindowViewModel mainWindowViewModel = CreateMainWindowContext();
         var sut = new DashboardLayoutViewModel(mainWindowViewModel);
@@ -62,7 +62,7 @@ public sealed class LayoutViewModelShould
     }
 
     [Fact]
-    public void TerminalLayoutCommand_Execute_UpdatesTerminalStatus()
+    public void UpdateTerminalStatusWhenTerminalLayoutCommandIsExecuted()
     {
         MainWindowViewModel mainWindowViewModel = CreateMainWindowContext();
         var sut = new TerminalLayoutViewModel(mainWindowViewModel);

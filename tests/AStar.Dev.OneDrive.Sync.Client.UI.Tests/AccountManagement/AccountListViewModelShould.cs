@@ -2,7 +2,7 @@ using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 using AStar.Dev.Utilities;
 
-namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels.AccountManagement;
+namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.AccountManagement;
 
 public sealed class AccountListViewModelShould
 {

@@ -8,7 +8,7 @@ public sealed class LayoutSharedViewModelBindingShould
     [InlineData("ExplorerLayoutView.axaml")]
     [InlineData("DashboardLayoutView.axaml")]
     [InlineData("TerminalLayoutView.axaml")]
-    public void Layouts_UseMainWindowViewModelAsDataType(string layoutFileName)
+    public void UseMainWindowViewModelAsDataType(string layoutFileName)
     {
         var xaml = File.ReadAllText(GetLayoutPath(layoutFileName));
 
@@ -23,7 +23,7 @@ public sealed class LayoutSharedViewModelBindingShould
     [InlineData("TerminalLayoutView.axaml", "<folder:FolderTreeView DataContext=\"{Binding FolderTree}\" />")]
     [InlineData("TerminalLayoutView.axaml", "<logs:LogsView DataContext=\"{Binding Logs}\" />")]
     [InlineData("TerminalLayoutView.axaml", "<settings:SettingsView DataContext=\"{Binding Settings}\" />")]
-    public void EmbeddedViews_BindToSharedViewModels(string layoutFileName, string expectedBindingSnippet)
+    public void BindToSharedViewModels(string layoutFileName, string expectedBindingSnippet)
     {
         var xaml = File.ReadAllText(GetLayoutPath(layoutFileName));
 

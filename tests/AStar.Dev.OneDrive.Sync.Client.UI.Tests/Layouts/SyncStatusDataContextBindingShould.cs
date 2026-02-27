@@ -8,7 +8,7 @@ public sealed class SyncStatusDataContextBindingShould
     [InlineData("ExplorerLayoutView.axaml")]
     [InlineData("DashboardLayoutView.axaml")]
     [InlineData("TerminalLayoutView.axaml")]
-    public void SyncStatusView_BindsDataContextToSyncViewModel(string layoutFileName)
+    public void BindDataContextToSyncViewModel(string layoutFileName)
     {
         var filePath = GetRepositoryRootPath().CombinePath("src", "AStar.Dev.OneDrive.Sync.Client.UI", "Layouts", Path.GetFileName(layoutFileName));
 

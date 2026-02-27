@@ -8,10 +8,8 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Integration;
 
 public sealed class SettingsIntegrationShould
 {
-    private static bool AvaloniaInitialized;
-
     [Fact]
-    public void SettingsViewModel_InitializesWithDefaults()
+    public void InitializeSettingsViewModelWithDefaults()
     {
         var viewModel = new SettingsViewModel();
         
@@ -26,7 +24,7 @@ public sealed class SettingsIntegrationShould
     }
 
     [Fact]
-    public void ChangeThemeProperty_FiresPropertyChanged()
+    public void RaisePropertyChangedWhenThemePropertyChanges()
     {
         var viewModel = new SettingsViewModel();
         var changedProperties = new List<string>();
@@ -38,7 +36,7 @@ public sealed class SettingsIntegrationShould
     }
 
     [Fact]
-    public void ChangeLanguageProperty_FiresPropertyChanged()
+    public void RaisePropertyChangedWhenLanguagePropertyChanges()
     {
         var viewModel = new SettingsViewModel();
         var changedProperties = new List<string>();
@@ -50,7 +48,7 @@ public sealed class SettingsIntegrationShould
     }
 
     [Fact]
-    public async Task OkCommand_SavesAllSettings()
+    public async Task SaveAllSettingsWhenOkCommandIsExecuted()
     {
         var databasePath = CreateDatabasePath();
         var viewModel = new SettingsViewModel(databasePath)
@@ -71,7 +69,7 @@ public sealed class SettingsIntegrationShould
     }
 
     [Fact]
-    public async Task CancelCommand_DiscardsChanges()
+    public async Task DiscardChangesWhenCancelCommandIsExecuted()
     {
         var databasePath = CreateDatabasePath();
         var viewModel = new SettingsViewModel(databasePath)
@@ -103,35 +101,6 @@ public sealed class SettingsIntegrationShould
 
     private static string CreateDatabasePath()
         => Path.GetTempPath().CombinePath("astar-ui-settings-integration", Guid.NewGuid().ToString("N"), "astar-onedrive.db");
-
-    private static void EnsureAvaloniaInitialized()
-    {
-        if(AvaloniaInitialized)
-        {
-            return;
-        }
-
-        _ = Avalonia.AppBuilder.Configure<TestApplication>()
-            .UseHeadless(new AvaloniaHeadlessPlatformOptions())
-            .SetupWithoutStarting();
-
-        AvaloniaInitialized = true;
-    }
-
-    private static Avalonia.Application GetAppWithThemeSupport()
-    {
-        EnsureAvaloniaInitialized();
-        Avalonia.Application app = Avalonia.Application.Current ?? new TestApplication();
-        app.Styles.Clear();
-        app.Styles.Add(new FluentTheme());
-        return app;
-    }
-
-    private static string GetAppThemeSource(Avalonia.Application app)
-        => app.Styles
-            .OfType<StyleInclude>()
-            .Single(style => style.Source?.OriginalString.Contains("/Themes/", StringComparison.OrdinalIgnoreCase) == true)
-            .Source!.OriginalString;
 
     private sealed class TestApplication : Avalonia.Application;
 }
