@@ -2,7 +2,7 @@ using AStar.Dev.OneDrive.Sync.Client.UI.Localization;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Localization;
 
-public sealed class LocalizationManagerTests
+public sealed class LocalizationManagerShould
 {
     [Fact]
     public void SetLanguage_WithEnGb_DoesNotThrow()

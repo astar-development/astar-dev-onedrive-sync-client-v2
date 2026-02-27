@@ -6,7 +6,7 @@ using Shouldly;
 
 namespace AstarOneDrive.Infrastructure.Tests.Data;
 
-public sealed class SqlitePersistenceTests
+public sealed class SqlitePersistenceShould
 {
     [Fact]
     public void ResolveDatabasePath_UsesPlatformSpecificLocation()

@@ -53,15 +53,11 @@ public static class ThemeManager
             }
         }
 
-#pragma warning disable R57
         app.Styles.Add(new StyleInclude(new Uri($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/"))
         {
             Source = themeUri
         });
-#pragma warning restore R57
 
-        // Schedule visual refresh on the UI thread after theme is applied
-        // Use BeginInvoke to ensure the change is processed before refresh
         Dispatcher.UIThread.Post(InvalidateAllVisuals, DispatcherPriority.Render);
     }
 
@@ -69,19 +65,16 @@ public static class ThemeManager
     {
         if(Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { })
         {
-            // Clear resource caches and force re-layout
             InvalidateVisualTree(desktop.MainWindow);
         }
     }
 
     private static void InvalidateVisualTree(Control control)
     {
-        // Invalidate measure and arrange to force layout recalculation
         control.InvalidateMeasure();
         control.InvalidateArrange();
         control.InvalidateVisual();
 
-        // Process all children
         if(control is Panel panel)
         {
             foreach(Control child in panel.Children.OfType<Control>())

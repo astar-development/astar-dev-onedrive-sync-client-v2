@@ -5,7 +5,7 @@ using Avalonia.Themes.Fluent;
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ThemeManager;
 
 [Collection(ThemeManagerTestCollection.Name)]
-public sealed class ThemeManagerTests
+public sealed class ThemeManagerShould
 {
     private static bool _isAvaloniaInitialized;
 
@@ -18,7 +18,7 @@ public sealed class ThemeManagerTests
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
 
-        Should.NotThrow(() => global::AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager.ThemeManager.ApplyTheme("Dark"));
+        Should.NotThrow(() => UI.ThemeManager.ThemeManager.ApplyTheme("Dark"));
 
         StyleInclude appThemeInclude = app.Styles
             .OfType<StyleInclude>()
@@ -35,14 +35,12 @@ public sealed class ThemeManagerTests
         Avalonia.Application app = global::Avalonia.Application.Current ?? new TestApplication();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
-#pragma warning disable R57
         app.Styles.Add(new StyleInclude(new Uri($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/"))
         {
             Source = new Uri($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/Hacker.axaml")
         });
-#pragma warning restore R57
 
-        global::AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager.ThemeManager.ApplyTheme("Light");
+        UI.ThemeManager.ThemeManager.ApplyTheme("Light");
 
         app.Styles.OfType<FluentTheme>().Any().ShouldBeTrue();
 
@@ -64,7 +62,7 @@ public sealed class ThemeManagerTests
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
 
-        _ = Should.Throw<InvalidOperationException>(() => global::AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager.ThemeManager.ApplyTheme("DoesNotExist"));
+        _ = Should.Throw<InvalidOperationException>(() => UI.ThemeManager.ThemeManager.ApplyTheme("DoesNotExist"));
     }
 
     [Fact]
@@ -80,7 +78,7 @@ public sealed class ThemeManagerTests
             Source = new Uri($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/Base.axaml")
         });
 
-        global::AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager.ThemeManager.ApplyTheme("Professional");
+        UI.ThemeManager.ThemeManager.ApplyTheme("Professional");
 
         StyleInclude? baseThemeInclude = app.Styles
             .OfType<StyleInclude>()

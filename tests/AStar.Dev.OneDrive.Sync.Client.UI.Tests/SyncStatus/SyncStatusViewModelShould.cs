@@ -2,7 +2,7 @@ using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels.SyncStatus;
 
-public sealed class SyncStatusViewModelTests
+public sealed class SyncStatusViewModelShould
 {
     [Fact]
     public void Constructor_InitializesStatusToIdle()

@@ -7,9 +7,7 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Localization;
 /// </summary>
 public static class LocalizationManager
 {
-#pragma warning disable R10, R11
-    private const string BaseUri = "avares://AStar.Dev.OneDrive.Sync.Client.UI/";
-#pragma warning restore R10, R11
+    private readonly static string BaseUri = $"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/";
 
     // In-memory fallback for unit tests when Application.Current is null
     private static readonly Dictionary<string, string> InMemoryResources = new();
@@ -27,12 +25,10 @@ public static class LocalizationManager
 
         if(app != null)
         {
-            // Clear existing merged dictionaries
             app.Resources.MergedDictionaries.Clear();
 
             try
             {
-                // Load locale dictionary using ResourceInclude (works just like StyleInclude)
                 var localeUri = new Uri($"{BaseUri}Locales/{culture}.axaml");
 
                 var resourceInclude = new ResourceInclude(new Uri(BaseUri))
@@ -44,19 +40,16 @@ public static class LocalizationManager
             }
             catch(InvalidOperationException ex)
             {
-                // Wrap expected resource loading issues in a domain-specific exception
                 throw new InvalidOperationException($"Failed to load locale '{culture}'", ex);
             }
             catch(UriFormatException ex)
             {
-                // Wrap invalid URI issues (e.g., malformed culture code) in a domain-specific exception
                 throw new InvalidOperationException($"Failed to load locale '{culture}'", ex);
             }
         }
         else
         {
-            // Fallback for unit tests: load from hard-coded resources
-            LoadInMemoryResources(culture);
+            FallbackToLoadingFromInMemoryResources(culture);
         }
 
         CurrentLanguage = culture;
@@ -72,20 +65,9 @@ public static class LocalizationManager
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
         Avalonia.Application? app = Avalonia.Application.Current;
+        (var found, var localizedString) = HaveLocalisedString(key, app);
 
-        if(app != null && app.Resources.TryGetResource(key, null, out var resource) && resource is string localizedString)
-        {
-            return localizedString;
-        }
-
-        // Try in-memory resources (fallback for tests)
-        if(InMemoryResources.TryGetValue(key, out var value))
-        {
-            return value;
-        }
-
-        // Final fallback: return the key itself
-        return key;
+        return found ? localizedString : Fallback(key);
     }
 
     /// <summary>
@@ -93,10 +75,7 @@ public static class LocalizationManager
     /// </summary>
     public static string CurrentLanguage { get; private set; } = "en-GB";
 
-    /// <summary>
-    /// Loads hard-coded English resources for unit testing.
-    /// </summary>
-    private static void LoadInMemoryResources(string culture)
+    private static void FallbackToLoadingFromInMemoryResources(string culture)
     {
         InMemoryResources.Clear();
 
@@ -154,5 +133,17 @@ public static class LocalizationManager
             InMemoryResources["Settings_Layout"] = "Layout";
         }
     }
+
+    private static (bool, string) HaveLocalisedString(string key, Avalonia.Application? app)
+    {
+        if (app != null && app.Resources.TryGetResource(key, null, out var resource) && resource is string localizedString)
+        {
+            return (true, localizedString);
+        }
+
+        return (false, string.Empty);
+    }
+
+    private static string Fallback(string key) => InMemoryResources.TryGetValue(key, out var value) ? value : key;
 }
 

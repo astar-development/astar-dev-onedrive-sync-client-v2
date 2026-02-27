@@ -4,7 +4,7 @@ using AStar.Dev.Utilities;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels.Settings;
 
-public class SettingsViewModelTests
+public class SettingsViewModelShould
 {
     [Fact]
     public void Constructor_InitializesWithDefaults()
