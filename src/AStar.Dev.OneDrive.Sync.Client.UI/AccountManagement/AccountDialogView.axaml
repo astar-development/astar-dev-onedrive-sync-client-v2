@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement"
+        x:Class="AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement.AccountDialogView"
+        x:DataType="vm:AccountDialogViewModel"
+        Width="420"
+        MinWidth="420"
+        Height="290"
+        CanResize="False"
+        Title="Account">
+
+    <StackPanel Margin="12" Spacing="10">
+        <TextBlock Text="{DynamicResource Btn_ManageAccount}" FontWeight="Bold" FontSize="18" />
+
+        <TextBlock Text="{DynamicResource Account_Email}" />
+        <TextBox Text="{Binding Email}" />
+
+        <TextBlock Text="{DynamicResource Account_Storage}" FontWeight="Bold" />
+        <TextBlock Text="{Binding UsedBytes, StringFormat=Used: {0} bytes}" />
+        <TextBlock Text="{Binding QuotaBytes, StringFormat=Quota: {0} bytes}" />
+
+        <TextBlock Text="{Binding ValidationError}" Foreground="{DynamicResource ThemeForegroundBrush}" />
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button Content="{DynamicResource Btn_Login}" Command="{Binding LoginCommand}" />
+            <Button Content="{DynamicResource Btn_Save}" Command="{Binding SaveCommand}" />
+            <Button Content="{DynamicResource Btn_Cancel}" Command="{Binding CancelCommand}" />
+        </StackPanel>
+    </StackPanel>
+</Window>

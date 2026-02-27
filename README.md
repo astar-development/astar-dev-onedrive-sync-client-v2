@@ -1,4 +1,4 @@
-# AStar.Dev.OneDrive.Sync.Client Sync Client
+# AStar Dev OneDrive Sync Client
 
 ![AStar.Dev.OneDrive.Sync.Client](src/AStar.Dev.OneDrive.Sync.Client.UI/Assets/astar.png)
 
@@ -9,10 +9,7 @@
 A cross-platform OneDrive sync client built with AvaloniaUI and a strict Onion Architecture. The UI focuses on multiple layouts, multiple themes, and clear sync status while keeping business logic isolated from presentation.
 
 > [!NOTE]
-> This repository targets .NET 10 preview for C# 14 features. Ensure you have the latest .NET 10 SDK installed.
-
-> [!WARNING]
-> OneDrive integration is still evolving. Some flows may be stubbed while the UI and architecture are finalized.
+> This repository targets .NET 10 RTM and C# 14 features. Ensure you have the latest .NET 10 SDK installed.
 
 ## Features
 

@@ -15,15 +15,15 @@ public sealed class AccountListViewModelShould
     }
 
     [Fact]
-    public void Accounts_NotifiesOnItemAdded()
+    public void AddAccountCommand_RaisesDialogRequested()
     {
         var viewModel = new AccountListViewModel();
-        var changed = false;
-        viewModel.Accounts.CollectionChanged += (_, _) => changed = true;
+        var raised = false;
+        viewModel.AccountDialogRequested += (_, _) => raised = true;
 
         viewModel.AddAccountCommand.Execute(null);
 
-        changed.ShouldBeTrue();
+        raised.ShouldBeTrue();
     }
 
     [Fact]
