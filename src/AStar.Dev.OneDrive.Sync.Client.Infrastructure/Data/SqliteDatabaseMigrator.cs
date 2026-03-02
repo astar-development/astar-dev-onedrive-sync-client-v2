@@ -1,8 +1,12 @@
+using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 
-public sealed class SqliteDatabaseMigrator(string? databasePath = null)
+/// <summary>
+/// Applies EF Core migrations for the SQLite database on startup.
+/// </summary>
+public sealed class SqliteDatabaseMigrator(string? databasePath = null) : IMigrationService
 {
     private readonly string _databasePath = string.IsNullOrWhiteSpace(databasePath)
         ? DatabasePathResolver.ResolveDatabasePath()
