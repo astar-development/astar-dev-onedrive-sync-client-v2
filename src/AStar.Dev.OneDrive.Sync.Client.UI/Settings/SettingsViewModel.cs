@@ -114,21 +114,24 @@ public class SettingsViewModel : ViewModelBase
             return true;
         });
 
-    public Task<Result<bool, Exception>> LoadSettingsAsync(CancellationToken cancellationToken = default)
-        => Try.RunAsync(async () =>
-        {
-            await _migrator.EnsureMigratedAsync(cancellationToken);
-            SettingsState? state = await _settingsRepository.LoadAsync(cancellationToken);
-            if(state is null)
-            {
-                _lastCommittedState = CreateState();
-                return true;
-            }
+    public Task<Result<bool, Unit>> LoadSettingsAsync()
+        => Task.FromResult(LoadSettings());
 
-            ApplySettings(state);
-            _lastCommittedState = state;
-            return true;
-        });
+    public Result<bool, Unit> LoadSettings()
+        => Try.Run(() =>
+                    {
+                        _migrator.EnsureMigrated();
+                        SettingsState? state = _settingsRepository.Load();
+                        if(state is null)
+                        {
+                            _lastCommittedState = CreateState();
+                            return true;
+                        }
+
+                        ApplySettings(state);
+                        _lastCommittedState = state;
+                        return true;
+                    }).MapFailure(_ => Unit.Value);
 
     private void ApplySettings(SettingsState state)
     {

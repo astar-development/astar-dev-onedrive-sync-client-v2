@@ -5,7 +5,6 @@ using AStar.Dev.OneDrive.Sync.Client.UI.Home;
 using AStar.Dev.OneDrive.Sync.Client.UI.Localization;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
@@ -19,11 +18,7 @@ public partial class App : Avalonia.Application
     {
         if(ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            Dispatcher.UIThread.UnhandledException += (sender, e) =>
-            {
-                Log.Error(e.Exception, "UI thread exception");
-                e.Handled = true;
-            };
+            
             ApplyDatabaseMigrations();
             ExceptionBootstrap.HookAvaloniaUIThread();
 
@@ -36,18 +31,23 @@ public partial class App : Avalonia.Application
 
             LoadSettingsAndApplyThemeSync(mainViewModel);
         }
+        else
+        {
+            ApplyDatabaseMigrations();
+            ExceptionBootstrap.HookAvaloniaUIThread();
+        }
 
         base.OnFrameworkInitializationCompleted();
     }
 
     private static void LoadSettingsAndApplyThemeSync(MainWindowViewModel mainViewModel)
-    {
-        _ = Try.Run(() => mainViewModel.Settings.LoadSettingsAsync().GetAwaiter().GetResult())
-            .Bind(result => result)
-            .TapError(error => Log.Error(error, "Failed to load settings on startup"));
-
-        ApplyCurrentLocalizationAndTheme(mainViewModel);
-    }
+        => _ = mainViewModel.Settings.LoadSettings()
+                .Map(success =>
+                {
+                    ApplyCurrentLocalizationAndTheme(mainViewModel);
+                    return success;
+                })
+                .TapError(exception => Log.Error("Failed to load settings on startup"));
 
     private static void ApplyDatabaseMigrations()
     {

@@ -1,8 +1,5 @@
 using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
 using AStar.Dev.Utilities;
-using Avalonia.Headless;
-using Avalonia.Markup.Xaml.Styling;
-using Avalonia.Themes.Fluent;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Integration;
 
@@ -61,7 +58,7 @@ public sealed class SettingsIntegrationShould
 
         viewModel.OkCommand.Execute(null);
         var reloadedViewModel = new SettingsViewModel(databasePath);
-        _ = await reloadedViewModel.LoadSettingsAsync(TestContext.Current.CancellationToken);
+        _ = await reloadedViewModel.LoadSettingsAsync();
         reloadedViewModel.SelectedTheme.ShouldBe("Hacker");
         reloadedViewModel.SelectedLanguage.ShouldBe("en-US");
         reloadedViewModel.SelectedLayout.ShouldBe("Dashboard");
@@ -92,7 +89,7 @@ public sealed class SettingsIntegrationShould
         viewModel.UserName.ShouldBe("Jordan");
 
         var reloadedViewModel = new SettingsViewModel(databasePath);
-        _ = await reloadedViewModel.LoadSettingsAsync(TestContext.Current.CancellationToken);
+        _ = await reloadedViewModel.LoadSettingsAsync();
         reloadedViewModel.SelectedTheme.ShouldBe("Dark");
         reloadedViewModel.SelectedLanguage.ShouldBe("en-GB");
         reloadedViewModel.SelectedLayout.ShouldBe("Explorer");

@@ -5,7 +5,7 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI;
 
 public class InMemoryLogSink(int maxLines = 200) : ILogEventSink
 {
-    private readonly Lock _lock = new();
+    private readonly Lock _syncLock = new();
     private readonly int _maxLines = maxLines;
     private readonly List<string> _lines = [];
 
@@ -15,7 +15,7 @@ public class InMemoryLogSink(int maxLines = 200) : ILogEventSink
     {
         var line = logEvent.RenderMessage();
 
-        lock(_lock)
+        lock(_syncLock)
         {
             _lines.Add(line);
             if(_lines.Count > _maxLines)
@@ -27,7 +27,7 @@ public class InMemoryLogSink(int maxLines = 200) : ILogEventSink
 
     public string GetText()
     {
-        lock(_lock)
+        lock(_syncLock)
             return string.Join(Environment.NewLine, _lines);
     }
 }

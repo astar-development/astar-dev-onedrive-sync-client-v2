@@ -124,7 +124,7 @@ public sealed class MainWindowViewModelShould
     {
         var vm = new MainWindowViewModel();
 
-        _ = await vm.Settings.LoadSettingsAsync(TestContext.Current.CancellationToken);
+        _ = await vm.Settings.LoadSettingsAsync();
 
         vm.Settings.SelectedLayout = "Explorer";
         vm.CurrentLayout.ShouldBe(LayoutType.Explorer);

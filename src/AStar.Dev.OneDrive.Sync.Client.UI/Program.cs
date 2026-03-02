@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Avalonia;
 using Avalonia.ReactiveUI;
 using Serilog;
@@ -15,17 +14,6 @@ sealed class Program
     {
         LoggingBootstrap.Initialize();
         ExceptionBootstrap.Initialize();
-
-        AppDomain.CurrentDomain.UnhandledException += (sender, e)
-            => Log.Fatal(e.ExceptionObject as Exception, "Fatal unhandled exception");
-
-        TaskScheduler.UnobservedTaskException += (sender, e)
-            =>
-        {
-            Log.Error(e.Exception, "Unobserved task exception");
-            e.SetObserved();
-        };
-        _ = Trace.Listeners.Add(new SerilogTraceListener());
 
         try
         {
