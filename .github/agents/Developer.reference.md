@@ -12,10 +12,10 @@ Authoritative rules are in `.github/agents/Developer.agent.md` and SSOT docs.
 
 ## Quality Prompts
 
-- Is behavior explicit for happy/error/edge paths?
+- Is behaviour explicit for happy/error/edge paths?
 - Is async code cancellation-aware?
 - Are boundaries respected and dependencies minimal?
-- Are tests deterministic and behavior-focused?
+- Are tests deterministic and behaviour-focused?
 
 ## Implementation Checklist
 

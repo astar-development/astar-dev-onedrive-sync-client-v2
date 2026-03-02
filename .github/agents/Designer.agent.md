@@ -28,16 +28,16 @@ Do not duplicate numeric thresholds from SSOT.
 
 <PROCESS_REQUIREMENTS type="MANDATORY">
 
-1. Confirm UI behavior and states (loading, empty, error, success).
+1. Confirm UI behaviour and states (loading, empty, error, success).
 2. Define bindings/commands and state transitions.
-3. Specify accessibility behavior and validation checks.
+3. Specify accessibility behaviour and validation checks.
 4. Keep components composable and testable.
 
 </PROCESS_REQUIREMENTS>
 
 ## Scope
 
-- User flows, screen structure, and interaction behavior.
+- User flows, screen structure, and interaction behaviour.
 - MVVM-friendly component boundaries.
 - Binding strategy and reactive state design.
 - ViewModel testability expectations.
@@ -57,6 +57,6 @@ Include:
 - Mixing business logic into views/code-behind.
 - Accessibility as a post-processing step.
 - Ambiguous state handling (no explicit error/empty/loading states).
-- Non-deterministic UI behavior tied to side effects.
+- Non-deterministic UI behaviour tied to side effects.
 
 For control templates, accessibility checklists, and viewmodel test patterns, see `.github/agents/Designer.reference.md`.

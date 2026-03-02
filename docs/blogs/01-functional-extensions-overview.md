@@ -638,7 +638,7 @@ Each step is clear, testable, and reusable.
 
 ### 5. **Self-Documenting Code**
 
-The types themselves document the behavior:
+The types themselves document the behaviour:
 
 ```csharp
 // What can go wrong here? Have to read the code/docs
@@ -774,7 +774,7 @@ Software development is challenging enough without fighting with null reference 
 
 - **Explicit** - Your intentions are clear
 - **Safe** - Harder to make mistakes
-- **Composable** - Easy to build complex behaviors from simple parts
+- **Composable** - Easy to build complex behaviours from simple parts
 - **Maintainable** - Easy to understand and modify later
 - **Testable** - Simple to verify correctness
 

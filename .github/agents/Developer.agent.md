@@ -47,14 +47,14 @@ Do not duplicate numeric policy thresholds; reference SSOT.
 2. Add failing test(s).
 3. Implement minimal code change.
 4. Run affected tests, then full suite.
-5. Refactor while preserving behavior.
+5. Refactor while preserving behaviour.
 
 </PROCESS_REQUIREMENTS>
 
 ## Scope
 
 - Feature implementation, bug fixes, and refactoring.
-- Test updates required by changed behavior.
+- Test updates required by changed behaviour.
 - Maintain architecture boundaries and coding conventions.
 
 ## Quality Guidance
@@ -63,7 +63,7 @@ Do not duplicate numeric policy thresholds; reference SSOT.
 - Async correctness with cancellation.
 - Functional patterns (`Result`/`Option`) where required.
 - Readability, cohesion, and low coupling.
-- Deterministic, behavior-focused tests.
+- Deterministic, behaviour-focused tests.
 
 ## Output Requirements
 

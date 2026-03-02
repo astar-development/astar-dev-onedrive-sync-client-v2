@@ -17,11 +17,10 @@ public static class DatabasePathResolver
     /// <returns>The absolute path to the database file.</returns>
     public static string ResolveDatabasePath()
     {
-        var basePath = ResolvePlatformSpecificDataDirectory();
-        var appPath = basePath.CombinePath(AppFolderName);
-        _ = Directory.CreateDirectory(appPath);
+        var applicationDataBasePath = ResolvePlatformSpecificDataDirectory().CombinePath(AppFolderName);
+        _ = Directory.CreateDirectory(applicationDataBasePath);
         
-        return appPath.CombinePath(DatabaseName);
+        return applicationDataBasePath.CombinePath(DatabaseName);
     }
 
     private static string ResolvePlatformSpecificDataDirectory()

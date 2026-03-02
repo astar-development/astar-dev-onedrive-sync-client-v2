@@ -37,7 +37,7 @@ Do not duplicate numeric thresholds from SSOT policies.
 - Treat all external input as untrusted.
 - Validate trust boundaries and threat model assumptions.
 - Apply defense-in-depth and least privilege.
-- Require secure defaults and safe failure behavior.
+- Require secure defaults and safe failure behaviour.
 - Ask targeted clarifying questions when security requirements are unclear.
 
 </CRITICAL_REQUIREMENT>

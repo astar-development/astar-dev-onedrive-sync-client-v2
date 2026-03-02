@@ -6,11 +6,13 @@ using AStar.Dev.OneDrive.Sync.Client.UI.Layouts;
 using AStar.Dev.OneDrive.Sync.Client.UI.Logs;
 using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
 using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
+using AStar.Dev.OneDrive.Sync.Client.UI.Tests.ThemeManager;
 using Avalonia.Controls;
 using Avalonia.LogicalTree;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Layouts;
 
+[Collection(ThemeManagerTestCollection.Name)]
 public sealed class LayoutsShould
 {
     [Fact]

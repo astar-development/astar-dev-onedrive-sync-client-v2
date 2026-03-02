@@ -1,4 +1,3 @@
-using Avalonia.Headless;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Themes.Fluent;
 
@@ -7,13 +6,9 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ThemeManager;
 [Collection(ThemeManagerTestCollection.Name)]
 public sealed class ThemeManagerShould
 {
-    private static bool _isAvaloniaInitialized;
-
     [Fact]
     public void LoadWithoutErrorWhenApplyThemeDarkIsApplied()
     {
-        EnsureAvaloniaInitialized();
-
         Avalonia.Application app = Avalonia.Application.Current ?? new TestApplication();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
@@ -30,8 +25,6 @@ public sealed class ThemeManagerShould
     [Fact]
     public void ReplaceOnlyAppThemeIncludeAndPreserveFluentThemeWhenApplyThemeIsCalled()
     {
-        EnsureAvaloniaInitialized();
-
         Avalonia.Application app = Avalonia.Application.Current ?? new TestApplication();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
@@ -56,8 +49,6 @@ public sealed class ThemeManagerShould
     [Fact]
     public void ThrowInvalidOperationExceptionWhenApplyThemeWithInvalidThemeIsCalled()
     {
-        EnsureAvaloniaInitialized();
-
         Avalonia.Application app = Avalonia.Application.Current ?? new TestApplication();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
@@ -68,8 +59,6 @@ public sealed class ThemeManagerShould
     [Fact]
     public void PreserveBaseThemeStylesWhenApplyThemeIsCalled()
     {
-        EnsureAvaloniaInitialized();
-
         Avalonia.Application app = Avalonia.Application.Current ?? new TestApplication();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
@@ -85,20 +74,6 @@ public sealed class ThemeManagerShould
             .SingleOrDefault(static style => style.Source?.OriginalString == $"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/Base.axaml");
 
         _ = baseThemeInclude.ShouldNotBeNull("Base.axaml should be preserved when swapping themes");
-    }
-
-    private static void EnsureAvaloniaInitialized()
-    {
-        if(_isAvaloniaInitialized)
-        {
-            return;
-        }
-
-        _ = Avalonia.AppBuilder.Configure<TestApplication>()
-            .UseHeadless(new AvaloniaHeadlessPlatformOptions())
-            .SetupWithoutStarting();
-
-        _isAvaloniaInitialized = true;
     }
 
     private sealed class TestApplication : Avalonia.Application;

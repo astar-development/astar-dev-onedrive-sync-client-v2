@@ -122,7 +122,7 @@ public class SettingsViewModelShould
 
         Result<bool, Unit> result = await newViewModel.LoadSettingsAsync();
 
-        result.ShouldBeOfType<bool>("Result should be of type bool but is of type Unit");
+        _ = result.ShouldBeOfType<Result<bool, Unit>.Ok>();
     }
 
     [Fact]
@@ -139,7 +139,7 @@ public class SettingsViewModelShould
 
         Result<bool, Unit> result = await newViewModel.LoadSettingsAsync();
 
-        result.ShouldBeOfType<bool>("Result should be of type bool but is of type Unit");
+        _ = result.ShouldBeOfType<Result<bool, Unit>.Ok>();
         newViewModel.SelectedTheme.ShouldBe("Dark");
         newViewModel.SelectedLayout.ShouldBe("Dashboard");
     }
@@ -150,7 +150,7 @@ public class SettingsViewModelShould
         var viewModel = new SettingsViewModel(CreateDatabasePath());
         Result<bool, Unit> result = await viewModel.LoadSettingsAsync();
         
-        result.ShouldBeOfType<bool>("Result should be of type bool but is of type Unit");
+        _ = result.ShouldBeOfType<Result<bool, Unit>.Ok>();
     }
 
     [Fact]

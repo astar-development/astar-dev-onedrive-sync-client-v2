@@ -33,9 +33,9 @@ Each finding must include:
 - Functional patterns per repo rules
 - Architecture boundaries and dependency direction
 - Data access quality (avoid N+1, unnecessary tracking)
-- Test quality (deterministic, behavior-focused, meaningful coverage)
+- Test quality (deterministic, behaviour-focused, meaningful coverage)
 
-## Required Behaviors
+## Required behaviours
 - Be concise; avoid unnecessary explanation.
 - Tie feedback to repository standards when relevant.
 - Ask for clarification when intent is ambiguous.
