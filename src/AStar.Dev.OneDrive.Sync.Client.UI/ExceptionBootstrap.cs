@@ -19,9 +19,11 @@ public static class ExceptionBootstrap
         _ = Trace.Listeners.Add(new SerilogTraceListener());
     }
 
-    public static void HookAvaloniaUIThread() => Dispatcher.UIThread.UnhandledException += (sender, e) =>
-                                                      {
-                                                          Log.Error(e.Exception, "UI thread exception");
-                                                          e.Handled = true; // optional
-                                                      };
+    public static void HookAvaloniaUIThread() => Dispatcher.UIThread.UnhandledException += HandleUIThreadException();
+    
+    private static DispatcherUnhandledExceptionEventHandler HandleUIThreadException() => (sender, e) =>
+    {
+        Log.Error(e.Exception, "UI thread exception");
+        e.Handled = true;
+    };
 }

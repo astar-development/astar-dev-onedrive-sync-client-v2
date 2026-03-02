@@ -35,6 +35,23 @@ public sealed class SqliteSettingsRepository(string? databasePath = null)
             values.GetValueOrDefault("UserName", "User"));
     }
 
+    public SettingsState? Load()
+    {
+        using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
+        var entries = context.Settings.AsNoTracking().ToList();
+        if(entries.Count == 0)
+        {
+            return null;
+        }
+
+        var values = entries.ToDictionary(x => x.Key, x => x.Value, StringComparer.Ordinal);
+        return new SettingsState(
+            values.GetValueOrDefault("SelectedTheme", "Light"),
+            values.GetValueOrDefault("SelectedLanguage", "en-GB"),
+            values.GetValueOrDefault("SelectedLayout", "Explorer"),
+            values.GetValueOrDefault("UserName", "User"));
+    }
+
     private static async Task UpsertSettingAsync(
         AstarOneDriveDbContextModel context,
         string key,

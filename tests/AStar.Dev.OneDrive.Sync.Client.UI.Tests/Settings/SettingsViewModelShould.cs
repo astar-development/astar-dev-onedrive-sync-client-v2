@@ -120,8 +120,9 @@ public class SettingsViewModelShould
         _ = await viewModel.SaveSettingsAsync(TestContext.Current.CancellationToken);
         var newViewModel = new SettingsViewModel(databasePath);
 
-        Result<bool, Exception> result = await newViewModel.LoadSettingsAsync(TestContext.Current.CancellationToken);
-        Pattern.IsSuccess(result).ShouldBeTrue();
+        Result<bool, Unit> result = await newViewModel.LoadSettingsAsync();
+
+        result.ShouldBeOfType<bool>("Result should be of type bool but is of type Unit");
     }
 
     [Fact]
@@ -136,9 +137,9 @@ public class SettingsViewModelShould
         _ = await viewModel.SaveSettingsAsync(TestContext.Current.CancellationToken);
         var newViewModel = new SettingsViewModel(databasePath);
 
-        Result<bool, Exception> result = await newViewModel.LoadSettingsAsync(TestContext.Current.CancellationToken);
+        Result<bool, Unit> result = await newViewModel.LoadSettingsAsync();
 
-        Pattern.IsSuccess(result).ShouldBeTrue();
+        result.ShouldBeOfType<bool>("Result should be of type bool but is of type Unit");
         newViewModel.SelectedTheme.ShouldBe("Dark");
         newViewModel.SelectedLayout.ShouldBe("Dashboard");
     }
@@ -147,8 +148,9 @@ public class SettingsViewModelShould
     public async Task ReturnOkResultWhenLoadSettingsAsyncIsCalledAndDatabaseIsEmpty()
     {
         var viewModel = new SettingsViewModel(CreateDatabasePath());
-        Result<bool, Exception> result = await viewModel.LoadSettingsAsync(TestContext.Current.CancellationToken);
-        Pattern.IsSuccess(result).ShouldBeTrue();
+        Result<bool, Unit> result = await viewModel.LoadSettingsAsync();
+        
+        result.ShouldBeOfType<bool>("Result should be of type bool but is of type Unit");
     }
 
     [Fact]
