@@ -1,10 +1,12 @@
 using AStar.Dev.Functional.Extensions;
-using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
+using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
+using AStar.Dev.OneDrive.Sync.Client.Infrastructure;
 using AStar.Dev.OneDrive.Sync.Client.UI.Home;
 using AStar.Dev.OneDrive.Sync.Client.UI.Localization;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI;
@@ -49,8 +51,10 @@ public partial class App : Avalonia.Application
 
     private static void ApplyDatabaseMigrations()
     {
-        var migrator = new SqliteDatabaseMigrator();
-        _ = Try.Run(migrator.EnsureMigrated)
+        IServiceCollection services = new ServiceCollection().AddInfrastructure();
+        using ServiceProvider provider = services.BuildServiceProvider();
+        IMigrationService migrationService = provider.GetRequiredService<IMigrationService>();
+        _ = Try.Run(migrationService.EnsureMigrated)
             .TapError(exception => Log.Error(exception, "Failed to apply database migrations on startup"));
     }
 
