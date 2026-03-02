@@ -27,7 +27,7 @@ public class AccountDialogViewModel : ViewModelBase
     {
         _migrator = new SqliteDatabaseMigrator(databasePath);
         _accountsRepository = new SqliteAccountsRepository(databasePath);
-        SaveCommand = new RelayCommand(_ => Save());
+        SaveCommand = new RelayCommand(async _ => await Save());
         CancelCommand = new RelayCommand(_ => Cancel());
         LoginCommand = new RelayCommand(_ => TriggerLogin());
     }
