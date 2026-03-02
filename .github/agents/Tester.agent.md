@@ -93,7 +93,7 @@ Heuristic:
 
 Recommended naming:
 - Class: `{ComponentName}Should`
-- Method: `{behaviour}_When{Scenario}` or `{Method}_Scenario_ExpectedResult`
+- Method: `{behaviour}When{Scenario}` or `{Method}ScenarioExpectedResult`
 
 ## Platform-Specific Guidance (Astar OneDrive)
 
@@ -105,8 +105,8 @@ Recommended naming:
 ## Output Requirements
 
 When delivering test work, include:
-- What was tested.
-- Key scenarios covered (happy/error/edge).
+- Bullet points for what was tested:
+  - Key scenarios covered (happy/error/edge).
 - Commands run and results.
 - Any remaining risk/gaps.
 

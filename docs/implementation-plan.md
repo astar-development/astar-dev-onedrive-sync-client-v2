@@ -278,20 +278,20 @@ Connect Settings view to theme/language/layout switching.
 ### **Phase 10: Account Management Dialog ✅**
 Build add/edit account dialog (stub—real OAuth comes later).
 
-1. **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/ViewModels/AccountManagement/AccountDialogViewModelShould.cs
+1. ✅ **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/ViewModels/AccountManagement/AccountDialogViewModelShould.cs
    - Test: Dialog opens with empty fields for new account
    - Test: Dialog opens with populated fields for edit
    - Test: `SaveCommand` validates email format
    - Test: `CancelCommand` closes without saving
    - Test: `LoginCommand` triggers authentication (stub for now)
 
-2. **Implement** — src/AStar.Dev.OneDrive.Sync.Client.UI/AccountManagement/AccountDialogViewModel.cs & View
+2. ✅ **Implement** — src/AStar.Dev.OneDrive.Sync.Client.UI/AccountManagement/AccountDialogViewModel.cs & View
    - Create dialog VM with email, storage info properties
    - Implement Save/Cancel/Login commands
    - Persist account changes to `Accounts` table via repository
    - Create dialog XAML (TextBox for email, buttons)
 
-3. **Verify**
+3. ✅ **Verify**
    - 5 tests pass
    - Click "Add Account" in app → dialog opens
    - Enter email & click Login → stub behaviour (no crash)
@@ -299,21 +299,21 @@ Build add/edit account dialog (stub—real OAuth comes later).
 
 ---
 
-### **Phase 11: Folder Tree UI Binding**
+### **Phase 11: Folder Tree UI Binding ✅**
 Remove hard-coded data, bind to FolderTreeViewModel.
 
-1. **Test** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Layouts/ExplorerLayoutIntegrationShould.cs
+1. ✅ **Test** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Layouts/ExplorerLayoutIntegrationShould.cs
    - Test: FolderTreeView renders nodes from ViewModel
    - Test: Checkboxes reflect `IsSelected` state
    - Test: Expand/collapse works
 
-2. **Implement** — FolderTreeView.axaml
+2. ✅ **Implement** — FolderTreeView.axaml
    - Replace hard-coded TreeView with binding to `{Binding FolderTree.Nodes}`
    - Load nodes from database-backed folder/file state tables
    - Bind checkbox to `IsSelected`
    - Bind expand/collapse to commands
 
-3. **Verify**
+3. ✅ **Verify**
    - 3 tests pass
    - Launch app → folder tree is empty (no hard-coded data)
    - Add stub root node via code → appears in tree
