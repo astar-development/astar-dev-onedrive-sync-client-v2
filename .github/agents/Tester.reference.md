@@ -57,15 +57,15 @@ public async Task CallRepositoryOnceWhenSaving()
 
 ## What Good Coverage Looks Like
 
-- Happy path behavior is asserted.
-- Error/failure path behavior is asserted.
+- Happy path behaviour is asserted.
+- Error/failure path behaviour is asserted.
 - Boundary/edge inputs are asserted.
 - Assertions verify outcomes, not internals.
 
 ## Test Review Checklist (Compact)
 
 - Uses AAA structure.
-- Names are behavior-focused.
+- Names are behaviour-focused.
 - Deterministic and isolated.
 - No comments/TODOs in tests.
 - Uses Shouldly and project conventions.
@@ -74,11 +74,11 @@ public async Task CallRepositoryOnceWhenSaving()
 ## When to Escalate to Integration/E2E
 
 - Contract changes across module boundaries.
-- Serialization/persistence/query behavior.
+- Serialization/persistence/query behaviour.
 - User-visible workflow spans multiple components.
 
 ## Functional Patterns (Astar)
 
 - Prefer verifying `Result` success/failure states explicitly.
-- Prefer verifying `Option` Some/None behavior explicitly.
-- Include branch assertions for mapped/bound outcomes when behavior depends on composition.
+- Prefer verifying `Option` Some/None behaviour explicitly.
+- Include branch assertions for mapped/bound outcomes when behaviour depends on composition.

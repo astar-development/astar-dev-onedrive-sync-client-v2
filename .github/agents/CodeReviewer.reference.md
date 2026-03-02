@@ -14,7 +14,7 @@ Authoritative reviewer rules remain in:
 - Architecture boundaries respected
 - Async/cancellation patterns correct
 - Data-access patterns efficient
-- Tests deterministic and behavior-focused
+- Tests deterministic and behaviour-focused
 - Policy/standards alignment
 
 ## Finding Template

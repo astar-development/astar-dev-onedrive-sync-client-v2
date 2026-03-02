@@ -5,9 +5,11 @@ using AStar.Dev.OneDrive.Sync.Client.UI.Home;
 using AStar.Dev.OneDrive.Sync.Client.UI.Logs;
 using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
 using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
+using AStar.Dev.OneDrive.Sync.Client.UI.Tests.ThemeManager;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Home;
 
+[Collection(ThemeManagerTestCollection.Name)]
 public sealed class MainWindowViewModelShould
 {
     [Fact]

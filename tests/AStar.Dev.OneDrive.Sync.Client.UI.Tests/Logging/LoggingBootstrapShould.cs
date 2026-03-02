@@ -1,5 +1,8 @@
+using AStar.Dev.OneDrive.Sync.Client.UI.Tests.ThemeManager;
+
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Logging;
 
+[Collection(ThemeManagerTestCollection.Name)]
 [TestSubject(typeof(LoggingBootstrap))]
 public sealed class LoggingBootstrapShould : IDisposable
 {

@@ -24,7 +24,7 @@ How to use:
 - Scope is focused; unrelated changes are split out. PR size is reasonable (see SSOT for targets) and commits are logical.
 - Follow naming and commit conventions; changelog/docs updated where appropriate.
 
-### 2. Correctness and behavior
+### 2. Correctness and behaviour
 
 - Implements the intended requirements; edge cases and error paths handled.
 - Input validation present; undefined/NaN/null/empty cases covered.
@@ -34,7 +34,7 @@ How to use:
 
 - Tests cover happy paths, error/exception paths, and edge cases.
 - Coverage meets the repository Quality & Coverage Policy; hot/error/security paths have 100% coverage.
-- Tests are stable, deterministic, and assert behavior (not implementation details).
+- Tests are stable, deterministic, and assert behaviour (not implementation details).
 
 ### 4. Security
 
@@ -70,7 +70,7 @@ How to use:
 ### 9. UX/UI and accessibility (if applicable)
 
 - Semantics, keyboard navigation, contrast, and ARIA where appropriate.
-- Responsive behavior and internationalization considerations.
+- Responsive behaviour and internationalization considerations.
 
 ## Severity taxonomy
 

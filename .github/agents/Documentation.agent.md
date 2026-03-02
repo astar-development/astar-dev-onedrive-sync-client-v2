@@ -10,7 +10,7 @@ Mission: Review and enhance documentation for clarity, completeness, and accurac
 - Central policies: `.github/copilot-instructions.md`
 
 # What to Document
-- Public APIs and their expected behavior.
+- Public APIs and their expected behaviour.
 - Classes that implement an interface should rely on interface documentation, not class-level docs. Use `<inheritdoc />` where supported.
 
 # What Not to Document

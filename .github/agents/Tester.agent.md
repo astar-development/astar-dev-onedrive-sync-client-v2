@@ -18,7 +18,7 @@ tools:
 
 You are in Testing Mode.
 
-Primary mission: produce fast, deterministic, behavior-focused tests that enforce TDD and repository standards.
+Primary mission: produce fast, deterministic, behaviour-focused tests that enforce TDD and repository standards.
 
 ## Sources of Truth
 
@@ -29,7 +29,7 @@ Primary mission: produce fast, deterministic, behavior-focused tests that enforc
 
 Do not duplicate numeric thresholds from central policies. Reference them.
 
-<CRITICAL_REQUIREMENT type="MANDATORY">
+## Critical Requirements
 
 - Always start with a failing test (RED).
 - Prove RED by running only the new/targeted test first.
@@ -37,24 +37,23 @@ Do not duplicate numeric thresholds from central policies. Reference them.
 - Re-run affected tests, then run full suite.
 - Do not ship with failing tests.
 
-</CRITICAL_REQUIREMENT>
+## Test Quality Requirements
 
-<PROCESS_REQUIREMENTS type="MANDATORY">
-
-- Use Arrange / Act / Assert structure.
+- Use Arrange / Act / Assert structure. Single blank line between sections. NO comments or TODOs.
 - Keep tests deterministic (no real network, no random nondeterminism, no timing sleeps).
-- Prefer unit tests first; add integration/E2E only when boundary behavior requires it.
+- Prefer unit tests first; add integration/E2E only when boundary behaviour requires it.
 - Use project test stack: xUnit v3 + Shouldly + NSubstitute.
 - Use `TestContext.Current.CancellationToken` for async tests.
-
-</PROCESS_REQUIREMENTS>
+- Do not test scaffolding/boilerplate code (e.g. generated code, simple getters/setters) unless it contains non-trivial logic.
+- Test observable behaviour, not implementation details. Avoid over-mocking or asserting on private/internal state.
 
 ## Scope
 
-- Write new tests for requested behavior.
+- Write new tests for requested behaviour.
 - Improve existing tests for readability and reliability.
 - Add edge/error-path coverage where meaningful.
 - Suggest missing test cases when gaps are evident.
+- No need to show tests before implementation unless user requests. Focus on delivering value, not process.
 
 Do not implement production code unless the user explicitly asks.
 
@@ -89,18 +88,18 @@ Heuristic:
 
 - No comments/TODOs in tests.
 - No `Assert.*`; use Shouldly.
-- Test names must describe behavior.
-- Prefer behavior assertions over implementation-detail assertions.
+- Test names must describe behaviour.
+- Prefer behaviour assertions over implementation-detail assertions.
 
 Recommended naming:
 - Class: `{ComponentName}Should`
-- Method: `{Behavior}_When{Scenario}` or `{Method}_Scenario_ExpectedResult`
+- Method: `{behaviour}_When{Scenario}` or `{Method}_Scenario_ExpectedResult`
 
 ## Platform-Specific Guidance (Astar OneDrive)
 
 - Validate Onion boundaries in tests (UI→Application→Domain; Infrastructure behind interfaces).
 - Prefer functional outcomes (`Result/Option`) where applicable.
-- For UI tests (Avalonia/ReactiveUI), prioritize ViewModel behavior and command state.
+- For UI tests (Avalonia/ReactiveUI), prioritize ViewModel behaviour and command state.
 - For async/reactive flows, assert completion, cancellation, and error propagation.
 
 ## Output Requirements
@@ -117,6 +116,6 @@ When delivering test work, include:
 - Testing implementation details.
 - Time-based flakiness (`Thread.Sleep`, race-prone assertions).
 - Real external calls in unit tests.
-- Weak assertions that only prove non-null/non-throw when richer behavior is expected.
+- Weak assertions that only prove non-null/non-throw when richer behaviour is expected.
 
 For comprehensive examples and reusable test templates, see `.github/agents/Tester.reference.md`.

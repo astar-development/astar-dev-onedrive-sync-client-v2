@@ -12,7 +12,7 @@ Architecture decision reference: [docs/architecture/adr-0001-sqlite-ef-core-pers
 - Mapping style: `IEntityTypeConfiguration<T>` for every entity.
 - Null handling: columns are required by default; nullable only when business-justified.
 - String lengths: explicit max lengths on all text columns.
-- Runtime behavior: pending migrations are applied at startup before repository use.
+- Runtime behaviour: pending migrations are applied at startup before repository use.
 
 ## Runtime Database Location
 Use a platform-specific user data directory and place the DB at:
@@ -117,7 +117,7 @@ Each configuration must define:
 - Required vs optional fields (`IsRequired`)
 - String max lengths (`HasMaxLength`)
 - Indexes and uniqueness
-- Foreign keys and delete behavior
+- Foreign keys and delete behaviour
 
 ## Migration and Startup Contract
 1. Generate migrations into `src/AStar.Dev.OneDrive.Sync.Client.Infrastructure/Data/Migrations`.
@@ -148,4 +148,4 @@ Minimum failing tests to add before implementation:
 - Runtime startup applies pending migration.
 - Insert/query for Settings, Accounts, SyncFiles succeeds.
 - Constraint tests for required fields and max lengths fail/pass as expected.
-- Foreign key and unique index behavior is validated.
+- Foreign key and unique index behaviour is validated.

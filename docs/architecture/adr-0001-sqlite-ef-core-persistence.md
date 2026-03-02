@@ -6,7 +6,7 @@
 - Related: [Implementation Plan](../implementation-plan.md), [Database Schema](../database-schema.md)
 
 ## Context
-The application currently persists user and app state using JSON files (settings, accounts, folder tree), which creates schema drift risk and fragmented persistence behavior. The implementation plan introduces a dedicated persistence phase requiring:
+The application currently persists user and app state using JSON files (settings, accounts, folder tree), which creates schema drift risk and fragmented persistence behaviour. The implementation plan introduces a dedicated persistence phase requiring:
 - SQLite as the storage engine
 - EF Core with migrations in Infrastructure
 - Runtime migration application on startup
@@ -79,6 +79,6 @@ Preferred option:
 6. Remove JSON write paths after migration validation
 
 ## Consequences
-- Persistence behavior becomes schema-driven and versioned
+- Persistence behaviour becomes schema-driven and versioned
 - Future model changes are managed through migrations instead of ad-hoc file changes
 - Infrastructure owns persistence concerns; UI/Application consume abstractions
