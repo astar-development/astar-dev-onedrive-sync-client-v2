@@ -189,8 +189,9 @@ public class AccountDialogViewModel : ViewModelBase
     private void TriggerLogin() => LoginTriggered = true;
 
     private static Result<bool, string> ValidateEmail(string email)
-        => Try.Run(() => IsValidEmail(email))
-            .Match(_ => true, _ => false);
+        => IsValidEmail(email)
+            ? true
+            : "Invalid email address";
 
     private static bool IsValidEmail(string email)
     {
