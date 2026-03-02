@@ -1,8 +1,14 @@
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Logging;
 
 [TestSubject(typeof(LoggingBootstrap))]
-public sealed class LoggingBootstrapShould
+public sealed class LoggingBootstrapShould : IDisposable
 {
+    public void Dispose()
+    {
+        Environment.SetEnvironmentVariable("ASTAR_LOG_PATH", null);
+        Environment.SetEnvironmentVariable("ASTAR_LOG_RETENTION_DAYS", null);
+    }
+
     [Fact]
     public void UseDefaultLogPathWhenEnvironmentVariableIsNotSet()
     {
@@ -17,8 +23,6 @@ public sealed class LoggingBootstrapShould
         Environment.SetEnvironmentVariable("ASTAR_LOG_PATH", "/custom/log/path.log");
 
         LoggingBootstrap.LogPath.ShouldBe("/custom/log/path.log");
-
-        Environment.SetEnvironmentVariable("ASTAR_LOG_PATH", null);
     }
 
     [Fact]
@@ -35,8 +39,6 @@ public sealed class LoggingBootstrapShould
         Environment.SetEnvironmentVariable("ASTAR_LOG_RETENTION_DAYS", "14");
 
         LoggingBootstrap.RetentionDays.ShouldBe(14);
-
-        Environment.SetEnvironmentVariable("ASTAR_LOG_RETENTION_DAYS", null);
     }
 
     [Fact]
@@ -45,7 +47,5 @@ public sealed class LoggingBootstrapShould
         Environment.SetEnvironmentVariable("ASTAR_LOG_RETENTION_DAYS", "not-a-number");
 
         LoggingBootstrap.RetentionDays.ShouldBe(LoggingBootstrap.DefaultRetentionDays);
-
-        Environment.SetEnvironmentVariable("ASTAR_LOG_RETENTION_DAYS", null);
     }
 }
