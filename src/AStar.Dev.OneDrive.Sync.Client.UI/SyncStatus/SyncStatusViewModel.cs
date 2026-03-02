@@ -23,7 +23,7 @@ public class SyncStatusViewModel : ViewModelBase
         get;
         set
         {
-            if(field == value)
+            if (field == value)
             {
                 return;
             }
@@ -66,7 +66,7 @@ public class SyncStatusViewModel : ViewModelBase
         set
         {
             _ = this.RaiseAndSetIfChanged(ref field, value);
-            if(string.IsNullOrWhiteSpace(value))
+            if (string.IsNullOrWhiteSpace(value))
             {
                 return;
             }

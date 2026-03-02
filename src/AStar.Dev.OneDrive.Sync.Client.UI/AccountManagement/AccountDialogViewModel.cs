@@ -166,7 +166,7 @@ public class AccountDialogViewModel : ViewModelBase
             var id = _existingAccountId ?? Guid.NewGuid().ToString("N");
             var updated = new AccountState(id, Email, QuotaBytes, UsedBytes);
             var existingIndex = accounts.FindIndex(x => x.Id == id);
-            if(existingIndex >= 0)
+            if (existingIndex >= 0)
             {
                 accounts[existingIndex] = updated;
             }
@@ -194,7 +194,7 @@ public class AccountDialogViewModel : ViewModelBase
 
     private static bool IsValidEmail(string email)
     {
-        if(string.IsNullOrWhiteSpace(email))
+        if (string.IsNullOrWhiteSpace(email))
         {
             return false;
         }

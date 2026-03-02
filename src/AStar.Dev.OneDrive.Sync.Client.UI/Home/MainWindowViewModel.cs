@@ -58,7 +58,7 @@ public class MainWindowViewModel : ViewModelBase
         get;
         set
         {
-            if(field == value)
+            if (field == value)
                 return;
             _ = this.RaiseAndSetIfChanged(ref field, value);
             ApplyLayout(value);
@@ -118,7 +118,7 @@ public class MainWindowViewModel : ViewModelBase
         OpenUserSettingsCommand = new RelayCommand(_ => SetTerminalLayout(2));
         OpenAppSettingsCommand = new RelayCommand(_ => SetTerminalLayout(2));
 
-        if(initializeLayoutView)
+        if (initializeLayoutView)
         {
             ApplyLayout(LayoutType.Explorer);
         }
@@ -144,7 +144,7 @@ public class MainWindowViewModel : ViewModelBase
 
     private void ApplyLayout(LayoutType layout)
     {
-        if(Dispatcher.UIThread is null || !Dispatcher.UIThread.CheckAccess())
+        if (Dispatcher.UIThread is null || !Dispatcher.UIThread.CheckAccess())
         {
             Settings.SelectedLayout = layout.ToString();
             return;

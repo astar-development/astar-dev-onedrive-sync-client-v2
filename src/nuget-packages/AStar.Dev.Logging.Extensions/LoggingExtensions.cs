@@ -28,7 +28,7 @@ public static class LoggingExtensions
     /// </returns>
     public static WebApplicationBuilder AddSerilogLogging(this WebApplicationBuilder builder, string externalSettingsFile = "")
     {
-        if(externalSettingsFile.IsNotNullOrWhiteSpace())
+        if (externalSettingsFile.IsNotNullOrWhiteSpace())
             _ = builder.Configuration.AddJsonFile(externalSettingsFile, true, true);
 
         _ = builder.Services.AddScoped(typeof(ILoggerAstar<>), typeof(AStarLogger<>));
@@ -60,7 +60,7 @@ public static class LoggingExtensions
     /// </returns>
     public static HostApplicationBuilder AddSerilogLogging(this HostApplicationBuilder builder, string externalSettingsFile = "")
     {
-        if(externalSettingsFile.IsNotNullOrWhiteSpace())
+        if (externalSettingsFile.IsNotNullOrWhiteSpace())
             _ = builder.Configuration.AddJsonFile(externalSettingsFile, true, true);
 
         _ = builder.Services.AddSingleton(_ => new TelemetryConfiguration());

@@ -9,6 +9,7 @@ public static class DatabasePathResolver
 {
     private const string AppFolderName = "AStar.Dev.OneDrive.Sync.Client";
     private const string DatabaseName = "astar-onedrive.db";
+    private const string XdgDataHomeEnvironmentVariable = "XDG_DATA_HOME";
 
     /// <summary>
     /// Resolves the full database file path, creating the directory if it doesn't exist.
@@ -16,33 +17,29 @@ public static class DatabasePathResolver
     /// <returns>The absolute path to the database file.</returns>
     public static string ResolveDatabasePath()
     {
-        var basePath = ResolvePlatformDataDirectory();
+        var basePath = ResolvePlatformSpecificDataDirectory();
         var appPath = basePath.CombinePath(AppFolderName);
         _ = Directory.CreateDirectory(appPath);
         
         return appPath.CombinePath(DatabaseName);
     }
 
-    private static string ResolvePlatformDataDirectory()
+    private static string ResolvePlatformSpecificDataDirectory()
     {
-        if(OperatingSystem.IsWindows())
+        if (OperatingSystem.IsWindows())
         {
             return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         }
 
-        if(OperatingSystem.IsMacOS())
+        if (OperatingSystem.IsMacOS())
         {
-            var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            return userProfile.CombinePath("Library", "Application Support");
+            return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).CombinePath("Library", "Application Support");
         }
 
-        var xdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
-        if(!string.IsNullOrWhiteSpace(xdgDataHome))
-        {
-            return xdgDataHome;
-        }
+        var xdgDataHome = Environment.GetEnvironmentVariable(XdgDataHomeEnvironmentVariable);
 
-        var homePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        return homePath.CombinePath(".local", "share");
+        return !string.IsNullOrWhiteSpace(xdgDataHome)
+            ? xdgDataHome
+            : Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).CombinePath(".local", "share");
     }
 }

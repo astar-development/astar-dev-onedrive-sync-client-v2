@@ -25,7 +25,7 @@ public class InMemoryLogSink(int maxLines = 200) : ILogEventSink
         lock(_syncLock)
         {
             _lines.Add(line);
-            if(_lines.Count > _maxLines)
+            if (_lines.Count > _maxLines)
                 _lines.RemoveAt(0);
         }
 

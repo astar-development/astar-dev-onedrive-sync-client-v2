@@ -13,13 +13,13 @@ public sealed class CloudRoleNameTelemetryInitializer(string roleOrApplicationNa
     /// <inheritdoc />
     public void Initialize(ITelemetry telemetry)
     {
-        if(telemetry == null)
+        if (telemetry == null)
             return;
 
-        if(string.IsNullOrEmpty(telemetry.Context.Cloud.RoleName))
+        if (string.IsNullOrEmpty(telemetry.Context.Cloud.RoleName))
             telemetry.Context.Cloud.RoleName = roleOrApplicationName ?? string.Empty;
 
-        if(string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
+        if (string.IsNullOrEmpty(telemetry.Context.InstrumentationKey))
             telemetry.Context.InstrumentationKey = instrumentationKey ?? string.Empty;
     }
 }

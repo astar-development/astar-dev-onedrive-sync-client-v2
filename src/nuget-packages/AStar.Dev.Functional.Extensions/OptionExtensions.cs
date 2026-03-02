@@ -14,7 +14,7 @@ public static class OptionExtensions
     /// </summary>
     public static bool TryGetValue<T>(this Option<T> option, [MaybeNullWhen(false)] out T value)
     {
-        if(option is Option<T>.Some some)
+        if (option is Option<T>.Some some)
         {
             value = some.Value;
 
@@ -105,7 +105,7 @@ public static class OptionExtensions
     /// <typeparam name="T"></typeparam>
     public static void Deconstruct<T>(this Option<T> option, out bool isSome, [MaybeNullWhen(false)] out T value)
     {
-        if(option is Option<T>.Some some)
+        if (option is Option<T>.Some some)
         {
             isSome = true;
             value = some.Value;
@@ -194,7 +194,7 @@ public static class OptionExtensions
     /// </summary>
     public static Option<T> Tap<T>(this Option<T> option, Action<T> action)
     {
-        if(option is Option<T>.Some some)
+        if (option is Option<T>.Some some)
             action(some.Value);
 
         return option;
@@ -205,7 +205,7 @@ public static class OptionExtensions
     /// </summary>
     public static async Task<Option<T>> TapAsync<T>(this Option<T> option, Func<T, Task> actionAsync)
     {
-        if(option is Option<T>.Some some)
+        if (option is Option<T>.Some some)
             await actionAsync(some.Value);
 
         return option;
@@ -293,9 +293,9 @@ public static class OptionExtensions
     /// </summary>
     public static IEnumerable<T> Values<T>(this IEnumerable<Option<T>> options)
     {
-        foreach(Option<T> option in options)
+        foreach (Option<T> option in options)
         {
-            if(option is Option<T>.Some some)
+            if (option is Option<T>.Some some)
                 yield return some.Value;
         }
     }
@@ -312,11 +312,11 @@ public static class OptionExtensions
     /// </summary>
     public static IEnumerable<TResult> Choose<T, TResult>(this IEnumerable<T> source, Func<T, Option<TResult>> chooser)
     {
-        foreach(T item in source)
+        foreach (T item in source)
         {
             Option<TResult> option = chooser(item);
 
-            if(option is Option<TResult>.Some some)
+            if (option is Option<TResult>.Some some)
                 yield return some.Value;
         }
     }

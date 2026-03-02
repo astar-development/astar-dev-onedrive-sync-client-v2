@@ -12,7 +12,7 @@ public partial class SettingsView : UserControl
     protected override async void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
-        if(DataContext is SettingsViewModel viewModel)
+        if (DataContext is SettingsViewModel viewModel)
         {
             _ = await viewModel.LoadSettingsAsync();
         }

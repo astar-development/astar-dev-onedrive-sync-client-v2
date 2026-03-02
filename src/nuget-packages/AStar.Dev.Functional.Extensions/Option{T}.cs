@@ -95,7 +95,7 @@ public abstract class Option<T>
         /// <exception cref="ArgumentNullException" />
         public Some(T value)
         {
-            if(value is null)
+            if (value is null)
                 throw new ArgumentNullException(nameof(value));
 
             Value = value;

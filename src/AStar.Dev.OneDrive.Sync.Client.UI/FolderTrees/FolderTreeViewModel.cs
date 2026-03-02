@@ -71,7 +71,7 @@ public class FolderTreeViewModel : ViewModelBase
 
     private void UpdateNode(FolderNode? node, Func<FolderNode, FolderNode> update)
     {
-        if(node is null)
+        if (node is null)
         {
             return;
         }
@@ -81,15 +81,15 @@ public class FolderTreeViewModel : ViewModelBase
 
     private static bool ReplaceNodeInCollection(ObservableCollection<FolderNode> collection, FolderNode target, FolderNode replacement)
     {
-        for(var index = 0; index < collection.Count; index++)
+        for (var index = 0; index < collection.Count; index++)
         {
-            if(ReferenceEquals(collection[index], target))
+            if (ReferenceEquals(collection[index], target))
             {
                 collection[index] = replacement;
                 return true;
             }
 
-            if(ReplaceNodeInCollection(collection[index].Children, target, replacement))
+            if (ReplaceNodeInCollection(collection[index].Children, target, replacement))
             {
                 return true;
             }
@@ -116,7 +116,7 @@ public class FolderTreeViewModel : ViewModelBase
             List<FolderNode> restored = BuildTree(state);
 
             Nodes.Clear();
-            foreach(FolderNode node in restored)
+            foreach (FolderNode node in restored)
             {
                 Nodes.Add(node);
             }
@@ -126,9 +126,9 @@ public class FolderTreeViewModel : ViewModelBase
 
     private static IEnumerable<FolderNodeState> FlattenTree(IReadOnlyList<FolderNode> nodes)
     {
-        for(var index = 0; index < nodes.Count; index++)
+        for (var index = 0; index < nodes.Count; index++)
         {
-            foreach(FolderNodeState state in FlattenNode(nodes[index], null, index))
+            foreach (FolderNodeState state in FlattenNode(nodes[index], null, index))
             {
                 yield return state;
             }
@@ -139,9 +139,9 @@ public class FolderTreeViewModel : ViewModelBase
     {
         yield return new FolderNodeState(node.Id, parentId, node.Name, node.IsSelected, node.IsExpanded, sortOrder);
 
-        for(var index = 0; index < node.Children.Count; index++)
+        for (var index = 0; index < node.Children.Count; index++)
         {
-            foreach(FolderNodeState state in FlattenNode(node.Children[index], node.Id, index))
+            foreach (FolderNodeState state in FlattenNode(node.Children[index], node.Id, index))
             {
                 yield return state;
             }
@@ -159,13 +159,13 @@ public class FolderTreeViewModel : ViewModelBase
 
     private static List<FolderNode> BuildChildren(string parentKey, IReadOnlyDictionary<string, List<FolderNodeState>> childrenLookup)
     {
-        if(!childrenLookup.TryGetValue(parentKey, out List<FolderNodeState>? childrenStates))
+        if (!childrenLookup.TryGetValue(parentKey, out List<FolderNodeState>? childrenStates))
         {
             return [];
         }
 
         var nodes = new List<FolderNode>();
-        foreach(FolderNodeState state in childrenStates)
+        foreach (FolderNodeState state in childrenStates)
         {
             var node = new FolderNode(state.Id, state.Name, state.IsSelected, state.IsExpanded, [..BuildChildren(state.Id, childrenLookup)]);
                 

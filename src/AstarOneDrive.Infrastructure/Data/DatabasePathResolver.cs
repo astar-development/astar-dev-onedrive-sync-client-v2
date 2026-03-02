@@ -32,6 +32,7 @@ public static class DatabasePathResolver
         if (OperatingSystem.IsMacOS())
         {
             var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
             return userProfile.CombinePath("Library", "Application Support");
         }
 
@@ -42,6 +43,7 @@ public static class DatabasePathResolver
         }
 
         var homePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
         return homePath.CombinePath(".local", "share");
     }
 }

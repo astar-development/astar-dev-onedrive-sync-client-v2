@@ -8,6 +8,8 @@ description: Format code according to specified guidelines.
 
 ## Guidelines
 - apply consistent formatting based on the solution's .editorconfig settings
+- a blank line should be added after control statements (e.g., if, else, for, while) / before the next statement
+- return statements should always have a blank line before them
 - ensure code follows the style conventions below
 
 ## Incorrect Record (or class) Formatting

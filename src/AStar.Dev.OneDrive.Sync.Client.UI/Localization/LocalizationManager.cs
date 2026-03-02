@@ -20,7 +20,7 @@ public static class LocalizationManager
     {
         Avalonia.Application? app = Avalonia.Application.Current;
 
-        if(app != null)
+        if (app != null)
         {
             app.Resources.MergedDictionaries.Clear();
 
@@ -76,12 +76,12 @@ public static class LocalizationManager
     {
         InMemoryResources.Clear();
 
-        if(culture == "en-GB")
+        if (culture == "en-GB")
         {
             DefineGBCultureMessages();
         }
 
-        if(culture == "en-US")
+        if (culture == "en-US")
         {
             DefineUSCultureMessages();
         }

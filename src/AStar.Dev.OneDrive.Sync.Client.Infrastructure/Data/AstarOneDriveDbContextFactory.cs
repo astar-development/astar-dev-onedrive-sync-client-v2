@@ -19,7 +19,7 @@ public static class AstarOneDriveDbContextFactory
             : databasePath;
 
         var dbDirectory = Path.GetDirectoryName(resolvedPath);
-        if(!string.IsNullOrWhiteSpace(dbDirectory))
+        if (!string.IsNullOrWhiteSpace(dbDirectory))
         {
             _ = Directory.CreateDirectory(dbDirectory);
         }
