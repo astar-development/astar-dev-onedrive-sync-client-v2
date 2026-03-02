@@ -29,7 +29,7 @@ public sealed class ExplorerLayoutIntegrationShould
         FolderNode targetNode = explorerLayout.MainWindow.FolderTree.Nodes[0];
         explorerLayout.MainWindow.FolderTree.ToggleNodeSelectionCommand.Execute(targetNode);
 
-        targetNode.IsSelected.ShouldBeTrue();
+        explorerLayout.MainWindow.FolderTree.Nodes[0].IsSelected.ShouldBeTrue();
     }
 
     [Fact]
@@ -43,9 +43,9 @@ public sealed class ExplorerLayoutIntegrationShould
         FolderNode targetNode = explorerLayout.MainWindow.FolderTree.Nodes[0];
 
         explorerLayout.MainWindow.FolderTree.ExpandNodeCommand.Execute(targetNode);
-        targetNode.IsExpanded.ShouldBeTrue();
+        explorerLayout.MainWindow.FolderTree.Nodes[0].IsExpanded.ShouldBeTrue();
 
-        explorerLayout.MainWindow.FolderTree.CollapseNodeCommand.Execute(targetNode);
-        targetNode.IsExpanded.ShouldBeFalse();
+        explorerLayout.MainWindow.FolderTree.CollapseNodeCommand.Execute(explorerLayout.MainWindow.FolderTree.Nodes[0]);
+        explorerLayout.MainWindow.FolderTree.Nodes[0].IsExpanded.ShouldBeFalse();
     }
 }
