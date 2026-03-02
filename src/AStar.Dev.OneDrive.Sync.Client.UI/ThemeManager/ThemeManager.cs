@@ -4,6 +4,9 @@ using Avalonia.Threading;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.ThemeManager;
 
+/// <summary>
+/// Manages application theme switching and application.
+/// </summary>
 public static class ThemeManager
 {
     private static readonly HashSet<string> SupportedThemes =
@@ -16,6 +19,11 @@ public static class ThemeManager
         "HighContrast"
     ];
 
+    /// <summary>
+    /// Applies the specified theme to the application.
+    /// </summary>
+    /// <param name="themeName">The name of the theme to apply.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the specified theme is not supported.</exception>
     public static void ApplyTheme(string themeName)
     {
         Avalonia.Application? app = Avalonia.Application.Current;

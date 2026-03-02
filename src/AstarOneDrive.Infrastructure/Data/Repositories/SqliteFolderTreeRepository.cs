@@ -4,11 +4,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AstarOneDrive.Infrastructure.Data.Repositories;
 
+/// <summary>
+/// SQLite repository for persisting and retrieving folder tree structures.
+/// </summary>
 public sealed class SqliteFolderTreeRepository(string? databasePath = null)
 {
     private const string DefaultAccountId = "local-folder-tree-account";
     private const string DefaultEmail = "folder-tree@local.astar";
 
+    /// <summary>
+    /// Saves a collection of folder nodes to the database, replacing all existing nodes.
+    /// </summary>
+    /// <param name="nodes">The folder nodes to save.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     public async Task SaveAsync(IReadOnlyList<FolderNodeState> nodes, CancellationToken cancellationToken = default)
     {
         await using var context = AstarOneDriveDbContextFactory.Create(databasePath);
@@ -40,6 +48,11 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Loads all folder nodes from the database, ordered by sort order.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A read-only list of folder node states.</returns>
     public async Task<IReadOnlyList<FolderNodeState>> LoadAsync(CancellationToken cancellationToken = default)
     {
         await using var context = AstarOneDriveDbContextFactory.Create(databasePath);

@@ -4,8 +4,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AstarOneDrive.Infrastructure.Data.Configurations;
 
+/// <summary>
+/// Entity Framework Core configuration for the Setting entity.
+/// </summary>
 public sealed class SettingConfiguration : IEntityTypeConfiguration<SettingEntity>
 {
+    /// <inheritdoc />
     public void Configure(EntityTypeBuilder<SettingEntity> builder)
     {
         builder.ToTable("Settings");

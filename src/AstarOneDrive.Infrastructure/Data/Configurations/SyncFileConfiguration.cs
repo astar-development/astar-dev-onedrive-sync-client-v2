@@ -4,8 +4,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AstarOneDrive.Infrastructure.Data.Configurations;
 
+/// <summary>
+/// Entity Framework Core configuration for the SyncFile entity.
+/// </summary>
 public sealed class SyncFileConfiguration : IEntityTypeConfiguration<SyncFileEntity>
 {
+    /// <inheritdoc />
     public void Configure(EntityTypeBuilder<SyncFileEntity> builder)
     {
         builder.ToTable("SyncFiles", tableBuilder =>

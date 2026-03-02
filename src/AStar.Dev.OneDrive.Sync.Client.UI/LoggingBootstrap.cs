@@ -4,6 +4,9 @@ using Serilog;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI;
 
+/// <summary>
+/// Configures and initializes logging and metrics for the application.
+/// </summary>
 public static class LoggingBootstrap
 {
     /// <summary>Gets the default log file path used when <c>ASTAR_LOG_PATH</c> is not set.</summary>
@@ -18,11 +21,16 @@ public static class LoggingBootstrap
     /// <summary>Gets the retained file count, resolved from the <c>ASTAR_LOG_RETENTION_DAYS</c> environment variable or the default.</summary>
     public static int RetentionDays => int.TryParse(Environment.GetEnvironmentVariable("ASTAR_LOG_RETENTION_DAYS"), out var days) ? days : DefaultRetentionDays;
 
+    /// <summary>
+    /// Gets the in-memory log sink for debug log viewing.
+    /// </summary>
     public static InMemoryLogSink DebugLogSink { get; private set; } = new();
 
+    /// <summary>
+    /// Initializes logging and metrics providers.
+    /// </summary>
     public static void Initialize()
     {
-        // --- Serilog ---
         LoggerConfiguration config = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .Enrich.FromLogContext()
@@ -36,7 +44,6 @@ public static class LoggingBootstrap
 
         Log.Logger = config.CreateLogger();
 
-        // --- OpenTelemetry Metrics ---
         MeterProvider = Sdk.CreateMeterProviderBuilder()
             .AddMeter("MyApp")
             .AddRuntimeInstrumentation()
@@ -45,5 +52,8 @@ public static class LoggingBootstrap
             .Build();
     }
 
+    /// <summary>
+    /// Gets the OpenTelemetry meter provider for application metrics.
+    /// </summary>
     public static MeterProvider? MeterProvider { get; private set; }
 }

@@ -2,11 +2,18 @@ using AStar.Dev.Utilities;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 
+/// <summary>
+/// Resolves the platform-specific database file path for the application.
+/// </summary>
 public static class DatabasePathResolver
 {
     private const string AppFolderName = "AStar.Dev.OneDrive.Sync.Client";
     private const string DatabaseName = "astar-onedrive.db";
 
+    /// <summary>
+    /// Resolves the full database file path, creating the directory if it doesn't exist.
+    /// </summary>
+    /// <returns>The absolute path to the database file.</returns>
     public static string ResolveDatabasePath()
     {
         var basePath = ResolvePlatformDataDirectory();

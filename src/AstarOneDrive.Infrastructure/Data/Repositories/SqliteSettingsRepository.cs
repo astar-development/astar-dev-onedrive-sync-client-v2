@@ -4,8 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AstarOneDrive.Infrastructure.Data.Repositories;
 
+/// <summary>
+/// SQLite repository for persisting and retrieving application settings.
+/// </summary>
 public sealed class SqliteSettingsRepository(string? databasePath = null)
 {
+    /// <summary>
+    /// Saves the application settings to the database.
+    /// </summary>
+    /// <param name="state">The settings state to save.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     public async Task SaveAsync(SettingsState state, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;
@@ -18,6 +26,11 @@ public sealed class SqliteSettingsRepository(string? databasePath = null)
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Loads the application settings from the database.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The settings state, or null if no settings exist.</returns>
     public async Task<SettingsState?> LoadAsync(CancellationToken cancellationToken = default)
     {
         await using var context = AstarOneDriveDbContextFactory.Create(databasePath);
@@ -35,12 +48,7 @@ public sealed class SqliteSettingsRepository(string? databasePath = null)
             values.GetValueOrDefault("UserName", "User"));
     }
 
-    private static async Task UpsertSettingAsync(
-        AstarOneDriveDbContext context,
-        string key,
-        string value,
-        DateTime updatedUtc,
-        CancellationToken cancellationToken)
+    private static async Task UpsertSettingAsync(AstarOneDriveDbContext context, string key, string value, DateTime updatedUtc, CancellationToken cancellationToken)
     {
         var setting = await context.Settings.SingleOrDefaultAsync(x => x.Key == key, cancellationToken);
         if (setting is null)
