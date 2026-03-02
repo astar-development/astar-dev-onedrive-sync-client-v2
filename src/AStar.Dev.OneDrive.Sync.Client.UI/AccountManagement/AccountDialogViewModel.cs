@@ -139,7 +139,7 @@ public class AccountDialogViewModel : ViewModelBase
     /// </summary>
     public event EventHandler<bool>? CloseRequested;
 
-    private async void Save() => await ValidateEmail(Email)
+    private async Task Save() => await ValidateEmail(Email)
             .MapFailure(message => (Exception)new InvalidOperationException(message))
             .BindAsync(_ => SaveAccountAsync())
             .MatchAsync(
@@ -189,9 +189,8 @@ public class AccountDialogViewModel : ViewModelBase
     private void TriggerLogin() => LoginTriggered = true;
 
     private static Result<bool, string> ValidateEmail(string email)
-        => IsValidEmail(email)
-            ? true
-            : "Invalid email format.";
+        => Try.Run(() => IsValidEmail(email))
+            .Match(_ => true, _ => false);
 
     private static bool IsValidEmail(string email)
     {
