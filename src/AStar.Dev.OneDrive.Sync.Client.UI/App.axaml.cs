@@ -41,14 +41,13 @@ public partial class App : Avalonia.Application
     }
 
     private static void LoadSettingsAndApplyThemeSync(MainWindowViewModel mainViewModel)
-    {
-        Result<bool, Unit> x = mainViewModel.Settings.LoadSettings().Map(success =>
+        => _ = mainViewModel.Settings.LoadSettings()
+                .Map(success =>
                 {
                     ApplyCurrentLocalizationAndTheme(mainViewModel);
                     return success;
                 })
                 .TapError(exception => Log.Error("Failed to load settings on startup"));
-    }
 
     private static void ApplyDatabaseMigrations()
     {
