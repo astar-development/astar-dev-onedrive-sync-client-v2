@@ -27,7 +27,7 @@ public class AccountDialogViewModel : ViewModelBase
     {
         _migrator = new SqliteDatabaseMigrator(databasePath);
         _accountsRepository = new SqliteAccountsRepository(databasePath);
-        SaveCommand = new RelayCommand(_ => Save());
+        SaveCommand = new RelayCommand(async _ => await Save());
         CancelCommand = new RelayCommand(_ => Cancel());
         LoginCommand = new RelayCommand(_ => TriggerLogin());
     }
@@ -139,10 +139,8 @@ public class AccountDialogViewModel : ViewModelBase
     /// </summary>
     public event EventHandler<bool>? CloseRequested;
 
-    private async void Save()
-    {
-        await ValidateEmail(Email)
-            .MapFailure(message => new InvalidOperationException(message))
+    private async Task Save() => await ValidateEmail(Email)
+            .MapFailure(message => (Exception)new InvalidOperationException(message))
             .BindAsync(_ => SaveAccountAsync())
             .MatchAsync(
                 _ =>
@@ -158,7 +156,6 @@ public class AccountDialogViewModel : ViewModelBase
                     ValidationError = error.Message;
                     return Task.CompletedTask;
                 });
-    }
 
     private async Task<Result<AccountInfo, Exception>> SaveAccountAsync(CancellationToken cancellationToken = default)
         => await Try.RunAsync(async () =>
@@ -192,9 +189,8 @@ public class AccountDialogViewModel : ViewModelBase
     private void TriggerLogin() => LoginTriggered = true;
 
     private static Result<bool, string> ValidateEmail(string email)
-        => IsValidEmail(email)
-            ? true
-            : "Invalid email format.";
+        => Try.Run(() => IsValidEmail(email))
+            .Match(_ => true, _ => false);
 
     private static bool IsValidEmail(string email)
     {
