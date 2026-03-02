@@ -4,8 +4,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Configurations;
 
+/// <summary>
+/// Entity Framework Core configuration for the Account entity.
+/// </summary>
 public sealed class AccountConfiguration : IEntityTypeConfiguration<AccountEntity>
 {
+    /// <inheritdoc />
     public void Configure(EntityTypeBuilder<AccountEntity> builder)
     {
         _ = builder.ToTable("Accounts");

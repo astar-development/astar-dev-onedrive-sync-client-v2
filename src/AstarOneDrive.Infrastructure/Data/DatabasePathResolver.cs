@@ -2,11 +2,18 @@ using AStar.Dev.Utilities;
 
 namespace AstarOneDrive.Infrastructure.Data;
 
+/// <summary>
+/// Resolves the platform-specific database file path for the application.
+/// </summary>
 public static class DatabasePathResolver
 {
     private const string AppFolderName = "AstarOneDrive";
     private const string DatabaseName = "astar-onedrive.db";
 
+    /// <summary>
+    /// Resolves the full database file path, creating the directory if it doesn't exist.
+    /// </summary>
+    /// <returns>The absolute path to the database file.</returns>
     public static string ResolveDatabasePath()
     {
         var basePath = ResolvePlatformDataDirectory();
@@ -25,6 +32,7 @@ public static class DatabasePathResolver
         if (OperatingSystem.IsMacOS())
         {
             var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
             return userProfile.CombinePath("Library", "Application Support");
         }
 
@@ -35,6 +43,7 @@ public static class DatabasePathResolver
         }
 
         var homePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
         return homePath.CombinePath(".local", "share");
     }
 }

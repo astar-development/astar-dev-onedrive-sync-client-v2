@@ -113,7 +113,8 @@ When delivering test work, include:
 
 ## Anti-Patterns to Reject
 
-- Testing private methods/internal implementation details.
+- Testing private / internal methods
+- Testing implementation details.
 - Time-based flakiness (`Thread.Sleep`, race-prone assertions).
 - Real external calls in unit tests.
 - Weak assertions that only prove non-null/non-throw when richer behavior is expected.

@@ -4,8 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Repositories;
 
+/// <summary>
+/// SQLite repository for persisting and retrieving OneDrive account information.
+/// </summary>
 public sealed class SqliteAccountsRepository(string? databasePath = null)
 {
+    /// <summary>
+    /// Saves a collection of accounts to the database, replacing all existing accounts.
+    /// </summary>
+    /// <param name="accounts">The accounts to save.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     public async Task SaveAsync(IReadOnlyList<AccountState> accounts, CancellationToken cancellationToken = default)
     {
         await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
@@ -13,7 +21,7 @@ public sealed class SqliteAccountsRepository(string? databasePath = null)
         context.Accounts.RemoveRange(existing);
 
         DateTime now = DateTime.UtcNow;
-        foreach(AccountState account in accounts)
+        foreach (AccountState account in accounts)
         {
             _ = context.Accounts.Add(new AccountEntity
             {
@@ -30,6 +38,11 @@ public sealed class SqliteAccountsRepository(string? databasePath = null)
         _ = await context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Loads all accounts from the database, ordered by email address.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A read-only list of account states.</returns>
     public async Task<IReadOnlyList<AccountState>> LoadAsync(CancellationToken cancellationToken = default)
     {
         await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);

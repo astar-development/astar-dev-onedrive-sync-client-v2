@@ -19,9 +19,9 @@ public static class PathOperationExtensions
 	{
 		var combined = basePath;
 
-		foreach(var segment in segments.Where(s => s is not null))
+		foreach (var segment in segments.Where(s => s is not null))
 		{
-			if(Path.IsPathRooted(segment))
+			if (Path.IsPathRooted(segment))
 			{
 				throw new ArgumentException("Path segments must be relative.", nameof(segments));
 			}

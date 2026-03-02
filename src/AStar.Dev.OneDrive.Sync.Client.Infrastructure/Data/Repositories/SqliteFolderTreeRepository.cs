@@ -4,11 +4,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Repositories;
 
+/// <summary>
+/// SQLite repository for persisting and retrieving folder tree structures.
+/// </summary>
 public sealed class SqliteFolderTreeRepository(string? databasePath = null)
 {
     private const string DefaultAccountId = "local-folder-tree-account";
     private const string DefaultEmail = "folder-tree@local.astar";
 
+    /// <summary>
+    /// Saves a collection of folder nodes to the database, replacing all existing nodes.
+    /// </summary>
+    /// <param name="nodes">The folder nodes to save.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     public async Task SaveAsync(IReadOnlyList<FolderNodeState> nodes, CancellationToken cancellationToken = default)
     {
         await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
@@ -18,7 +26,7 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
         context.SyncFiles.RemoveRange(existing);
 
         DateTime now = DateTime.UtcNow;
-        foreach(FolderNodeState node in nodes)
+        foreach (FolderNodeState node in nodes)
         {
             _ = context.SyncFiles.Add(new SyncFileEntity
             {
@@ -40,6 +48,11 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
         _ = await context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Loads all folder nodes from the database, ordered by sort order.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A read-only list of folder node states.</returns>
     public async Task<IReadOnlyList<FolderNodeState>> LoadAsync(CancellationToken cancellationToken = default)
     {
         await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
@@ -62,7 +75,7 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
     private static async Task EnsureDefaultAccountAsync(AstarOneDriveDbContextModel context, CancellationToken cancellationToken)
     {
         AccountEntity? existing = await context.Accounts.SingleOrDefaultAsync(x => x.Id == DefaultAccountId, cancellationToken);
-        if(existing is not null)
+        if (existing is not null)
         {
             return;
         }
@@ -86,10 +99,10 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
         var parts = new List<string>();
         var currentId = nodeId;
 
-        while(lookup.TryGetValue(currentId, out FolderNodeState? current))
+        while (lookup.TryGetValue(currentId, out FolderNodeState? current))
         {
             parts.Add(current.Name);
-            if(string.IsNullOrWhiteSpace(current.ParentId))
+            if (string.IsNullOrWhiteSpace(current.ParentId))
             {
                 break;
             }

@@ -60,25 +60,25 @@ public sealed class AutoRegisterOptionsPartialAnalyzer : DiagnosticAnalyzer
     /// <param name="context">The syntax node analysis context.</param>
     private static void AnalyzeType(SyntaxNodeAnalysisContext context)
     {
-        if(context.Node is not TypeDeclarationSyntax typeDecl)
+        if (context.Node is not TypeDeclarationSyntax typeDecl)
             return;
 
         INamedTypeSymbol? symbol = context.SemanticModel.GetDeclaredSymbol(typeDecl, context.CancellationToken);
-        if(symbol == null)
+        if (symbol == null)
             return;
 
         AttributeData? autoRegisterAttr = symbol.GetAttributes()
             .FirstOrDefault(attr => attr.AttributeClass?.ToDisplayString() == "AStar.Dev.Source.Generators.Attributes.AutoRegisterOptionsAttribute");
 
-        if(autoRegisterAttr is not null)
+        if (autoRegisterAttr is not null)
         {
-            if(!typeDecl.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)))
+            if (!typeDecl.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)))
             {
                 var diag = Diagnostic.Create(Rule, typeDecl.Identifier.GetLocation(), symbol.Name);
                 context.ReportDiagnostic(diag);
             }
 
-            if(typeDecl is RecordDeclarationSyntax recordDecl &&
+            if (typeDecl is RecordDeclarationSyntax recordDecl &&
                recordDecl.ClassOrStructKeyword.IsKind(SyntaxKind.StructKeyword) &&
                !recordDecl.Modifiers.Any(m => m.IsKind(SyntaxKind.ReadOnlyKeyword)))
             {

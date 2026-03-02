@@ -16,13 +16,13 @@ public partial class AccountDialogView : Window
 
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
-        if(_viewModel is not null)
+        if (_viewModel is not null)
         {
             _viewModel.CloseRequested -= OnCloseRequested;
         }
 
         _viewModel = DataContext as AccountDialogViewModel;
-        if(_viewModel is not null)
+        if (_viewModel is not null)
         {
             _viewModel.CloseRequested += OnCloseRequested;
         }
@@ -30,7 +30,7 @@ public partial class AccountDialogView : Window
 
     private void OnCloseRequested(object? sender, bool saved)
     {
-        if(saved)
+        if (saved)
         {
             Close(true);
             return;
@@ -41,7 +41,7 @@ public partial class AccountDialogView : Window
 
     protected override void OnClosed(EventArgs e)
     {
-        if(_viewModel is not null)
+        if (_viewModel is not null)
         {
             _viewModel.CloseRequested -= OnCloseRequested;
         }

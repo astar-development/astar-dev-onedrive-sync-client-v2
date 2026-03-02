@@ -20,7 +20,7 @@ public static class CollectionAndStatusExtensions
             case Result<IEnumerable<T>, Exception>.Ok ok:
             {
                 target.Clear();
-                foreach(T item in ok.Value ?? [])
+                foreach (T item in ok.Value ?? [])
                     target.Add(item);
 
                 break;
