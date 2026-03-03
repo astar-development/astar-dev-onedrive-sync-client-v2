@@ -320,20 +320,20 @@ Remove hard-coded data, bind to FolderTreeViewModel.
 
 ---
 
-### **Phase 12: Error Handling & User Feedback**
+### **Phase 12: Error Handling & User Feedback ✅**
 Add error dialog/notification system.
 
-1. **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Common/ErrorHandlerShould.cs
+1. ✅ **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Common/ErrorHandlerShould.cs
    - Test: `ShowErrorDialog(title, message)` works
    - Test: Errors are logged
    - Test: User can dismiss dialog
 
-2. **Implement** — src/AStar.Dev.OneDrive.Sync.Client.UI/Common/ErrorHandler.cs + ErrorDialog.axaml
+2. ✅ **Implement** — src/AStar.Dev.OneDrive.Sync.Client.UI/Common/ErrorHandler.cs + ErrorDialog.axaml
    - Create error dialog window
    - Create `ErrorHandler` static utility
    - Hook exception events in App.axaml.cs to show dialog
 
-3. **Verify**
+3. ✅ **Verify**
    - 3 tests pass
    - Trigger an error (e.g., invalid theme) → error dialog appears
 
