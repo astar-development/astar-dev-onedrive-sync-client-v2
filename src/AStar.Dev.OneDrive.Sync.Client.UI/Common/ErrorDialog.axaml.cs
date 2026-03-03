@@ -20,9 +20,6 @@ public partial class ErrorDialog : Window
     /// <param name="message">The error message.</param>
     public ErrorDialog(string title, string message) : this() => DataContext = new ErrorDialogViewModel(title, message);
 
-    /// <summary>
-    /// Handles the OK button click event.
-    /// </summary>
     private void OnOkClick(object? sender, RoutedEventArgs e) => Close();
 }
 

@@ -29,7 +29,6 @@ public static class ErrorHandler
         Action? onDismissed = null, 
         Action<string>? logger = null)
     {
-        // Log the error
         var logMessage = $"Error Dialog - {title}: {message}";
         if (logger != null)
         {
@@ -40,17 +39,14 @@ public static class ErrorHandler
             Log.Error(logMessage);
         }
 
-        // Store dismiss callback for later
         _currentDismissCallback = onDismissed;
 
-        // If in test mode (no Application.Current or callback provided), invoke callback
         if (Avalonia.Application.Current is null || onShown != null)
         {
             onShown?.Invoke();
             return;
         }
 
-        // Show actual dialog on UI thread
         Dispatcher.UIThread.Post(() => ShowErrorDialogInternal(title, message));
     }
 
@@ -84,7 +80,6 @@ public static class ErrorHandler
             _currentDismissCallback = null;
         };
 
-        // Get the main window to use as owner
         Window? owner = GetMainWindow();
 
         if (owner != null)
