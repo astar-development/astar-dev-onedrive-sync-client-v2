@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using AStar.Dev.OneDrive.Sync.Client.UI.Common;
 using Avalonia.Threading;
 using Serilog;
 
@@ -33,6 +34,13 @@ public static class ExceptionBootstrap
     private static DispatcherUnhandledExceptionEventHandler HandleUIThreadException() => (sender, e) =>
     {
         Log.Error(e.Exception, "UI thread exception");
+        
+        // Show error dialog to user
+        ErrorHandler.ShowErrorDialog(
+            "Application Error",
+            $"An unexpected error occurred:\n\n{e.Exception.Message}\n\nThe application will continue, but some functionality may be affected."
+        );
+        
         e.Handled = true;
     };
 }

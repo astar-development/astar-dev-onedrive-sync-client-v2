@@ -1,3 +1,7 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
 using Serilog;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Common;
@@ -8,6 +12,7 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Common;
 public static class ErrorHandler
 {
     private static Action? _currentDismissCallback;
+    private static Window? _currentDialog;
 
     /// <summary>
     /// Shows an error dialog with the specified title and message.
@@ -38,8 +43,15 @@ public static class ErrorHandler
         // Store dismiss callback for later
         _currentDismissCallback = onDismissed;
 
-        // Invoke shown callback immediately in test mode, or show actual dialog in production
-        onShown?.Invoke();
+        // If in test mode (no Application.Current or callback provided), invoke callback
+        if (Avalonia.Application.Current is null || onShown != null)
+        {
+            onShown?.Invoke();
+            return;
+        }
+
+        // Show actual dialog on UI thread
+        Dispatcher.UIThread.Post(() => ShowErrorDialogInternal(title, message));
     }
 
     /// <summary>
@@ -49,5 +61,44 @@ public static class ErrorHandler
     {
         _currentDismissCallback?.Invoke();
         _currentDismissCallback = null;
+        
+        if (_currentDialog != null)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                _currentDialog?.Close();
+                _currentDialog = null;
+            });
+        }
     }
+
+    private static void ShowErrorDialogInternal(string title, string message)
+    {
+        ErrorDialog dialog = new(title, message);
+        _currentDialog = dialog;
+
+        dialog.Closed += (_, _) =>
+        {
+            _currentDialog = null;
+            _currentDismissCallback?.Invoke();
+            _currentDismissCallback = null;
+        };
+
+        // Get the main window to use as owner
+        Window? owner = GetMainWindow();
+
+        if (owner != null)
+        {
+            _ = dialog.ShowDialog(owner);
+        }
+        else
+        {
+            dialog.Show();
+        }
+    }
+
+    private static Window? GetMainWindow()
+        => Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+            ? desktop.MainWindow
+            : null;
 }
