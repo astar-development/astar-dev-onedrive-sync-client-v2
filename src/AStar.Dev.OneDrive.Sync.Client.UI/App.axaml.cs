@@ -1,6 +1,7 @@
 using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure;
+using AStar.Dev.OneDrive.Sync.Client.UI.Composition;
 using AStar.Dev.OneDrive.Sync.Client.UI.Home;
 using AStar.Dev.OneDrive.Sync.Client.UI.Localization;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -25,6 +26,7 @@ public partial class App : Avalonia.Application
         {
             
             ApplyDatabaseMigrations();
+            CompositionRoot.Initialize();
             ExceptionBootstrap.HookAvaloniaUIThread();
 
             var mainViewModel = new MainWindowViewModel();
