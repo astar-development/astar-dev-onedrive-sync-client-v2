@@ -30,7 +30,8 @@ jobs:
 
       - name: Test with Coverage
         run: |
-          dotnet test --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml --results-directory ./coverage --configuration Release --report-xunit-trx
+          dotnet test --collect:"XPlat Code Coverage" --results-directory ./prcov --logger "trx"
+          reportgenerator -reports:"prcov/**/coverage.cobertura.xml" -targetdir:"prcov" -reporttypes:Cobertura
 
       - name: Generate HTML & Cobertura Reports
         run: |
