@@ -23,7 +23,7 @@ jobs:
           dotnet-version: 10.x
 
       - name: Format Code
-        run: dotnet format --verify-no-changes --verbosity diag
+        run: dotnet format --verbosity diagnostic
 
       - name: Check for changes
         id: changes
