@@ -142,7 +142,7 @@ public sealed class MainWindowViewModelShould
         var vm = new MainWindowViewModel();
 
         vm.OpenUserSettingsCommand.Execute(null);
-        
+
         vm.CurrentLayout.ShouldBe(LayoutType.Terminal);
         vm.TerminalSelectedTabIndex.ShouldBe(2);
     }
@@ -153,7 +153,7 @@ public sealed class MainWindowViewModelShould
         var vm = new MainWindowViewModel();
 
         vm.OpenAppSettingsCommand.Execute(null);
-        
+
         vm.CurrentLayout.ShouldBe(LayoutType.Terminal);
         vm.TerminalSelectedTabIndex.ShouldBe(2);
     }

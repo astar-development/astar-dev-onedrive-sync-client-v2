@@ -48,7 +48,7 @@ public sealed class SyncIntegrationShould
 
     private static async Task WaitForConditionAsync(Func<bool> condition)
     {
-        for (var attempt = 0; attempt < 50 && !condition(); attempt++)
+        for(var attempt = 0; attempt < 50 && !condition(); attempt++)
         {
             await Task.Delay(10, TestContext.Current.CancellationToken);
         }

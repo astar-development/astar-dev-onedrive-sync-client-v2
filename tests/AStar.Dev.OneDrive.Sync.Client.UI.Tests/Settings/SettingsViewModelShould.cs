@@ -149,7 +149,7 @@ public class SettingsViewModelShould
     {
         var viewModel = new SettingsViewModel(CreateDatabasePath());
         Result<bool, Unit> result = await viewModel.LoadSettingsAsync();
-        
+
         _ = result.ShouldBeOfType<Result<bool, Unit>.Ok>();
     }
 
@@ -170,7 +170,7 @@ public class SettingsViewModelShould
         viewModel.ThemeChanged += (sender, theme) => changedTheme = theme;
 
         viewModel.SelectedTheme = "Dark";
-        
+
         changedTheme.ShouldBe("Dark");
     }
 

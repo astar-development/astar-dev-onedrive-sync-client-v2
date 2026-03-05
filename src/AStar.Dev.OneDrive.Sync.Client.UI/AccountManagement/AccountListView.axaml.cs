@@ -18,13 +18,13 @@ public partial class AccountListView : UserControl
 
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
-        if (_viewModel is not null)
+        if(_viewModel is not null)
         {
             _viewModel.AccountDialogRequested -= OnAccountDialogRequested;
         }
 
         _viewModel = DataContext as AccountListViewModel;
-        if (_viewModel is not null)
+        if(_viewModel is not null)
         {
             _viewModel.AccountDialogRequested += OnAccountDialogRequested;
         }
@@ -33,7 +33,7 @@ public partial class AccountListView : UserControl
     private async void OnAccountDialogRequested(object? sender, AccountDialogViewModel dialogViewModel)
     {
         var dialog = new AccountDialogView { DataContext = dialogViewModel };
-        if (TopLevel.GetTopLevel(this) is Window owner)
+        if(TopLevel.GetTopLevel(this) is Window owner)
         {
             _ = await dialog.ShowDialog<bool>(owner);
             return;

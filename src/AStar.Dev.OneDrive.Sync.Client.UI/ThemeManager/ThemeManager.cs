@@ -27,35 +27,35 @@ public static class ThemeManager
     public static void ApplyTheme(string themeName)
     {
         Avalonia.Application? app = Avalonia.Application.Current;
-        if (app is null)
+        if(app is null)
             return;
 
-        if (!Dispatcher.UIThread.CheckAccess())
+        if(!Dispatcher.UIThread.CheckAccess())
         {
             Dispatcher.UIThread.Post(() => ApplyTheme(themeName));
             return;
         }
 
-        if (!SupportedThemes.Contains(themeName))
+        if(!SupportedThemes.Contains(themeName))
         {
             throw new InvalidOperationException($"Theme '{themeName}' was not found.");
         }
 
         var themeUri = new Uri($"avares://AStar.Dev.OneDrive.Sync.Client.UI/Themes/{themeName}.axaml");
 
-        for (var index = app.Styles.Count - 1; index >= 0; index--)
+        for(var index = app.Styles.Count - 1; index >= 0; index--)
         {
-            if (app.Styles[index] is not StyleInclude styleInclude || styleInclude.Source is null)
+            if(app.Styles[index] is not StyleInclude styleInclude || styleInclude.Source is null)
             {
                 continue;
             }
 
-            if (styleInclude.Source.OriginalString.Equals($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/Base.axaml", StringComparison.OrdinalIgnoreCase))
+            if(styleInclude.Source.OriginalString.Equals($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/Base.axaml", StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
 
-            if (styleInclude.Source.OriginalString.StartsWith($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/", StringComparison.OrdinalIgnoreCase))
+            if(styleInclude.Source.OriginalString.StartsWith($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/Themes/", StringComparison.OrdinalIgnoreCase))
             {
                 app.Styles.RemoveAt(index);
             }
@@ -71,7 +71,7 @@ public static class ThemeManager
 
     private static void InvalidateAllVisuals()
     {
-        if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { })
+        if(Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow is { })
         {
             InvalidateVisualTree(desktop.MainWindow);
         }
@@ -83,9 +83,9 @@ public static class ThemeManager
         control.InvalidateArrange();
         control.InvalidateVisual();
 
-        if (control is Panel panel)
+        if(control is Panel panel)
         {
-            foreach (Control child in panel.Children.OfType<Control>())
+            foreach(Control child in panel.Children.OfType<Control>())
             {
                 InvalidateVisualTree(child);
             }

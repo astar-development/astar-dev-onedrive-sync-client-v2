@@ -38,11 +38,11 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         base.OnKeyDown(e);
         Log.Information("Key pressed: {Key} with modifiers {Modifiers} - main window", e.Key, e.KeyModifiers);
 
-        if (e.Key == Key.L &&
+        if(e.Key == Key.L &&
             e.KeyModifiers.HasFlag(KeyModifiers.Control) &&
             e.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
-            if (_debugWindow == null)
+            if(_debugWindow == null)
             {
                 _debugWindow = new DebugLogWindow();
                 Log.Information("Created debug window of type {Type}", _debugWindow.GetType().FullName);
@@ -61,7 +61,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     private void ToggleDebugWindow()
     {
         Log.Information("Toggling debug window - main window command");
-        if (_debugWindow == null)
+        if(_debugWindow == null)
         {
             _debugWindow = new DebugLogWindow();
             _debugWindow.Closed += (_, _) => _debugWindow = null;

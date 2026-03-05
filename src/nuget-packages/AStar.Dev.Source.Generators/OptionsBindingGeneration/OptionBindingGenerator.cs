@@ -21,9 +21,9 @@ public sealed partial class OptionsBindingGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(optionsTypes, static (spc, types) =>
         {
             var validTypes = new List<OptionsTypeInfo>();
-            foreach (OptionsTypeInfo info in types.Where(info => info is not null).Cast<OptionsTypeInfo>())
+            foreach(OptionsTypeInfo info in types.Where(info => info is not null).Cast<OptionsTypeInfo>())
             {
-                if (string.IsNullOrWhiteSpace(info.SectionName))
+                if(string.IsNullOrWhiteSpace(info.SectionName))
                 {
                     var diag = Diagnostic.Create(
                         new DiagnosticDescriptor(
@@ -41,7 +41,7 @@ public sealed partial class OptionsBindingGenerator : IIncrementalGenerator
                 validTypes.Add(info);
             }
 
-            if (validTypes.Count == 0)
+            if(validTypes.Count == 0)
                 return;
             var code = OptionsBindingCodeGenerator.Generate(validTypes);
             spc.AddSource("AutoOptionsRegistrationExtensions.g.cs", code);
@@ -50,14 +50,14 @@ public sealed partial class OptionsBindingGenerator : IIncrementalGenerator
 
     private static OptionsTypeInfo? GetOptionsTypeInfo(GeneratorAttributeSyntaxContext ctx)
     {
-        if (ctx.TargetSymbol is not INamedTypeSymbol typeSymbol)
+        if(ctx.TargetSymbol is not INamedTypeSymbol typeSymbol)
             return null;
         var typeName = typeSymbol.Name;
         var ns = typeSymbol.ContainingNamespace?.ToDisplayString();
         var fullTypeName = ns != null ? string.Concat(ns, ".", typeName) : typeName;
         string? sectionName = null;
         AttributeData? attr = typeSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == AttrFqn);
-        if (attr is { ConstructorArguments.Length: > 0 } && attr.ConstructorArguments[0].Value is string s && !string.IsNullOrWhiteSpace(s))
+        if(attr is { ConstructorArguments.Length: > 0 } && attr.ConstructorArguments[0].Value is string s && !string.IsNullOrWhiteSpace(s))
         {
             sectionName = s;
         }
@@ -66,10 +66,10 @@ public sealed partial class OptionsBindingGenerator : IIncrementalGenerator
             // Fallback: parse from syntax
             var attrSyntax = ctx.Attributes[0].ApplicationSyntaxReference?.GetSyntax() as AttributeSyntax;
             AttributeArgumentSyntax? firstArgument = attrSyntax?.ArgumentList?.Arguments.FirstOrDefault();
-            if (firstArgument is { Expression: { } _ })
+            if(firstArgument is { Expression: { } _ })
             {
                 ExpressionSyntax expr = firstArgument.Expression;
-                if (expr is LiteralExpressionSyntax { Token.Value: string literalValue })
+                if(expr is LiteralExpressionSyntax { Token.Value: string literalValue })
                     sectionName = literalValue;
             }
         }
@@ -81,9 +81,9 @@ public sealed partial class OptionsBindingGenerator : IIncrementalGenerator
 
     private static OptionsTypeInfo? ExtractSectionNameFromMembers(GeneratorAttributeSyntaxContext ctx, INamedTypeSymbol typeSymbol, string? sectionName, string typeName, string fullTypeName)
     {
-        foreach (ISymbol member in typeSymbol.GetMembers())
+        foreach(ISymbol member in typeSymbol.GetMembers())
         {
-            if (member is not IFieldSymbol { IsStatic: true, IsConst: true, Name: "SectionName" } field || field.Type.SpecialType != SpecialType.System_String ||
+            if(member is not IFieldSymbol { IsStatic: true, IsConst: true, Name: "SectionName" } field || field.Type.SpecialType != SpecialType.System_String ||
                field.ConstantValue is not string val || string.IsNullOrWhiteSpace(val))
             {
                 continue;

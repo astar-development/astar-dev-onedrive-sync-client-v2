@@ -25,9 +25,9 @@ public sealed class LayoutEdgeCasesShould
 
         var themes = new[] { "Light", "Dark" };
 
-        foreach (string theme in themes)
+        foreach(string theme in themes)
         {
-            foreach (int _ in Enumerable.Range(0, 5))
+            foreach(int _ in Enumerable.Range(0, 5))
             {
                 ThemeManagerStatic.ApplyTheme(theme);
                 viewModel.CurrentLayout.ShouldBe(LayoutType.Explorer);
@@ -49,7 +49,7 @@ public sealed class LayoutEdgeCasesShould
             [LayoutType.Terminal] = typeof(TerminalLayoutView)
         };
 
-        foreach (LayoutType layout in layoutSequence)
+        foreach(LayoutType layout in layoutSequence)
         {
             viewModel.CurrentLayout = layout;
             viewModel.CurrentLayoutView?.GetType().ShouldBe(expectedViewTypes[layout]);
@@ -99,7 +99,7 @@ public sealed class LayoutEdgeCasesShould
         SettingsViewModel settingsVm = viewModel.Settings;
         string originalTheme = settingsVm.SelectedTheme;
 
-        foreach (LayoutType layout in new[] { LayoutType.Explorer, LayoutType.Dashboard, LayoutType.Terminal })
+        foreach(LayoutType layout in new[] { LayoutType.Explorer, LayoutType.Dashboard, LayoutType.Terminal })
         {
             viewModel.CurrentLayout = layout;
             settingsVm.SelectedTheme = "Light";

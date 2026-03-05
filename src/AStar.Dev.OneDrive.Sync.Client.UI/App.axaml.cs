@@ -22,9 +22,9 @@ public partial class App : Avalonia.Application
     /// <inheritdoc />
     public override void OnFrameworkInitializationCompleted()
     {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        if(ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            
+
             ApplyDatabaseMigrations();
             CompositionRoot.Initialize();
             ExceptionBootstrap.HookAvaloniaUIThread();

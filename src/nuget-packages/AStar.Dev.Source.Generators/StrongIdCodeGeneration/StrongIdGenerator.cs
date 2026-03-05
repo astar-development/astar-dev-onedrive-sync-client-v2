@@ -28,21 +28,21 @@ public class StrongIdGenerator : IIncrementalGenerator
             (Compilation? compilation, ImmutableArray<RecordDeclarationSyntax> structs) = source;
             // Cache attribute symbol lookup
             INamedTypeSymbol? strongIdAttrSymbol = compilation.GetTypeByMetadataName("AStar.Dev.Source.Generators.Attributes.StrongIdAttribute");
-            if (strongIdAttrSymbol == null)
+            if(strongIdAttrSymbol == null)
                 return;
 
-            foreach (RecordDeclarationSyntax? recordStruct in structs)
+            foreach(RecordDeclarationSyntax? recordStruct in structs)
             {
                 SemanticModel model = compilation.GetSemanticModel(recordStruct.SyntaxTree);
-                if (model.GetDeclaredSymbol(recordStruct) is not INamedTypeSymbol symbol)
+                if(model.GetDeclaredSymbol(recordStruct) is not INamedTypeSymbol symbol)
                     continue;
 
                 AttributeData? attr = symbol.GetAttributes().FirstOrDefault(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, strongIdAttrSymbol));
-                if (attr == null)
+                if(attr == null)
                     continue;
 
                 // Only allow 0 or 1 constructor argument
-                if (attr.ConstructorArguments.Length > 1)
+                if(attr.ConstructorArguments.Length > 1)
                     continue;
 
                 // Use StrongIdModel logic for underlying type

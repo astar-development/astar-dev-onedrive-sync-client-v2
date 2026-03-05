@@ -12,7 +12,7 @@ public sealed class ThemeManagerFixture
 {
     public ThemeManagerFixture()
     {
-        if (Avalonia.Application.Current is not null)
+        if(Avalonia.Application.Current is not null)
         {
             return;
         }

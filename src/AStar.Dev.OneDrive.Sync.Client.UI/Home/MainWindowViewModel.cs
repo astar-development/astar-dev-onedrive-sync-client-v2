@@ -20,22 +20,22 @@ public class MainWindowViewModel : ViewModelBase
     /// Gets the account management view model.
     /// </summary>
     public AccountListViewModel Accounts { get; }
-    
+
     /// <summary>
     /// Gets the folder tree view model.
     /// </summary>
     public FolderTreeViewModel FolderTree { get; }
-    
+
     /// <summary>
     /// Gets the synchronization status view model.
     /// </summary>
     public SyncStatusViewModel Sync { get; }
-    
+
     /// <summary>
     /// Gets the logs view model.
     /// </summary>
     public LogsViewModel Logs { get; }
-    
+
     /// <summary>
     /// Gets the settings view model.
     /// </summary>
@@ -58,7 +58,7 @@ public class MainWindowViewModel : ViewModelBase
         get;
         set
         {
-            if (field == value)
+            if(field == value)
                 return;
             _ = this.RaiseAndSetIfChanged(ref field, value);
             ApplyLayout(value);
@@ -69,22 +69,22 @@ public class MainWindowViewModel : ViewModelBase
     /// Gets the command to switch to the Explorer layout.
     /// </summary>
     public ICommand SwitchToExplorerCommand { get; }
-    
+
     /// <summary>
     /// Gets the command to switch to the Dashboard layout.
     /// </summary>
     public ICommand SwitchToDashboardCommand { get; }
-    
+
     /// <summary>
     /// Gets the command to switch to the Terminal layout.
     /// </summary>
     public ICommand SwitchToTerminalCommand { get; }
-    
+
     /// <summary>
     /// Gets the command to open user settings.
     /// </summary>
     public ICommand OpenUserSettingsCommand { get; }
-    
+
     /// <summary>
     /// Gets the command to open application settings.
     /// </summary>
@@ -118,7 +118,7 @@ public class MainWindowViewModel : ViewModelBase
         OpenUserSettingsCommand = new RelayCommand(_ => SetTerminalLayout(2));
         OpenAppSettingsCommand = new RelayCommand(_ => SetTerminalLayout(2));
 
-        if (initializeLayoutView)
+        if(initializeLayoutView)
         {
             ApplyLayout(LayoutType.Explorer);
         }
@@ -144,7 +144,7 @@ public class MainWindowViewModel : ViewModelBase
 
     private void ApplyLayout(LayoutType layout)
     {
-        if (Dispatcher.UIThread is null || !Dispatcher.UIThread.CheckAccess())
+        if(Dispatcher.UIThread is null || !Dispatcher.UIThread.CheckAccess())
         {
             Settings.SelectedLayout = layout.ToString();
             return;

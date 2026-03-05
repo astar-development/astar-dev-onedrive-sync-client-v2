@@ -105,7 +105,7 @@ public class AccountListViewModel : ViewModelBase
             await _migrator.EnsureMigratedAsync(cancellationToken);
             IReadOnlyList<AccountState> state = await _accountsRepository.LoadAsync(cancellationToken);
             Accounts.Clear();
-            foreach (AccountState account in state)
+            foreach(AccountState account in state)
             {
                 Accounts.Add(new AccountInfo(account.Id, account.Email, account.QuotaBytes, account.UsedBytes));
             }
@@ -122,7 +122,7 @@ public class AccountListViewModel : ViewModelBase
 
     private void RemoveSelectedAccount()
     {
-        if (SelectedAccount is null)
+        if(SelectedAccount is null)
         {
             return;
         }
@@ -133,7 +133,7 @@ public class AccountListViewModel : ViewModelBase
 
     private void ManageAccount(AccountInfo? account)
     {
-        if (account is null)
+        if(account is null)
         {
             return;
         }
@@ -149,13 +149,13 @@ public class AccountListViewModel : ViewModelBase
 
     private async void OnDialogCloseRequested(object? sender, bool saved)
     {
-        if (sender is not AccountDialogViewModel dialogViewModel)
+        if(sender is not AccountDialogViewModel dialogViewModel)
         {
             return;
         }
 
         dialogViewModel.CloseRequested -= OnDialogCloseRequested;
-        if (!saved)
+        if(!saved)
         {
             return;
         }
