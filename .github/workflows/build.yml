@@ -32,4 +32,6 @@ jobs:
         run: dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.*
 
       - name: Test
-        run: dotnet test --configuration Release --no-build --report-xunit-trx
+        run: |
+          dotnet test --collect:"XPlat Code Coverage" --results-directory ./prcov --logger "trx"
+          reportgenerator -reports:"prcov/**/coverage.cobertura.xml" -targetdir:"prcov" -reporttypes:Cobertura
