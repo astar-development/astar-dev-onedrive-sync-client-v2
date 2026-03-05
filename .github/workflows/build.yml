@@ -28,5 +28,8 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.*
+
       - name: Test
         run: dotnet test --configuration Release --no-build --report-xunit-trx

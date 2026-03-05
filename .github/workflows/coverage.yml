@@ -25,12 +25,12 @@ jobs:
       - name: Restore
         run: dotnet restore
 
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.*
+
       - name: Test with Coverage
         run: |
           dotnet test --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml --results-directory ./coverage --configuration Release --report-xunit-trx
-
-      - name: Install ReportGenerator
-        run: dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.*
 
       - name: Generate HTML & Cobertura Reports
         run: |
