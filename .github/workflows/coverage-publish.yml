@@ -1,0 +1,50 @@
+
+name: Publish Coverage Dashboard
+
+on:
+  workflow_run:
+    workflows: ["Code Coverage"]
+    types:
+      - completed
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Coverage Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - name: Checkout gh-pages
+        uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+          fetch-depth: 0
+
+      - name: Prepare Publish Folder
+        run: |
+          mkdir -p coverage/latest
+          mkdir -p coverage/history
+          cp -r artifacts/coverage-html-report/* coverage/latest/
+          if [ -f artifacts/coverage-badge/coverage-badge.json ]; then cp artifacts/coverage-badge/coverage-badge.json coverage/; fi
+          echo "Latest coverage dashboard prepared."
+
+      - name: Save timestamped copy for history
+        run: |
+          TS=$(date +%Y-%m-%d_%H-%M-%S)
+          mkdir -p coverage/history/$TS
+          cp -r coverage/latest/* coverage/history/$TS/
+
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add coverage
+          git commit -m "Update coverage dashboard" || true
+          git push origin gh-pages

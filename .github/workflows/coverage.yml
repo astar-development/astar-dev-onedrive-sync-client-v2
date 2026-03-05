@@ -1,0 +1,59 @@
+name: Code Coverage
+permissions:
+  pull-requests: write
+  contents: read
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Test with Coverage
+        run: |
+          dotnet test --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml --results-directory ./coverage --configuration Release --report-xunit-trx
+
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.*
+
+      - name: Generate HTML & Cobertura Reports
+        run: |
+          reportgenerator -reports:"coverage/coverage.cobertura.xml" -targetdir:"coverage-report" -reporttypes:Html
+
+      - name: Upload HTML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html-report
+          path: coverage-report
+
+      - name: Publish Coverage Badge (JSON)
+        run: |
+          if [ ! -f coverage-report/Cobertura.xml ]; then
+            echo "Cobertura.xml not found, skipping badge generation"
+            exit 0
+          fi
+          TOTAL=$(grep -oPm1 '(?<=line-rate=")[^"]*' coverage-report/Cobertura.xml)
+          PERCENT=$(printf "%.0f" "$(echo "$TOTAL * 100" | bc)")
+          echo "{ \"schemaVersion\": 1, \"label\": \"coverage\", \"message\": \"$PERCENT%\", \"color\": \"green\" }" > coverage-badge.json
+
+      - name: Upload Coverage Badge
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-badge
+          path: coverage-badge.json

@@ -1,0 +1,79 @@
+
+name: Build Coverage Trend Graph
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Publish Coverage Dashboard"]
+    types: [completed]
+
+permissions:
+  contents: write
+
+jobs:
+  trend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout gh-pages
+        uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+          fetch-depth: 0
+
+      - name: Extract History Data
+        id: buildjson
+        run: |
+          echo "[" > coverage/coverage-history.json
+          for dir in $(ls coverage/history); do
+            if [ -f coverage/history/$dir/Cobertura.xml ]; then
+              RATE=$(grep -oPm1 '(?<=line-rate=")[^"]*' coverage/history/$dir/Cobertura.xml)
+              PERCENT=$(printf "%.0f" "$(echo "$RATE * 100" | bc)")
+              echo "{\"timestamp\": \"$dir\", \"coverage\": $PERCENT}," >> coverage/coverage-history.json
+            fi
+          done
+          sed -i '$ s/,$//' coverage/coverage-history.json
+          echo "]" >> coverage/coverage-history.json
+
+      - name: Generate Trend HTML
+        run: |
+          cat <<'EOF' > coverage/coverage-trend.html
+<html>
+<head>
+  https://cdn.plot.ly/plotly-latest.min.js</script>
+</head>
+<body>
+  <h2>Code Coverage Trend</h2>
+  <div id="chart"></div>
+
+  <script>
+    fetch("coverage-history.json")
+      .then(r => r.json())
+      .then(data => {
+        const trace = {
+          x: data.map(d => d.timestamp),
+          y: data.map(d => d.coverage),
+          mode: 'lines+markers',
+          line: { color: 'green' }
+        };
+        Plotly.newPlot('chart', [trace], { title: 'Coverage Over Time' });
+      });
+  </script>
+
+</body>
+</html>
+EOF
+
+      - name: Commit Trend Graph
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add coverage/coverage-history.json coverage/coverage-trend.html
+          git commit -m "Update coverage trend graph" || true
+          git push origin gh-pages
+
+
+
+Capgemini is a trading name used by the Capgemini Group of companies which includes Capgemini UK plc, a company registered in England and Wales (number 943935) whose registered office is at 95 Queen Victoria Street, London, UK, EC4V 4HN.
+
+This message contains information that may be privileged or confidential and is the property of the Capgemini Group. It is intended only for the person to whom it is addressed. If you are not the intended recipient, you are not authorized to read, print, retain, copy, disseminate, distribute, or use this message or any part thereof. If you receive this message in error, please notify the sender immediately and delete all copies of this message.

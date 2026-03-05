@@ -1,0 +1,73 @@
+
+name: Coverage PR Labels
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  label-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.x
+
+      - name: Run PR Coverage
+        run: |
+          dotnet test --coverage --coverage-output-format cobertura --coverage-output coverage.cobertura.xml --results-directory ./prcov --report-xunit-trx
+          dotnet tool install -g dotnet-reportgenerator-globaltool
+          reportgenerator -reports:"prcov/coverage.cobertura.xml" -targetdir:"prcov" -reporttypes:Cobertura
+
+      - name: Get PR Coverage
+        id: pr
+        run: |
+          RATE=$(grep -oPm1 '(?<=line-rate=")([^"]+)' prcov/Cobertura.xml)
+          PR=$(printf "%.0f" "$(echo "$RATE * 100" | bc)")
+          echo "prcov=$PR" >> $GITHUB_OUTPUT
+
+      - name: Get Main Branch Coverage
+        uses: actions/github-script@v8
+        id: maincov
+        with:
+          script: |
+            let percent = 0;
+            try {
+              const res = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: "gh-pages",
+                path: "coverage/latest/Cobertura.xml"
+              });
+              const xml = Buffer.from(res.data.content, 'base64').toString();
+              const match = xml.match(/line-rate="([^"]+)"/);
+              const rate = match ? match[1] : 0;
+              percent = Math.round(parseFloat(rate) * 100);
+            } catch (error) {
+              console.log("gh-pages branch not found or file missing, using default coverage of 0%");
+            }
+            core.setOutput("maincov", percent);
+
+      - name: Apply Labels
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const pr = parseInt("${{ steps.pr.outputs.prcov }}", 10);
+            const main = parseInt("${{ steps.maincov.outputs.maincov }}", 10);
+            let label = "coverage-unchanged";
+            if (pr > main) label = "coverage-improved";
+            if (pr < main) label = "coverage-decreased";
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: [label]
+            });

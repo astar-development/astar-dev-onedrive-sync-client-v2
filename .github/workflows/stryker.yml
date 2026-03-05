@@ -1,0 +1,134 @@
+name: Mutation Testing
+permissions:
+  pull-requests: write
+  contents: read
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  mutation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect Changed Libraries
+        id: changes
+        run: |
+          BASE=$(git merge-base origin/main HEAD)
+          FILES=$(git diff --name-only $BASE HEAD)
+          LIBS=""
+          for f in $FILES; do
+            if [[ $f == libs/* ]]; then
+              L=$(echo $f | cut -d/ -f2)
+              if [ -d "libs/$L" ] && [ -d "tests/${L}.Tests" ]; then
+                LIBS="$LIBS $L"
+              fi
+            fi
+          done
+          LIBS=$(echo $LIBS | tr ' ' '\n' | sort -u | tr '\n' ' ')
+          echo "changed-libs=$LIBS" >> $GITHUB_OUTPUT
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.x
+
+      - name: Install Stryker
+        run: dotnet tool install -g dotnet-stryker
+
+      - name: Mutation Cache Check & Run
+        run: |
+          mkdir -p mutation-cache
+          mkdir -p mutation-results
+          for L in ${{ steps.changes.outputs.changed-libs }}; do
+            echo "Checking cache for $L..."
+            SRC=$(find libs/$L -type f -name "*.cs" -exec sha256sum {} + | sha256sum)
+            TST=$(find tests/${L}.Tests -type f -name "*.cs" -exec sha256sum {} + | sha256sum)
+            HASH=$(echo $SRC$TST | sha256sum | awk '{print $1}')
+            CACHE_DIR=mutation-cache/$L
+            if [ -f "$CACHE_DIR/hash.txt" ]; then
+              OLD=$(cat "$CACHE_DIR/hash.txt")
+              if [ "$OLD" = "$HASH" ]; then
+                echo "$L unchanged, using cached mutation report."
+                mkdir -p mutation-results/$L/reports
+                cp "$CACHE_DIR/stryker-report.json" "mutation-results/$L/reports/" || true
+                continue
+              fi
+            fi
+            echo "$L changed, running mutation test."
+            cd libs/$L
+            dotnet stryker --config-file ../../stryker-config.json -o ../../mutation-results/$L
+            cd ../../
+            mkdir -p $CACHE_DIR
+            cp mutation-results/$L/reports/stryker-report.json $CACHE_DIR/
+            echo "$HASH" > $CACHE_DIR/hash.txt
+          done
+
+      - name: Upload Mutation Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-reports
+          path: mutation-results/
+
+      - name: Fetch baseline mutation report from main
+        id: base
+        run: |
+          mkdir -p mutation-baseline
+          git fetch origin gh-pages || true
+          git checkout origin/gh-pages -- mutation-baseline || true
+
+      - name: Compute mutation diff
+        id: diff
+        run: |
+          mkdir -p mutation-diff
+          > mutation-diff/delta.txt
+          if [ ! -d "mutation-results" ] || [ -z "$(find mutation-results -type f -name 'stryker-report.json')" ]; then
+            echo "No mutation results to compare" > mutation-diff/delta.txt
+          else
+            for lib in mutation-results/*/; do
+              L=$(basename $lib)
+              BASEFILE="mutation-baseline/$L/reports/stryker-report.json"
+              CURFILE="$lib/reports/stryker-report.json"
+              if [[ -f "$BASEFILE" ]]; then BASE=$(jq ".score" "$BASEFILE"); else BASE=0; fi
+              if [[ -f "$CURFILE" ]]; then CUR=$(jq ".score" "$CURFILE"); else CUR=0; fi
+              DELTA=$(echo "$CUR - $BASE" | bc)
+              echo "$L: $BASE → $CUR (Δ ${DELTA})" >> mutation-diff/delta.txt
+              jq -n --arg lib "$L" --argjson before "$BASE" --argjson after "$CUR" '{library:$lib, before:$before, after:$after, delta:($after-$before)}' > mutation-diff/$L-diff.json
+            done
+          fi
+
+      - name: Upload Mutation Diff
+        if: hashFiles('mutation-diff/delta.txt') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-diff
+          path: mutation-diff/
+
+      - name: Comment Mutation Diff on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: mutation-diff/delta.txt
+
+      - name: Fail PR on regression for protected libraries
+        if: github.event_name == 'pull_request' && hashFiles('mutation-diff/*-diff.json') != ''
+        run: |
+          PROTECTED=("Core" "Security" "CriticalLibraryA" "CriticalLibraryB")
+          for f in mutation-diff/*-diff.json; do
+            [ -f "$f" ] || continue
+            L=$(basename $f -diff.json)
+            SCORE=$(jq ".after" $f)
+            BASE=$(jq ".before" $f)
+            if [[ " ${PROTECTED[@]} " =~ " ${L} " ]]; then
+              if (( $(echo "$SCORE < $BASE" | bc -l) )); then
+                echo "::error file=$L::Mutation score regressed from $BASE to $SCORE"
+                exit 1
+              fi
+            fi
+          done

@@ -1,0 +1,119 @@
+
+name: Nightly Mutation Matrix
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  discover-libs:
+    runs-on: ubuntu-latest
+    outputs:
+      libs: ${{ steps.set.outputs.libs }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: set
+        run: |
+          LIBS=$(ls libs)
+          echo "libs=$LIBS" >> $GITHUB_OUTPUT
+
+  mutate:
+    needs: discover-libs
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lib: ${{ fromJson('["' + join(needs.discover-libs.outputs.libs, '","') + '"]') }}
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.x
+
+      - name: Install Stryker
+        run: dotnet tool install -g dotnet-stryker
+
+      - name: Run Stryker for Library
+        run: |
+          cd libs/${{ matrix.lib }}
+          dotnet stryker --config-file ../../stryker-config.json -o ../../mutation-matrix/${{ matrix.lib }}
+
+      - name: Upload Mutation Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-matrix
+          path: mutation-matrix/
+          if-no-files-found: warn
+
+  publish:
+    needs: mutate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: gh-pages
+
+      - name: Download Matrix Reports
+        uses: actions/download-artifact@v8
+        with:
+          name: mutation-matrix
+          path: mutation-baseline
+
+      - name: Generate Mutation Dashboard
+        run: |
+          cat <<'EOF' > mutation-dashboard.html
+<html>
+<head>
+  <title>Mutation Dashboard</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background-color: #333; color: white; }
+    .good { background-color: #d4edda; }
+    .warn { background-color: #fff3cd; }
+    .bad  { background-color: #f8d7da; }
+  </style>
+</head>
+<body>
+<h1>Mutation Testing Dashboard</h1>
+<p>Updated: $(date)</p>
+<table>
+<tr><th>Library</th><th>Score</th><th>Threshold</th><th>Status</th><th>Heatmap</th></tr>
+EOF
+          for lib in mutation-baseline/*; do
+            L=$(basename "$lib")
+            JSON="$lib/reports/stryker-report.json"
+            if [[ -f "$JSON" ]]; then
+              SCORE=$(jq ".score" "$JSON")
+              BREAK=$(jq ".thresholds.break" "$JSON")
+              STATUS="good"
+              if (( $(echo "$SCORE < $BREAK" | bc -l) )); then STATUS="bad"; fi
+              if (( $(echo "$SCORE < ($BREAK + 10)" | bc -l) )); then STATUS="warn"; fi
+              HEAT="mutation-heatmap/${L}-heatmap.html"
+              LINK="<a href=\"$HEAT\">Heatmap</a>"
+              if [ ! -f "$HEAT" ]; then LINK="-"; fi
+              echo "<tr class='$STATUS'><td>$L</td><td>$SCORE</td><td>$BREAK</td><td>$STATUS</td><td>$LINK</td></tr>" >> mutation-dashboard.html
+            fi
+          done
+          echo "</table>" >> mutation-dashboard.html
+          echo "<h2>Heatmaps</h2><ul>" >> mutation-dashboard.html
+          for h in mutation-heatmap/*-heatmap.html; do
+            [ -e "$h" ] || continue
+            N=$(basename "$h")
+            echo "<li><a href=\"$h\">$N</a></li>" >> mutation-dashboard.html
+          done
+          echo "</ul></body></html>" >> mutation-dashboard.html
+
+      - name: Commit Dashboard
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add mutation-baseline mutation-dashboard.html mutation-heatmap || true
+          git commit -m "Nightly mutation baseline & dashboard" || true
+          git push origin gh-pages
