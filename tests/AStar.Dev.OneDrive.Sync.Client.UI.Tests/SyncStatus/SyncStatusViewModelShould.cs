@@ -1,3 +1,6 @@
+using AStar.Dev.Functional.Extensions;
+using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
+using AStar.Dev.OneDrive.Sync.Client.Domain.Entities;
 using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.ViewModels.SyncStatus;
@@ -15,11 +18,14 @@ public sealed class SyncStatusViewModelShould
     [Fact]
     public void SetStatusToSyncingWhenStartSyncCommandIsExecuted()
     {
-        var viewModel = new SyncStatusViewModel();
+        var completion = new TaskCompletionSource<Result<IReadOnlyList<SyncFile>, string>>();
+        var viewModel = new SyncStatusViewModel(new DeferredSyncService(completion.Task));
 
         viewModel.StartSyncCommand.Execute(null);
 
         viewModel.Status.ShouldBe("Syncing...");
+
+        _ = completion.TrySetResult(new List<SyncFile>());
     }
 
     [Fact]
@@ -74,5 +80,11 @@ public sealed class SyncStatusViewModelShould
         viewModel.StartSyncCommand.Execute(null);
 
         raised.ShouldBeTrue();
+    }
+
+    private sealed class DeferredSyncService(Task<Result<IReadOnlyList<SyncFile>, string>> resultTask) : ISyncService
+    {
+        public Task<Result<IReadOnlyList<SyncFile>, string>> GetSyncFilesAsync(CancellationToken cancellationToken = default)
+            => resultTask;
     }
 }
