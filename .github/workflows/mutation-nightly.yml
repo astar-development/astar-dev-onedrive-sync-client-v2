@@ -18,8 +18,8 @@ jobs:
       - uses: actions/checkout@v6
       - id: set
         run: |
-          LIBS=$(ls libs)
-          echo "libs=$LIBS" >> $GITHUB_OUTPUT
+          LIBS_JSON=$(find libs -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | jq -R -s -c 'split("\n")[:-1]')
+          echo "libs=$LIBS_JSON" >> "$GITHUB_OUTPUT"
 
   mutate:
     needs: discover-libs
@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lib: ${{ fromJson('["' + join(needs.discover-libs.outputs.libs, '","') + '"]') }}
+        lib: ${{ fromJson(needs.discover-libs.outputs.libs) }}
 
     steps:
       - uses: actions/checkout@v6
@@ -67,25 +67,25 @@ jobs:
       - name: Generate Mutation Dashboard
         run: |
           cat <<'EOF' > mutation-dashboard.html
-<html>
-<head>
-  <title>Mutation Dashboard</title>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th { background-color: #333; color: white; }
-    .good { background-color: #d4edda; }
-    .warn { background-color: #fff3cd; }
-    .bad  { background-color: #f8d7da; }
-  </style>
-</head>
-<body>
-<h1>Mutation Testing Dashboard</h1>
-<p>Updated: $(date)</p>
-<table>
-<tr><th>Library</th><th>Score</th><th>Threshold</th><th>Status</th><th>Heatmap</th></tr>
-EOF
+          <html>
+          <head>
+            <title>Mutation Dashboard</title>
+            <style>
+              body { font-family: Arial; padding: 20px; }
+              table { border-collapse: collapse; width: 100%; }
+              th, td { border: 1px solid #ddd; padding: 8px; }
+              th { background-color: #333; color: white; }
+              .good { background-color: #d4edda; }
+              .warn { background-color: #fff3cd; }
+              .bad  { background-color: #f8d7da; }
+            </style>
+          </head>
+          <body>
+          <h1>Mutation Testing Dashboard</h1>
+          <p>Updated: $(date)</p>
+          <table>
+          <tr><th>Library</th><th>Score</th><th>Threshold</th><th>Status</th><th>Heatmap</th></tr>
+          EOF
           for lib in mutation-baseline/*; do
             L=$(basename "$lib")
             JSON="$lib/reports/stryker-report.json"
