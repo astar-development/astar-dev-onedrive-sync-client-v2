@@ -35,7 +35,7 @@ jobs:
 
       - name: Generate HTML & Cobertura Reports
         run: |
-          reportgenerator -reports:"coverage/coverage.cobertura.xml" -targetdir:"coverage-report" -reporttypes:Html
+          reportgenerator -reports:"prcov/Cobertura.xml" -targetdir:"coverage-report" -reporttypes:"Html;Cobertura"
 
       - name: Upload HTML Report
         uses: actions/upload-artifact@v4
