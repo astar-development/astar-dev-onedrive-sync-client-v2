@@ -49,7 +49,7 @@ public static class CompositionRoot
 
     private static void EnsureInitialized()
     {
-        if (!_isInitialized)
+        if(!_isInitialized)
         {
             Initialize();
         }

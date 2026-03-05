@@ -26,7 +26,7 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
         context.SyncFiles.RemoveRange(existing);
 
         DateTime now = DateTime.UtcNow;
-        foreach (FolderNodeState node in nodes)
+        foreach(FolderNodeState node in nodes)
         {
             _ = context.SyncFiles.Add(new SyncFileEntity
             {
@@ -75,7 +75,7 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
     private static async Task EnsureDefaultAccountAsync(AstarOneDriveDbContextModel context, CancellationToken cancellationToken)
     {
         AccountEntity? existing = await context.Accounts.SingleOrDefaultAsync(x => x.Id == DefaultAccountId, cancellationToken);
-        if (existing is not null)
+        if(existing is not null)
         {
             return;
         }
@@ -99,10 +99,10 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
         var parts = new List<string>();
         var currentId = nodeId;
 
-        while (lookup.TryGetValue(currentId, out FolderNodeState? current))
+        while(lookup.TryGetValue(currentId, out FolderNodeState? current))
         {
             parts.Add(current.Name);
-            if (string.IsNullOrWhiteSpace(current.ParentId))
+            if(string.IsNullOrWhiteSpace(current.ParentId))
             {
                 break;
             }

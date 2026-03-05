@@ -3,8 +3,8 @@ using System.Windows.Input;
 using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
 using AStar.Dev.OneDrive.Sync.Client.Domain.Entities;
-using AStar.Dev.OneDrive.Sync.Client.UI.Composition;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
+using AStar.Dev.OneDrive.Sync.Client.UI.Composition;
 using ReactiveUI;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
@@ -28,7 +28,7 @@ public class SyncStatusViewModel : ViewModelBase
         get;
         set
         {
-            if (field == value)
+            if(field == value)
             {
                 return;
             }
@@ -71,7 +71,7 @@ public class SyncStatusViewModel : ViewModelBase
         set
         {
             _ = this.RaiseAndSetIfChanged(ref field, value);
-            if (string.IsNullOrWhiteSpace(value))
+            if(string.IsNullOrWhiteSpace(value))
             {
                 return;
             }
@@ -104,7 +104,7 @@ public class SyncStatusViewModel : ViewModelBase
         await Task.Yield();
 
         Result<IReadOnlyList<SyncFile>, string> result = await _syncService.GetSyncFilesAsync(cancellationToken);
-        switch (result)
+        switch(result)
         {
             case Result<IReadOnlyList<SyncFile>, string>.Ok ok:
                 ProgressPercentage = 100;

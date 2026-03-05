@@ -17,7 +17,7 @@ public class RelayCommand(Action<object?> execute, Func<object?, bool>? canExecu
 
     ///<inheritdoc/>
     public void Execute(object? parameter) => _execute(parameter);
-    
+
     ///<inheritdoc/>
     public event EventHandler? CanExecuteChanged;
 

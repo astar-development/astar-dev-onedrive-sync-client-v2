@@ -30,17 +30,17 @@ public static class ExceptionBootstrap
     /// Hooks the Avalonia UI thread to handle unhandled UI exceptions.
     /// </summary>
     public static void HookAvaloniaUIThread() => Dispatcher.UIThread.UnhandledException += HandleUIThreadException();
-    
+
     private static DispatcherUnhandledExceptionEventHandler HandleUIThreadException() => (sender, e) =>
     {
         Log.Error(e.Exception, "UI thread exception");
-        
+
         // Show error dialog to user
         ErrorHandler.ShowErrorDialog(
             "Application Error",
             $"An unexpected error occurred:\n\n{e.Exception.Message}\n\nThe application will continue, but some functionality may be affected."
         );
-        
+
         e.Handled = true;
     };
 }

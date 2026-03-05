@@ -23,14 +23,14 @@ public static class ErrorHandler
     /// <param name="onDismissed">Optional callback invoked when dialog is dismissed.</param>
     /// <param name="logger">Optional logger for error messages (defaults to Serilog).</param>
     public static void ShowErrorDialog(
-        string title, 
-        string message, 
-        Action? onShown = null, 
-        Action? onDismissed = null, 
+        string title,
+        string message,
+        Action? onShown = null,
+        Action? onDismissed = null,
         Action<string>? logger = null)
     {
         var logMessage = $"Error Dialog - {title}: {message}";
-        if (logger != null)
+        if(logger != null)
         {
             logger(logMessage);
         }
@@ -41,7 +41,7 @@ public static class ErrorHandler
 
         _currentDismissCallback = onDismissed;
 
-        if (Avalonia.Application.Current is null || onShown != null)
+        if(Avalonia.Application.Current is null || onShown != null)
         {
             onShown?.Invoke();
             return;
@@ -57,8 +57,8 @@ public static class ErrorHandler
     {
         _currentDismissCallback?.Invoke();
         _currentDismissCallback = null;
-        
-        if (_currentDialog != null)
+
+        if(_currentDialog != null)
         {
             Dispatcher.UIThread.Post(() =>
             {
@@ -82,7 +82,7 @@ public static class ErrorHandler
 
         Window? owner = GetMainWindow();
 
-        if (owner != null)
+        if(owner != null)
         {
             _ = dialog.ShowDialog(owner);
         }

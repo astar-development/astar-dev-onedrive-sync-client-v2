@@ -1,8 +1,8 @@
+using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Threading;
 using Serilog;
-using System.Diagnostics;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Logs;
 
@@ -39,7 +39,7 @@ public partial class DebugLogWindow : Window
         Log.Information("DebugLogWindow opened - debug window");
 
         var initialLogs = LoggingBootstrap.DebugLogSink.GetText();
-        if (!string.IsNullOrWhiteSpace(initialLogs))
+        if(!string.IsNullOrWhiteSpace(initialLogs))
         {
             _ = (LogText?.Text = initialLogs);
         }
@@ -64,7 +64,7 @@ public partial class DebugLogWindow : Window
         base.OnKeyDown(e);
         Log.Information("Key pressed: {Key} with modifiers {Modifiers} - debug window", e.Key, e.KeyModifiers);
 
-        if (e.Key == Key.L &&
+        if(e.Key == Key.L &&
             e.KeyModifiers.HasFlag(KeyModifiers.Control) &&
             e.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {

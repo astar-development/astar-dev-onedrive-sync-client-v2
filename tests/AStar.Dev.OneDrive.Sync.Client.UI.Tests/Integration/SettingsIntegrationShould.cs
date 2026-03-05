@@ -9,7 +9,7 @@ public sealed class SettingsIntegrationShould
     public void InitializeSettingsViewModelWithDefaults()
     {
         var viewModel = new SettingsViewModel();
-        
+
         viewModel.SelectedTheme.ShouldBe("Light");
         viewModel.SelectedLanguage.ShouldBe("en-GB");
         viewModel.SelectedLayout.ShouldBe("Explorer");

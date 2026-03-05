@@ -19,18 +19,18 @@ public static class DatabasePathResolver
     {
         var applicationDataBasePath = ResolvePlatformSpecificDataDirectory().CombinePath(AppFolderName);
         _ = Directory.CreateDirectory(applicationDataBasePath);
-        
+
         return applicationDataBasePath.CombinePath(DatabaseName);
     }
 
     private static string ResolvePlatformSpecificDataDirectory()
     {
-        if (OperatingSystem.IsWindows())
+        if(OperatingSystem.IsWindows())
         {
             return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         }
 
-        if (OperatingSystem.IsMacOS())
+        if(OperatingSystem.IsMacOS())
         {
             return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).CombinePath("Library", "Application Support");
         }

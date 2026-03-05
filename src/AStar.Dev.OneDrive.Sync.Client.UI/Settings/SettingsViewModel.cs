@@ -40,7 +40,7 @@ public class SettingsViewModel : ViewModelBase
         get;
         set
         {
-            if (field == value)
+            if(field == value)
             {
                 return;
             }
@@ -58,7 +58,7 @@ public class SettingsViewModel : ViewModelBase
         get;
         set
         {
-            if (field == value)
+            if(field == value)
             {
                 return;
             }
@@ -79,7 +79,7 @@ public class SettingsViewModel : ViewModelBase
         get;
         set
         {
-            if (field == value)
+            if(field == value)
             {
                 return;
             }
@@ -122,7 +122,7 @@ public class SettingsViewModel : ViewModelBase
                     {
                         _migrator.EnsureMigrated();
                         SettingsState? state = _settingsRepository.Load();
-                        if (state is null)
+                        if(state is null)
                         {
                             _lastCommittedState = CreateState();
                             return true;

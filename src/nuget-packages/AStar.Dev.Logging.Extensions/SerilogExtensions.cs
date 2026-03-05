@@ -33,7 +33,7 @@ public static class SerilogExtensions
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information);
 
         IConfigurationSection serilogSection = configuration.GetSection("Serilog");
-        if (serilogSection.Exists())
+        if(serilogSection.Exists())
             cfg = cfg.ReadFrom.Configuration(configuration);
 
         return addFileSink ? ConfigureFileSink(cfg) : cfg;
