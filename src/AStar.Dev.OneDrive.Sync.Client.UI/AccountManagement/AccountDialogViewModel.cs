@@ -9,6 +9,7 @@ using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Contracts;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Repositories;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
+using AStar.Dev.Utilities;
 using ReactiveUI;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
@@ -218,7 +219,9 @@ public class AccountDialogViewModel : ViewModelBase
 
     private static IAccountSessionService CreateAccountSessionService(string? databasePath)
     {
-        var tokenStorePath = Path.Combine(Path.GetDirectoryName(DatabasePathResolver.ResolveDatabasePath())!, "secure-store");
+        var path = Path.GetDirectoryName(DatabasePathResolver.ResolveDatabasePath())!;
+        var tokenStorePath = path.CombinePath("secure-store");
+        
         return new OneDriveAccountSessionService(
             new OneDriveAuthenticationAdapter(),
             new FileBackedSecureAccountTokenStore(tokenStorePath),

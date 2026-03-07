@@ -7,7 +7,7 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 public partial class AccountListView : UserControl
 {
     private static readonly object DialogHostSync = new();
-    private static AccountListView? _dialogHost;
+    private AccountListView? _dialogHost;
     private AccountListViewModel? _viewModel;
 
     public AccountListView()
@@ -20,10 +20,7 @@ public partial class AccountListView : UserControl
 
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
-        if(_viewModel is not null)
-        {
-            _viewModel.AccountDialogRequested -= OnAccountDialogRequested;
-        }
+        _viewModel?.AccountDialogRequested -= OnAccountDialogRequested;
 
         _viewModel = DataContext as AccountListViewModel;
         if(_viewModel is not null)
