@@ -22,6 +22,26 @@ public sealed class AccountListViewShould
         (firstView.OpenCount + secondView.OpenCount).ShouldBe(1);
     }
 
+    [Fact]
+    public async Task OpenSingleDialogWhenPreviousDialogHostExists()
+    {
+        var staleViewModel = new AccountListViewModel();
+        var staleHost = new TestAccountListView { DataContext = staleViewModel };
+        staleViewModel.AddAccountCommand.Execute(null);
+        await WaitForConditionAsync(() => staleHost.OpenCount > 0);
+
+        var viewModel = new AccountListViewModel();
+        var firstView = new TestAccountListView();
+        var secondView = new TestAccountListView();
+        firstView.DataContext = viewModel;
+        secondView.DataContext = viewModel;
+
+        viewModel.AddAccountCommand.Execute(null);
+        await WaitForConditionAsync(() => firstView.OpenCount + secondView.OpenCount > 0);
+
+        (firstView.OpenCount + secondView.OpenCount).ShouldBe(1);
+    }
+
     private static async Task WaitForConditionAsync(Func<bool> condition)
     {
         for(var attempt = 0; attempt < 50 && !condition(); attempt++)

@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Avalonia.Controls;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
@@ -6,8 +7,8 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 [ExcludeFromCodeCoverage]
 public partial class AccountListView : UserControl
 {
-    private static readonly object DialogHostSync = new();
-    private static AccountListView? _dialogHost;
+    private static readonly Lock DialogHostSync = new();
+    private static readonly ConditionalWeakTable<AccountListViewModel, DialogHostRegistration> DialogHosts = [];
     private AccountListViewModel? _viewModel;
 
     public AccountListView()
@@ -58,19 +59,59 @@ public partial class AccountListView : UserControl
 
     private void TryRegisterDialogHost()
     {
+        if(_viewModel is null)
+        {
+            return;
+        }
+
         lock(DialogHostSync)
         {
-            _dialogHost ??= this;
+            if(!DialogHosts.TryGetValue(_viewModel, out DialogHostRegistration? registration))
+            {
+                DialogHosts.Add(_viewModel, new DialogHostRegistration(this));
+                return;
+            }
+
+            if(!registration.TryGetHost(out _))
+            {
+                registration.SetHost(this);
+            }
         }
     }
 
     private bool IsDialogHost()
     {
+        if(_viewModel is null)
+        {
+            return false;
+        }
+
         lock(DialogHostSync)
         {
-            _dialogHost ??= this;
+            if(!DialogHosts.TryGetValue(_viewModel, out DialogHostRegistration? registration))
+            {
+                DialogHosts.Add(_viewModel, new DialogHostRegistration(this));
+                return true;
+            }
 
-            return ReferenceEquals(_dialogHost, this);
+            if(!registration.TryGetHost(out AccountListView? host))
+            {
+                registration.SetHost(this);
+                return true;
+            }
+
+            return ReferenceEquals(host, this);
         }
+    }
+
+    private sealed class DialogHostRegistration(AccountListView host)
+    {
+        private WeakReference<AccountListView> _host = new(host);
+
+        public bool TryGetHost(out AccountListView? host)
+            => _host.TryGetTarget(out host);
+
+        public void SetHost(AccountListView host)
+            => _host = new WeakReference<AccountListView>(host);
     }
 }
