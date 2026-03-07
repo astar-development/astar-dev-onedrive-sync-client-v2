@@ -61,6 +61,15 @@ public sealed class SyncIntegrationShould
     {
         public Task<Result<IReadOnlyList<SyncFile>, string>> GetSyncFilesAsync(CancellationToken cancellationToken = default)
             => resultTask;
+
+        public Task<Result<Unit, string>> PauseSyncAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> ResumeSyncAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> CancelSyncAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
     }
 
     private sealed class FixedSyncService : ISyncService
@@ -75,11 +84,29 @@ public sealed class SyncIntegrationShould
 
         public Task<Result<IReadOnlyList<SyncFile>, string>> GetSyncFilesAsync(CancellationToken cancellationToken = default)
             => Task.FromResult(_result);
+
+        public Task<Result<Unit, string>> PauseSyncAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> ResumeSyncAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> CancelSyncAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
     }
 
     private sealed class ThrowingSyncService : ISyncService
     {
         public Task<Result<IReadOnlyList<SyncFile>, string>> GetSyncFilesAsync(CancellationToken cancellationToken = default)
+            => throw new InvalidOperationException("OneDrive unavailable");
+
+        public Task<Result<Unit, string>> PauseSyncAsync(CancellationToken cancellationToken = default)
+            => throw new InvalidOperationException("OneDrive unavailable");
+
+        public Task<Result<Unit, string>> ResumeSyncAsync(CancellationToken cancellationToken = default)
+            => throw new InvalidOperationException("OneDrive unavailable");
+
+        public Task<Result<Unit, string>> CancelSyncAsync(CancellationToken cancellationToken = default)
             => throw new InvalidOperationException("OneDrive unavailable");
     }
 }

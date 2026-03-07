@@ -13,4 +13,16 @@ public sealed class SyncService(ISyncFileRepository syncFileRepository) : ISyncS
     ///  <inheritdoc/>
     public Task<Result<IReadOnlyList<SyncFile>, string>> GetSyncFilesAsync(CancellationToken cancellationToken = default)
         => syncFileRepository.GetAllAsync(cancellationToken);
+
+    ///  <inheritdoc/>
+    public Task<Result<Unit, string>> PauseSyncAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+    ///  <inheritdoc/>
+    public Task<Result<Unit, string>> ResumeSyncAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+    ///  <inheritdoc/>
+    public Task<Result<Unit, string>> CancelSyncAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<Result<Unit, string>>(Unit.Value);
 }
