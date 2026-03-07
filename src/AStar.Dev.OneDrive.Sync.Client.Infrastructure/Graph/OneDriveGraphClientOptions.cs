@@ -11,12 +11,12 @@ public sealed class OneDriveGraphClientOptions
     public Uri BaseUri { get; init; } = new("https://graph.microsoft.com/v1.0/");
 
     /// <summary>
-    /// Gets or sets the maximum number of retries after the initial request.
+    /// Gets or sets the pooled connection lifetime used to refresh DNS endpoints.
     /// </summary>
-    public int MaximumRetryAttempts { get; init; } = 3;
+    public TimeSpan PooledConnectionLifetime { get; init; } = TimeSpan.FromMinutes(5);
 
     /// <summary>
-    /// Gets or sets the initial backoff duration used for exponential retry delays.
+    /// Gets or sets the request timeout for outgoing Graph HTTP calls.
     /// </summary>
-    public TimeSpan InitialBackoff { get; init; } = TimeSpan.FromMilliseconds(200);
+    public TimeSpan RequestTimeout { get; init; } = TimeSpan.FromSeconds(30);
 }

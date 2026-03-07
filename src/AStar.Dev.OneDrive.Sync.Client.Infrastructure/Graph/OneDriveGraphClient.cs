@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Net;
-using System.Net.Http.Headers;
 using AStar.Dev.Functional.Extensions;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Graph;
@@ -8,69 +7,34 @@ namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Graph;
 /// <summary>
 /// Provides resilient access to OneDrive Graph API endpoints.
 /// </summary>
-public sealed class OneDriveGraphClient(HttpClient httpClient, OneDriveGraphClientOptions options, IGraphDelayStrategy delayStrategy, IOneDriveGraphTelemetry telemetry) : IOneDriveGraphClient
+public sealed class OneDriveGraphClient(HttpClient httpClient, IOneDriveGraphTelemetry telemetry) : IOneDriveGraphClient
 {
     /// <inheritdoc />
     public async Task<Result<OneDriveGraphResponse, SyncError>> SendAsync(OneDriveGraphRequest request, CancellationToken cancellationToken = default)
     {
         var startTime = Stopwatch.GetTimestamp();
-        var retries = 0;
-
-        while(true)
+        try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            try
+            using HttpRequestMessage message = request.BuildHttpRequest();
+            using HttpResponseMessage response = await httpClient.SendAsync(message, cancellationToken);
+            if(response.IsSuccessStatusCode)
             {
-                using HttpRequestMessage message = request.BuildHttpRequest(options.BaseUri);
-                using HttpResponseMessage response = await httpClient.SendAsync(message, cancellationToken);
-                if(response.IsSuccessStatusCode)
-                {
-                    var content = await response.Content.ReadAsStringAsync(cancellationToken);
-                    TrackTelemetry(request, Stopwatch.GetElapsedTime(startTime), retries, null, (int)response.StatusCode);
-                    return new OneDriveGraphResponse(response.StatusCode, content);
-                }
-
-                SyncError error = MapHttpError(response.StatusCode);
-                if(ShouldRetry(error, retries))
-                {
-                    await DelayBeforeRetryAsync(response.Headers.RetryAfter, retries, cancellationToken);
-                    retries++;
-                    continue;
-                }
-
-                TrackTelemetry(request, Stopwatch.GetElapsedTime(startTime), retries, error.Kind, (int)response.StatusCode);
-                return error;
+                var content = await response.Content.ReadAsStringAsync(cancellationToken);
+                TrackTelemetry(request, Stopwatch.GetElapsedTime(startTime), null, (int)response.StatusCode);
+                return new OneDriveGraphResponse(response.StatusCode, content);
             }
-            catch(HttpRequestException exception)
-            {
-                var error = new SyncError(SyncErrorKind.Network, exception.Message, true);
-                if(ShouldRetry(error, retries))
-                {
-                    await DelayBeforeRetryAsync(null, retries, cancellationToken);
-                    retries++;
-                    continue;
-                }
 
-                TrackTelemetry(request, Stopwatch.GetElapsedTime(startTime), retries, error.Kind, null);
-                return error;
-            }
+            SyncError error = MapHttpError(response.StatusCode);
+            TrackTelemetry(request, Stopwatch.GetElapsedTime(startTime), error.Kind, (int)response.StatusCode);
+            return error;
         }
-    }
-
-    private bool ShouldRetry(SyncError error, int retries)
-        => error.IsTransient && retries < options.MaximumRetryAttempts;
-
-    private async Task DelayBeforeRetryAsync(RetryConditionHeaderValue? retryAfter, int retries, CancellationToken cancellationToken)
-    {
-        if(retryAfter?.Delta is TimeSpan delta)
+        catch(HttpRequestException exception)
         {
-            await delayStrategy.DelayAsync(delta, cancellationToken);
-            return;
+            var error = new SyncError(SyncErrorKind.Network, exception.Message, true);
+            TrackTelemetry(request, Stopwatch.GetElapsedTime(startTime), error.Kind, null);
+            return error;
         }
-
-        var factor = Math.Pow(2, retries);
-        var duration = TimeSpan.FromMilliseconds(options.InitialBackoff.TotalMilliseconds * factor);
-        await delayStrategy.DelayAsync(duration, cancellationToken);
     }
 
     private static SyncError MapHttpError(HttpStatusCode statusCode)
@@ -89,14 +53,13 @@ public sealed class OneDriveGraphClient(HttpClient httpClient, OneDriveGraphClie
     private void TrackTelemetry(
         OneDriveGraphRequest request,
         TimeSpan duration,
-        int retries,
         SyncErrorKind? errorKind,
         int? statusCode)
         => telemetry.Track(new GraphRequestTelemetryEvent(
             request.Method.Method,
             request.Path,
             duration,
-            retries,
+            0,
             errorKind,
             statusCode));
 }

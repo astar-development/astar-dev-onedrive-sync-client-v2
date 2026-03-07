@@ -1,3 +1,4 @@
+using System.Net.Http;
 using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Authentication;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
@@ -16,21 +17,30 @@ public static class ServiceCollectionExtensions
     /// Registers all Infrastructure layer services.
     /// </summary>
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
-        => services
+    {
+        _ = services
             .AddSingleton<IMigrationService, SqliteDatabaseMigrator>()
             .AddSingleton<IOneDriveAuthenticationAdapter, OneDriveAuthenticationAdapter>()
             .AddSingleton<ISecureAccountTokenStore, FileBackedSecureAccountTokenStore>()
             .AddSingleton<OneDriveGraphClientOptions>()
-            .AddSingleton<IGraphDelayStrategy, GraphDelayStrategy>()
             .AddSingleton<IOneDriveGraphTelemetry, NoOpOneDriveGraphTelemetry>()
-            .AddSingleton<IOneDriveGraphClient>(provider =>
-            {
-                OneDriveGraphClientOptions options = provider.GetRequiredService<OneDriveGraphClientOptions>();
-                IGraphDelayStrategy delayStrategy = provider.GetRequiredService<IGraphDelayStrategy>();
-                IOneDriveGraphTelemetry telemetry = provider.GetRequiredService<IOneDriveGraphTelemetry>();
-                HttpClient httpClient = new() { BaseAddress = options.BaseUri };
-                return new OneDriveGraphClient(httpClient, options, delayStrategy, telemetry);
-            })
             .AddSingleton<SqliteAccountSessionMetadataRepository>()
             .AddSingleton<IAccountSessionService, OneDriveAccountSessionService>();
+
+        _ = services
+            .AddHttpClient<IOneDriveGraphClient, OneDriveGraphClient>((provider, httpClient) =>
+            {
+                OneDriveGraphClientOptions options = provider.GetRequiredService<OneDriveGraphClientOptions>();
+                httpClient.BaseAddress = options.BaseUri;
+                httpClient.Timeout = options.RequestTimeout;
+            })
+            .ConfigurePrimaryHttpMessageHandler(provider =>
+            {
+                OneDriveGraphClientOptions options = provider.GetRequiredService<OneDriveGraphClientOptions>();
+                return new SocketsHttpHandler { PooledConnectionLifetime = options.PooledConnectionLifetime };
+            })
+            .AddStandardResilienceHandler();
+
+        return services;
+    }
 }

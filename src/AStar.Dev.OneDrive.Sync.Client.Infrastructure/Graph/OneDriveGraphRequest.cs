@@ -16,9 +16,9 @@ public sealed record OneDriveGraphRequest(HttpMethod Method, string Path, string
     /// </summary>
     public static OneDriveGraphRequest Get(string path, string accessToken) => new(HttpMethod.Get, path, accessToken);
 
-    internal HttpRequestMessage BuildHttpRequest(Uri baseUri)
+    internal HttpRequestMessage BuildHttpRequest()
     {
-        var request = new HttpRequestMessage(Method, new Uri(baseUri, Path));
+        var request = new HttpRequestMessage(Method, Path);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
         request.Content = Content;
         return request;

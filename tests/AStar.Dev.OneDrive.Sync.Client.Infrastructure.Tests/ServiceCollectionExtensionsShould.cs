@@ -2,6 +2,7 @@ using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Authentication;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Graph;
+using Microsoft.Extensions.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Tests;
@@ -35,12 +36,12 @@ public sealed class ServiceCollectionExtensionsShould
     }
 
     [Fact]
-    public void RegisterIOneDriveGraphClientAsSingleton()
+    public void RegisterIOneDriveGraphClient()
     {
         IServiceCollection services = new ServiceCollection().AddInfrastructure();
         ServiceDescriptor? descriptor = services.SingleOrDefault(sd => sd.ServiceType == typeof(IOneDriveGraphClient));
         _ = descriptor.ShouldNotBeNull();
-        descriptor.Lifetime.ShouldBe(ServiceLifetime.Singleton);
+        _ = descriptor.ImplementationFactory.ShouldNotBeNull();
     }
 
     [Fact]
@@ -49,5 +50,13 @@ public sealed class ServiceCollectionExtensionsShould
         using ServiceProvider provider = new ServiceCollection().AddInfrastructure().BuildServiceProvider();
         IOneDriveGraphClient graphClient = provider.GetRequiredService<IOneDriveGraphClient>();
         _ = graphClient.ShouldBeOfType<OneDriveGraphClient>();
+    }
+
+    [Fact]
+    public void RegisterIHttpClientFactory()
+    {
+        using ServiceProvider provider = new ServiceCollection().AddInfrastructure().BuildServiceProvider();
+        IHttpClientFactory factory = provider.GetRequiredService<IHttpClientFactory>();
+        _ = factory.ShouldNotBeNull();
     }
 }
