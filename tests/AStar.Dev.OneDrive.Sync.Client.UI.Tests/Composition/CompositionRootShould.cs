@@ -62,7 +62,7 @@ public sealed class CompositionRootShould : IDisposable
         var dbDirectory = Path.GetDirectoryName(databasePath) ?? string.Empty;
         var dbFileName = Path.GetFileName(databasePath);
         Directory.CreateDirectory(dbDirectory);
-        
+
         var dbPath = dbDirectory.CombinePath(dbFileName);
 
         return dbPath;
@@ -70,7 +70,7 @@ public sealed class CompositionRootShould : IDisposable
 
     public void Dispose()
     {
-        if (!string.IsNullOrEmpty(_databasePath))
+        if(!string.IsNullOrEmpty(_databasePath))
         {
             Directory.Delete(Path.GetDirectoryName(_databasePath) ?? string.Empty, true);
         }

@@ -29,4 +29,3 @@ public sealed class PathOperationExtensionsShould
         _ = Should.Throw<ArgumentException>(() => "base".CombinePath(rootedSegment));
     }
 }
-    
