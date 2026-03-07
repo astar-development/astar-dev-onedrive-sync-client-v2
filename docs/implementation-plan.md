@@ -377,10 +377,10 @@ Connect Sync button to stub sync service.
 
 ---
 
-### **Phase 15: Build & Acceptance Test**
+### **Phase 15: Build & Acceptance Test ✅**
 Full-stack sanity check.
 
-1. **Test** — Manual explorer:
+1. ✅ **Test** — Manual explorer:
    - ✓ App launches, loads saved theme/layout from database
    - ✓ Switch layouts → no crashes
    - ✓ Change theme → app theme updates
@@ -390,13 +390,13 @@ Full-stack sanity check.
    - ✓ Settings dialog open/save/cancel works
    - ✓ Close & relaunch → state restored from database
 
-2. **Final Build**
+2. ✅ **Final Build**
    ```bash
    dotnet build
    dotnet test
    ```
 
-3. **Verify**
+3. ✅ **Verify**
    - 0 build warnings
    - 30+ UI tests pass
    - App runs without crashes

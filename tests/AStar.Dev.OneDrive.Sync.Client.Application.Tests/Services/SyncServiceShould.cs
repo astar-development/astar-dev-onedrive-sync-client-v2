@@ -1,3 +1,4 @@
+using System.Reflection;
 using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
 using AStar.Dev.OneDrive.Sync.Client.Application.Services;
@@ -60,5 +61,34 @@ public sealed class SyncServiceShould
 
         Result<IReadOnlyList<SyncFile>, string>.Error error = result.ShouldBeOfType<Result<IReadOnlyList<SyncFile>, string>.Error>();
         error.Reason.ShouldBe("retrieval failed");
+    }
+
+    [Fact]
+    public void DefineQueueConflictAndCheckpointModelsWhenContractsAreIntroduced()
+    {
+        Assembly applicationAssembly = typeof(ISyncService).Assembly;
+
+        applicationAssembly.GetType("AStar.Dev.OneDrive.Sync.Client.Application.Models.SyncQueueItem").ShouldNotBeNull();
+        applicationAssembly.GetType("AStar.Dev.OneDrive.Sync.Client.Application.Models.SyncConflict").ShouldNotBeNull();
+        applicationAssembly.GetType("AStar.Dev.OneDrive.Sync.Client.Application.Models.SyncCheckpoint").ShouldNotBeNull();
+    }
+
+    [Fact]
+    public void DefineOrchestrationOperationsWhenContractsAreIntroduced()
+    {
+        MethodInfo[] methods = typeof(ISyncService).GetMethods();
+
+        methods.Any(x => x.Name == "RunDeltaSyncAsync").ShouldBeTrue();
+        methods.Any(x => x.Name == "EnqueueUploadAsync").ShouldBeTrue();
+        methods.Any(x => x.Name == "EnqueueDownloadAsync").ShouldBeTrue();
+    }
+
+    [Fact]
+    public void DefineFailureHandlingOperationsWhenContractsAreIntroduced()
+    {
+        MethodInfo[] methods = typeof(ISyncService).GetMethods();
+
+        methods.Any(x => x.Name == "GetFailedOperationsAsync").ShouldBeTrue();
+        methods.Any(x => x.Name == "RetryFailedOperationsAsync").ShouldBeTrue();
     }
 }
