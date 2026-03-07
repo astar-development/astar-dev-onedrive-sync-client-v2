@@ -221,7 +221,7 @@ public class AccountDialogViewModel : ViewModelBase
     {
         var path = Path.GetDirectoryName(DatabasePathResolver.ResolveDatabasePath())!;
         var tokenStorePath = path.CombinePath("secure-store");
-        
+
         return new OneDriveAccountSessionService(
             new OneDriveAuthenticationAdapter(),
             new FileBackedSecureAccountTokenStore(tokenStorePath),
