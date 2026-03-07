@@ -1,9 +1,15 @@
 using AStar.Dev.OneDrive.Sync.Client.UI.Localization;
+using AStar.Dev.OneDrive.Sync.Client.UI.Tests.ThemeManager;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Localization;
 
-public sealed class LocalizationManagerShould
+[Collection(ThemeManagerTestCollection.Name)]
+public sealed class LocalizationManagerShould : IDisposable
 {
+    public LocalizationManagerShould() => LocalizationManager.SetLanguage("en-GB");
+
+    public void Dispose() => LocalizationManager.SetLanguage("en-GB");
+
     [Fact]
     public void SetLanguageToEnGbAndNotThrow()
     {
