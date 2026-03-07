@@ -32,20 +32,6 @@ public sealed class AccountDialogViewModelShould
     }
 
     [Fact]
-    public void RejectInvalidEmailWhenSaveCommandExecutes()
-    {
-        var viewModel = new AccountDialogViewModel
-        {
-            Email = "invalid-email"
-        };
-
-        viewModel.SaveCommand.Execute(null);
-
-        viewModel.ValidationError.ShouldNotBeEmpty();
-        viewModel.IsSaved.ShouldBeFalse();
-    }
-
-    [Fact]
     public void CloseWithoutSavingWhenCancelCommandExecutes()
     {
         var viewModel = new AccountDialogViewModel
@@ -60,44 +46,70 @@ public sealed class AccountDialogViewModelShould
     }
 
     [Fact]
-    public async Task LinkAccountWhenLoginCommandExecutes()
+    public async Task LinkAccountAndPersistWhenLoginCommandExecutes()
     {
+        var databasePath = CreateDatabasePath();
         var service = new TestAccountSessionService(new AccountSessionState(
             new OneDriveAccountProfile("acct-1", "linked@example.com", 8192, 1024),
             new AccountSessionMetadata("acct-1", DateTime.UtcNow.AddMinutes(30), DateTime.UtcNow, null, false)));
-        var viewModel = new AccountDialogViewModel(accountSessionService: service)
+        var closeRequested = false;
+        var viewModel = new AccountDialogViewModel(databasePath, service)
         {
             Email = "linked@example.com"
         };
+        viewModel.CloseRequested += (_, saved) => closeRequested = saved;
 
         viewModel.LoginCommand.Execute(null);
-        await WaitForConditionAsync(() => viewModel.LoginTriggered);
+        await WaitForConditionAsync(() => viewModel.IsSaved);
+        var listViewModel = new AccountListViewModel(databasePath);
+        _ = await listViewModel.LoadAccountsAsync(TestContext.Current.CancellationToken);
 
         viewModel.LoginTriggered.ShouldBeTrue();
+        viewModel.IsSaved.ShouldBeTrue();
+        closeRequested.ShouldBeTrue();
         viewModel.Email.ShouldBe("linked@example.com");
         viewModel.QuotaBytes.ShouldBe(8192);
         viewModel.UsedBytes.ShouldBe(1024);
+        listViewModel.Accounts.Count.ShouldBe(1);
+        listViewModel.Accounts[0].Id.ShouldBe("acct-1");
         service.LinkCalls.ShouldBe(1);
     }
 
     [Fact]
-    public async Task PersistAccountWhenSaveCommandExecutesWithValidEmail()
+    public async Task DisableCancelWhenLoginSuccessfullyPersistsAccount()
     {
-        var databasePath = CreateDatabasePath();
-        var viewModel = new AccountDialogViewModel(databasePath: databasePath)
+        var service = new TestAccountSessionService(new AccountSessionState(
+            new OneDriveAccountProfile("acct-2", "cancel-lock@example.com", 1024, 256),
+            new AccountSessionMetadata("acct-2", DateTime.UtcNow.AddMinutes(30), DateTime.UtcNow, null, false)));
+        var viewModel = new AccountDialogViewModel(accountSessionService: service)
         {
-            Email = "saved@example.com",
-            QuotaBytes = 5000,
-            UsedBytes = 400
+            Email = "cancel-lock@example.com"
         };
 
-        viewModel.SaveCommand.Execute(null);
-        var listViewModel = new AccountListViewModel(databasePath);
-        _ = await listViewModel.LoadAccountsAsync(TestContext.Current.CancellationToken);
+        viewModel.LoginCommand.Execute(null);
+        await WaitForConditionAsync(() => viewModel.IsSaved);
 
         viewModel.IsSaved.ShouldBeTrue();
-        listViewModel.Accounts.Count.ShouldBe(1);
-        listViewModel.Accounts[0].Email.ShouldBe("saved@example.com");
+        viewModel.CancelCommand.CanExecute(null).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task ShowValidationErrorAndKeepDialogOpenWhenLoginFails()
+    {
+        var service = new TestAccountSessionService(error: "duplicate key");
+        var closeRequested = false;
+        var viewModel = new AccountDialogViewModel(accountSessionService: service)
+        {
+            Email = "broken@example.com"
+        };
+        viewModel.CloseRequested += (_, saved) => closeRequested = saved;
+
+        viewModel.LoginCommand.Execute(null);
+        await WaitForConditionAsync(() => !string.IsNullOrWhiteSpace(viewModel.ValidationError));
+
+        viewModel.IsSaved.ShouldBeFalse();
+        viewModel.ValidationError.ShouldContain("duplicate key");
+        closeRequested.ShouldBeFalse();
     }
 
     private static string CreateDatabasePath()
@@ -114,21 +126,36 @@ public sealed class AccountDialogViewModelShould
         }
     }
 
-    private sealed class TestAccountSessionService(AccountSessionState state) : IAccountSessionService
+    private sealed class TestAccountSessionService : IAccountSessionService
     {
+        private readonly AccountSessionState? _state;
+        private readonly string? _error;
+
+        public TestAccountSessionService(AccountSessionState state)
+            => _state = state;
+
+        public TestAccountSessionService(string error)
+            => _error = error;
+
         public int LinkCalls { get; private set; }
 
         public Task<Result<AccountSessionState, string>> LinkAccountAsync(string emailHint, CancellationToken cancellationToken = default)
         {
             LinkCalls++;
-            return Task.FromResult<Result<AccountSessionState, string>>(state);
+            return _error is null
+                ? Task.FromResult<Result<AccountSessionState, string>>(_state!)
+                : Task.FromResult<Result<AccountSessionState, string>>(_error);
         }
 
         public Task<Result<AccountSessionState, string>> ReauthenticateAsync(string accountId, string emailHint, CancellationToken cancellationToken = default)
-            => Task.FromResult<Result<AccountSessionState, string>>(state);
+            => _error is null
+                ? Task.FromResult<Result<AccountSessionState, string>>(_state!)
+                : Task.FromResult<Result<AccountSessionState, string>>(_error);
 
         public Task<Result<AccountSessionState, string>> GetValidSessionAsync(string accountId, CancellationToken cancellationToken = default)
-            => Task.FromResult<Result<AccountSessionState, string>>(state);
+            => _error is null
+                ? Task.FromResult<Result<AccountSessionState, string>>(_state!)
+                : Task.FromResult<Result<AccountSessionState, string>>(_error);
 
         public Task<Result<Unit, string>> UnlinkAccountAsync(string accountId, CancellationToken cancellationToken = default)
             => Task.FromResult<Result<Unit, string>>(Unit.Value);

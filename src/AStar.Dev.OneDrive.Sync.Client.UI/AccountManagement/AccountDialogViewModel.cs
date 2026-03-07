@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Net.Mail;
 using System.Windows.Input;
 using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
@@ -19,10 +18,11 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 /// </summary>
 public class AccountDialogViewModel : ViewModelBase
 {
+    private readonly RelayCommand _cancelCommand;
     private readonly SqliteDatabaseMigrator _migrator;
     private readonly SqliteAccountsRepository _accountsRepository;
     private readonly IAccountSessionService _accountSessionService;
-    private readonly string? _existingAccountId;
+    private string? _existingAccountId;
 
     /// <summary>
     /// Initializes a new dialog for creating a new account.
@@ -33,8 +33,8 @@ public class AccountDialogViewModel : ViewModelBase
         _migrator = new SqliteDatabaseMigrator(databasePath);
         _accountsRepository = new SqliteAccountsRepository(databasePath);
         _accountSessionService = accountSessionService ?? CreateAccountSessionService(databasePath);
-        SaveCommand = new RelayCommand(async _ => await Save());
-        CancelCommand = new RelayCommand(_ => Cancel());
+        _cancelCommand = new RelayCommand(_ => Cancel(), _ => !IsSaved);
+        CancelCommand = _cancelCommand;
         LoginCommand = new RelayCommand(async _ => await TriggerLoginAsync());
     }
 
@@ -99,12 +99,16 @@ public class AccountDialogViewModel : ViewModelBase
     } = string.Empty;
 
     /// <summary>
-    /// Gets a value indicating whether save was completed successfully.
+    /// Gets a value indicating whether persistence was completed successfully.
     /// </summary>
     public bool IsSaved
     {
         get;
-        private set => this.RaiseAndSetIfChanged(ref field, value);
+        private set
+        {
+            _ = this.RaiseAndSetIfChanged(ref field, value);
+            _cancelCommand.RaiseCanExecuteChanged();
+        }
     }
 
     /// <summary>
@@ -126,11 +130,6 @@ public class AccountDialogViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Gets the command that validates and persists the account.
-    /// </summary>
-    public ICommand SaveCommand { get; }
-
-    /// <summary>
     /// Gets the command that closes the dialog without saving.
     /// </summary>
     public ICommand CancelCommand { get; }
@@ -145,41 +144,17 @@ public class AccountDialogViewModel : ViewModelBase
     /// </summary>
     public event EventHandler<bool>? CloseRequested;
 
-    private async Task Save() => await ValidateEmail(Email)
-            .MapFailure(message => (Exception)new InvalidOperationException(message))
-            .BindAsync(_ => SaveAccountAsync())
-            .MatchAsync(
-                _ =>
-                {
-                    ValidationError = string.Empty;
-                    IsSaved = true;
-                    IsCancelled = false;
-                    CloseRequested?.Invoke(this, true);
-                    return Task.CompletedTask;
-                },
-                error =>
-                {
-                    ValidationError = error.Message;
-                    return Task.CompletedTask;
-                });
-
-    private async Task<Result<AccountInfo, Exception>> SaveAccountAsync(CancellationToken cancellationToken = default)
+    private async Task<Result<AccountInfo, Exception>> SaveAccountAsync(string? accountId = null, CancellationToken cancellationToken = default)
         => await Try.RunAsync(async () =>
         {
             await _migrator.EnsureMigratedAsync(cancellationToken);
             var accounts = (await _accountsRepository.LoadAsync(cancellationToken)).ToList();
 
-            var id = _existingAccountId ?? Guid.NewGuid().ToString("N");
-            var updated = new AccountState(id, Email, QuotaBytes, UsedBytes);
-            var existingIndex = accounts.FindIndex(x => x.Id == id);
-            if(existingIndex >= 0)
-            {
-                accounts[existingIndex] = updated;
-            }
-            else
-            {
-                accounts.Add(updated);
-            }
+            var normalizedEmail = Email.Trim();
+            var id = accountId ?? _existingAccountId ?? Guid.NewGuid().ToString("N");
+            var updated = new AccountState(id, normalizedEmail, QuotaBytes, UsedBytes);
+            _ = accounts.RemoveAll(x => x.Id == updated.Id || string.Equals(x.Email, updated.Email, StringComparison.OrdinalIgnoreCase));
+            accounts.Add(updated);
 
             await _accountsRepository.SaveAsync(accounts, cancellationToken);
             return new AccountInfo(updated.Id, updated.Email, updated.QuotaBytes, updated.UsedBytes);
@@ -199,20 +174,32 @@ public class AccountDialogViewModel : ViewModelBase
             ? await _accountSessionService.ReauthenticateAsync(_existingAccountId, emailHint)
             : await _accountSessionService.LinkAccountAsync(emailHint);
 
-        _ = result.Match(
-            session =>
+        Result<AccountInfo, Exception> persistResult = await result
+            .MapFailure(message => (Exception)new InvalidOperationException(message))
+            .BindAsync(async session =>
             {
+                _existingAccountId = session.Profile.AccountId;
                 Email = session.Profile.Email;
                 QuotaBytes = session.Profile.QuotaBytes;
                 UsedBytes = session.Profile.UsedBytes;
+                return await SaveAccountAsync(session.Profile.AccountId);
+            });
+
+        _ = persistResult.Match(
+            _ =>
+            {
                 ValidationError = string.Empty;
                 LoginTriggered = true;
+                IsSaved = true;
+                IsCancelled = false;
+                CloseRequested?.Invoke(this, true);
                 return true;
             },
             error =>
             {
-                ValidationError = error;
+                ValidationError = error.Message;
                 LoginTriggered = false;
+                IsSaved = false;
                 return false;
             });
     }
@@ -226,28 +213,5 @@ public class AccountDialogViewModel : ViewModelBase
             new OneDriveAuthenticationAdapter(),
             new FileBackedSecureAccountTokenStore(tokenStorePath),
             new SqliteAccountSessionMetadataRepository(databasePath));
-    }
-
-    private static Result<bool, string> ValidateEmail(string email)
-        => IsValidEmail(email)
-            ? true
-            : "Invalid email address";
-
-    private static bool IsValidEmail(string email)
-    {
-        if(string.IsNullOrWhiteSpace(email))
-        {
-            return false;
-        }
-
-        try
-        {
-            _ = new MailAddress(email);
-            return true;
-        }
-        catch(FormatException)
-        {
-            return false;
-        }
     }
 }

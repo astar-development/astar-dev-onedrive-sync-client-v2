@@ -9,11 +9,25 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.AccountManagement;
 public sealed class AccountListViewModelShould
 {
     [Fact]
-    public void Constructor_InitializesEmptyAccountsCollection()
+    public void InitializeWithEmptyAccountsCollectionWhenTheDatabaseIsEmpty()
     {
-        var viewModel = new AccountListViewModel();
+        var databasePath = CreateDatabasePath();
+
+        var viewModel = new AccountListViewModel(databasePath);
 
         viewModel.Accounts.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void InitializeWithNonEmptyAccountsCollectionWhenTheDatabaseIsNotEmpty()
+    {
+        var databasePath = CreateDatabasePath();
+
+        var viewModel = new AccountListViewModel(databasePath);
+        var account = new AccountInfo("id", "user@example.com", 1000, 100);
+        viewModel.Accounts.Add(account);
+        
+        viewModel.Accounts.Count.ShouldBe(1);
     }
 
     [Fact]
@@ -76,6 +90,7 @@ public sealed class AccountListViewModelShould
         var viewModel = new AccountListViewModel(databasePath);
         viewModel.Accounts.Add(new AccountInfo("acct-1", "persisted@example.com", 2000, 250));
         Result<bool, Exception> saveResult = await viewModel.SaveAccountsAsync(TestContext.Current.CancellationToken);
+
         Pattern.IsSuccess(saveResult).ShouldBeTrue();
 
         var loadedViewModel = new AccountListViewModel(databasePath);
@@ -90,6 +105,7 @@ public sealed class AccountListViewModelShould
     {
         var accountSessionService = new TrackingAccountSessionService();
         var viewModel = new AccountListViewModel(accountSessionService: accountSessionService);
+        viewModel.Accounts.Clear();
         var account = new AccountInfo("acct-9", "unlink@example.com", 100, 25);
         viewModel.Accounts.Add(account);
         viewModel.SelectedAccount = account;

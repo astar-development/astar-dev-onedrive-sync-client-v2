@@ -81,6 +81,7 @@ public class AccountListViewModel : ViewModelBase
         _removeAccountCommand = new RelayCommand(async account => await RemoveSelectedAccountAsync(account as AccountInfo), CanRemoveAccount);
         _manageAccountCommand = new RelayCommand(account => ManageAccount(account as AccountInfo), CanManageAccount);
         ManageAccountCommand = _manageAccountCommand;
+        _ = LoadAccountsAsync().GetAwaiter().GetResult();
     }
 
     /// <summary>

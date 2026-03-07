@@ -7,7 +7,7 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 public partial class AccountListView : UserControl
 {
     private static readonly object DialogHostSync = new();
-    private AccountListView? _dialogHost;
+    private static AccountListView? _dialogHost;
     private AccountListViewModel? _viewModel;
 
     public AccountListView()
