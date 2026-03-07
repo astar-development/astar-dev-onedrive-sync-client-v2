@@ -1,4 +1,5 @@
 using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
+using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Authentication;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,5 +26,14 @@ public sealed class ServiceCollectionExtensionsShould
         IMigrationService migrationService = provider.GetRequiredService<IMigrationService>();
 
         _ = migrationService.ShouldBeOfType<SqliteDatabaseMigrator>();
+    }
+
+    [Fact]
+    public void ResolveIAccountSessionServiceAsOneDriveAccountSessionService()
+    {
+        using ServiceProvider provider = new ServiceCollection().AddInfrastructure().BuildServiceProvider();
+        IAccountSessionService accountSessionService = provider.GetRequiredService<IAccountSessionService>();
+
+        _ = accountSessionService.ShouldBeOfType<OneDriveAccountSessionService>();
     }
 }
