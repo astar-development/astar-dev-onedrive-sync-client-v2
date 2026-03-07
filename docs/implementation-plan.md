@@ -339,39 +339,39 @@ Add error dialog/notification system.
 
 ---
 
-### **Phase 13: Infrastructure Wire-Up (Stub)**
+### **Phase 13: Infrastructure Wire-Up (Stub) ✅**
 Set up dependency injection for Application/Infrastructure layers.
 
-1. **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Composition/CompositionRootShould.cs
+1. ✅ **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Composition/CompositionRootShould.cs
    - Test: `ISyncService` can be resolved (returns real impl)
    - Test: `ISyncFileRepository` can be resolved (returns mock OneDrive stub)
    - Test: `AstarOneDriveDbContextModel` and persistence repositories can be resolved
 
-2. **Implement** — src/AStar.Dev.OneDrive.Sync.Client.UI/Composition/CompositionRoot.cs
+2. ✅ **Implement** — src/AStar.Dev.OneDrive.Sync.Client.UI/Composition/CompositionRoot.cs
    - Wire up `ISyncService` → `SyncService`
    - Wire up `ISyncFileRepository` → `OneDriveSyncFileRepository` (stub)
    - Wire up EF Core DbContext + repositories for `Settings`, `Accounts`, and `SyncFiles`
    - Use simple service locator pattern (no external DI container yet)
 
-3. **Verify**
+3. ✅ **Verify**
    - 2 tests pass
    - No runtime `NullReferenceException` when accessing services
 
 ---
 
-### **Phase 14: Sync Feature Integration (Stub)**
+### **Phase 14: Sync Feature Integration (Stub) ✅**
 Connect Sync button to stub sync service.
 
-1. **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Integration/SyncIntegrationShould.cs
+1. ✅ **Test First** — tests/AStar.Dev.OneDrive.Sync.Client.UI.Tests/Integration/SyncIntegrationShould.cs
    - Test: Click "Sync Now" → `SyncStatusViewModel.Status` → "Syncing..."
    - Test: Sync completes → Status → "Idle"
    - Test: Sync error → Status → "Error" + message shown
 
-2. **Implement** — Update `SyncStatusViewModel` to call `ISyncService.SyncAsync()`
+2. ✅ **Implement** — Update `SyncStatusViewModel` to call `ISyncService.SyncAsync()`
    - Call `OneDriveSyncFileRepository.GetFilesAsync()` (returns empty for now)
    - Update UI status accordingly
 
-3. **Verify**
+3. ✅ **Verify**
    - 3 tests pass
    - Click Sync → status changes, completes without crash
 

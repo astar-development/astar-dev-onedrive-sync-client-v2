@@ -9,7 +9,7 @@ public sealed class ThemeManagerShould
     [Fact]
     public void LoadWithoutErrorWhenApplyThemeDarkIsApplied()
     {
-        Avalonia.Application app = Avalonia.Application.Current ?? new TestApplication();
+        Avalonia.Application app = GetApp();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
 
@@ -25,7 +25,7 @@ public sealed class ThemeManagerShould
     [Fact]
     public void ReplaceOnlyAppThemeIncludeAndPreserveFluentThemeWhenApplyThemeIsCalled()
     {
-        Avalonia.Application app = Avalonia.Application.Current ?? new TestApplication();
+        Avalonia.Application app = GetApp();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
         app.Styles.Add(new StyleInclude(new Uri($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/"))
@@ -49,7 +49,7 @@ public sealed class ThemeManagerShould
     [Fact]
     public void ThrowInvalidOperationExceptionWhenApplyThemeWithInvalidThemeIsCalled()
     {
-        Avalonia.Application app = Avalonia.Application.Current ?? new TestApplication();
+        Avalonia.Application app = GetApp();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
 
@@ -59,7 +59,7 @@ public sealed class ThemeManagerShould
     [Fact]
     public void PreserveBaseThemeStylesWhenApplyThemeIsCalled()
     {
-        Avalonia.Application app = Avalonia.Application.Current ?? new TestApplication();
+        Avalonia.Application app = GetApp();
         app.Styles.Clear();
         app.Styles.Add(new FluentTheme());
         app.Styles.Add(new StyleInclude(new Uri($"{ApplicationMetadata.AvaresPrefix}://{ApplicationMetadata.UiProject}/"))
@@ -76,5 +76,6 @@ public sealed class ThemeManagerShould
         _ = baseThemeInclude.ShouldNotBeNull("Base.axaml should be preserved when swapping themes");
     }
 
-    private sealed class TestApplication : Avalonia.Application;
+    private static Avalonia.Application GetApp()
+        => Avalonia.Application.Current ?? throw new InvalidOperationException("Avalonia Application.Current is not initialized for theme tests.");
 }

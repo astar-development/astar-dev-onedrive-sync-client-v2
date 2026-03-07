@@ -103,20 +103,25 @@ public class SyncStatusViewModel : ViewModelBase
         SyncError = string.Empty;
         await Task.Yield();
 
-        Result<IReadOnlyList<SyncFile>, string> result = await _syncService.GetSyncFilesAsync(cancellationToken);
-        switch(result)
-        {
-            case Result<IReadOnlyList<SyncFile>, string>.Ok ok:
-                ProgressPercentage = 100;
-                Status = IdleStatus;
-                AddActivity("Info", $"Sync completed: {ok.Value.Count} item(s)");
-                return;
+        _ = await _syncService.GetSyncFilesAsync(cancellationToken)
+            .MatchAsync(
+                syncedFiles => Task.FromResult(CompleteSync(syncedFiles)),
+                failureMessage => Task.FromResult(FailSync(failureMessage)));
+    }
 
-            case Result<IReadOnlyList<SyncFile>, string>.Error error:
-                ProgressPercentage = 0;
-                SyncError = error.Reason;
-                return;
-        }
+    private Unit CompleteSync(IReadOnlyList<SyncFile> syncedFiles)
+    {
+        ProgressPercentage = 100;
+        Status = IdleStatus;
+        AddActivity("Info", $"Sync completed: {syncedFiles.Count} item(s)");
+        return Unit.Value;
+    }
+
+    private Unit FailSync(string error)
+    {
+        ProgressPercentage = 0;
+        SyncError = error;
+        return Unit.Value;
     }
 
     private void PauseSync() => Status = PausedStatus;

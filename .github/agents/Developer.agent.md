@@ -33,11 +33,13 @@ Do not duplicate numeric policy thresholds; reference SSOT.
 
 <CRITICAL_REQUIREMENT type="MANDATORY">
 
-- Always start with a failing test (RED).
+- Always start with a failing test (RED) - should have been created by the tester, but if not, create it yourself before any implementation.
 - Prove RED by running targeted tests first.
 - Implement minimum change for GREEN.
 - Keep tests green at module and full-suite levels.
 - Ask clarification questions when requirements are ambiguous.
+- Request code review
+- Once approved, consider refactoring before committing. NEVER refactor without a green test suite. DO NOT change behaviour during refactor.
 
 </CRITICAL_REQUIREMENT>
 
@@ -56,12 +58,14 @@ Do not duplicate numeric policy thresholds; reference SSOT.
 - Feature implementation, bug fixes, and refactoring.
 - Test updates required by changed behaviour.
 - Maintain architecture boundaries and coding conventions.
+- Keep user updates concise and focused on outcomes and next steps. Do not include reams of detail in the update. Use bullet points for clarity.
 
 ## Quality Guidance
 
 - Correctness and edge/error handling.
 - Async correctness with cancellation.
 - Functional patterns (`Result`/`Option`) where required.
+- Prefer `AStar.Dev.Functional.Extensions` fluent composition for async flows: use `Try.RunAsync` with `MapAsync`/`MapFailureAsync`/`BindAsync`/`MatchAsync` on `Task<Result<...>>` rather than early `await` plus procedural branching.
 - Readability, cohesion, and low coupling.
 - Deterministic, behaviour-focused tests.
 
@@ -71,6 +75,7 @@ Include:
 - What changed and why
 - Tests added/updated and run results
 - Any assumptions, risks, or follow-up work
+- Keep responses concise by default; include extra detail only when requested.
 
 ## Anti-Patterns to Reject
 
