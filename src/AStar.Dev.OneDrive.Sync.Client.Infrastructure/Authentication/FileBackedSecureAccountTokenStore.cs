@@ -63,7 +63,7 @@ public sealed class FileBackedSecureAccountTokenStore : ISecureAccountTokenStore
     private async Task<Dictionary<string, string>> LoadEncryptedMapAsync(CancellationToken cancellationToken)
     {
         _ = Directory.CreateDirectory(_rootPath);
-        var path = Path.Combine(_rootPath, TokenFileName);
+        var path = Path.Join(_rootPath, TokenFileName);
         if(!File.Exists(path))
         {
             return [];
@@ -76,7 +76,7 @@ public sealed class FileBackedSecureAccountTokenStore : ISecureAccountTokenStore
     private async Task PersistEncryptedMapAsync(Dictionary<string, string> encrypted, CancellationToken cancellationToken)
     {
         _ = Directory.CreateDirectory(_rootPath);
-        var path = Path.Combine(_rootPath, TokenFileName);
+        var path = Path.Join(_rootPath, TokenFileName);
         var json = JsonSerializer.Serialize(encrypted);
         await File.WriteAllTextAsync(path, json, cancellationToken);
     }
