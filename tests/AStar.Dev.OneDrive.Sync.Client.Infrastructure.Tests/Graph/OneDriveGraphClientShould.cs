@@ -11,7 +11,7 @@ public sealed class OneDriveGraphClientShould
     {
         SequenceHttpMessageHandler handler = new(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("ok") });
         RecordingGraphTelemetry telemetry = new();
-        using var client = CreateClient(handler, telemetry);
+        using DisposableOneDriveGraphClient client = CreateClient(handler, telemetry);
 
         Result<OneDriveGraphResponse, SyncError> result = await client.SendAsync(
             OneDriveGraphRequest.Get("/me/drive/root", "token"),
@@ -28,7 +28,7 @@ public sealed class OneDriveGraphClientShould
     {
         SequenceHttpMessageHandler handler = new(_ => new HttpResponseMessage(HttpStatusCode.NotFound));
         RecordingGraphTelemetry telemetry = new();
-        using var client = CreateClient(handler, telemetry);
+        using DisposableOneDriveGraphClient client = CreateClient(handler, telemetry);
 
         Result<OneDriveGraphResponse, SyncError> result = await client.SendAsync(
             OneDriveGraphRequest.Get("/me/drive/items/missing", "token"),
@@ -44,7 +44,7 @@ public sealed class OneDriveGraphClientShould
     {
         SequenceHttpMessageHandler handler = new(_ => throw new HttpRequestException("offline"));
         RecordingGraphTelemetry telemetry = new();
-        using var client = CreateClient(handler, telemetry);
+        using DisposableOneDriveGraphClient client = CreateClient(handler, telemetry);
 
         Result<OneDriveGraphResponse, SyncError> result = await client.SendAsync(
             OneDriveGraphRequest.Get("/me/drive/root", "token"),
@@ -72,15 +72,9 @@ public sealed class OneDriveGraphClientShould
         private readonly HttpClient _httpClient;
 
         public DisposableOneDriveGraphClient(HttpClient httpClient, IOneDriveGraphTelemetry telemetry)
-            : base(httpClient, telemetry)
-        {
-            _httpClient = httpClient;
-        }
+            : base(httpClient, telemetry) => _httpClient = httpClient;
 
-        public void Dispose()
-        {
-            _httpClient.Dispose();
-        }
+        public void Dispose() => _httpClient.Dispose();
     }
 
     private sealed class SequenceHttpMessageHandler(params Func<HttpRequestMessage, HttpResponseMessage>[] sequence)
