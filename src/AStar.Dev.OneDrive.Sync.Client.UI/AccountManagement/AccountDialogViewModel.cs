@@ -1,11 +1,14 @@
 using System.Collections.ObjectModel;
-using System.Net.Mail;
 using System.Windows.Input;
 using AStar.Dev.Functional.Extensions;
+using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
+using AStar.Dev.OneDrive.Sync.Client.Application.Models;
+using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Authentication;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Contracts;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Repositories;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
+using AStar.Dev.Utilities;
 using ReactiveUI;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
@@ -15,21 +18,24 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 /// </summary>
 public class AccountDialogViewModel : ViewModelBase
 {
+    private readonly RelayCommand _cancelCommand;
     private readonly SqliteDatabaseMigrator _migrator;
     private readonly SqliteAccountsRepository _accountsRepository;
-    private readonly string? _existingAccountId;
+    private readonly IAccountSessionService _accountSessionService;
+    private string? _existingAccountId;
 
     /// <summary>
     /// Initializes a new dialog for creating a new account.
     /// </summary>
     /// <param name="databasePath">Optional SQLite database file path.</param>
-    public AccountDialogViewModel(string? databasePath = null)
+    public AccountDialogViewModel(string? databasePath = null, IAccountSessionService? accountSessionService = null)
     {
         _migrator = new SqliteDatabaseMigrator(databasePath);
         _accountsRepository = new SqliteAccountsRepository(databasePath);
-        SaveCommand = new RelayCommand(async _ => await Save());
-        CancelCommand = new RelayCommand(_ => Cancel());
-        LoginCommand = new RelayCommand(_ => TriggerLogin());
+        _accountSessionService = accountSessionService ?? CreateAccountSessionService(databasePath);
+        _cancelCommand = new RelayCommand(_ => Cancel(), _ => !IsSaved);
+        CancelCommand = _cancelCommand;
+        LoginCommand = new RelayCommand(async _ => await TriggerLoginAsync());
     }
 
     /// <summary>
@@ -37,8 +43,8 @@ public class AccountDialogViewModel : ViewModelBase
     /// </summary>
     /// <param name="account">The account being edited.</param>
     /// <param name="databasePath">Optional SQLite database file path.</param>
-    public AccountDialogViewModel(AccountInfo account, string? databasePath = null)
-        : this(databasePath)
+    public AccountDialogViewModel(AccountInfo account, string? databasePath = null, IAccountSessionService? accountSessionService = null)
+        : this(databasePath, accountSessionService)
     {
         _existingAccountId = account.Id;
         Email = account.Email;
@@ -93,12 +99,16 @@ public class AccountDialogViewModel : ViewModelBase
     } = string.Empty;
 
     /// <summary>
-    /// Gets a value indicating whether save was completed successfully.
+    /// Gets a value indicating whether persistence was completed successfully.
     /// </summary>
     public bool IsSaved
     {
         get;
-        private set => this.RaiseAndSetIfChanged(ref field, value);
+        private set
+        {
+            _ = this.RaiseAndSetIfChanged(ref field, value);
+            _cancelCommand.RaiseCanExecuteChanged();
+        }
     }
 
     /// <summary>
@@ -120,17 +130,12 @@ public class AccountDialogViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Gets the command that validates and persists the account.
-    /// </summary>
-    public ICommand SaveCommand { get; }
-
-    /// <summary>
     /// Gets the command that closes the dialog without saving.
     /// </summary>
     public ICommand CancelCommand { get; }
 
     /// <summary>
-    /// Gets the command that triggers the authentication stub.
+    /// Gets the command that performs account link or reauthentication.
     /// </summary>
     public ICommand LoginCommand { get; }
 
@@ -139,41 +144,17 @@ public class AccountDialogViewModel : ViewModelBase
     /// </summary>
     public event EventHandler<bool>? CloseRequested;
 
-    private async Task Save() => await ValidateEmail(Email)
-            .MapFailure(message => (Exception)new InvalidOperationException(message))
-            .BindAsync(_ => SaveAccountAsync())
-            .MatchAsync(
-                _ =>
-                {
-                    ValidationError = string.Empty;
-                    IsSaved = true;
-                    IsCancelled = false;
-                    CloseRequested?.Invoke(this, true);
-                    return Task.CompletedTask;
-                },
-                error =>
-                {
-                    ValidationError = error.Message;
-                    return Task.CompletedTask;
-                });
-
-    private async Task<Result<AccountInfo, Exception>> SaveAccountAsync(CancellationToken cancellationToken = default)
+    private async Task<Result<AccountInfo, Exception>> SaveAccountAsync(string? accountId = null, CancellationToken cancellationToken = default)
         => await Try.RunAsync(async () =>
         {
             await _migrator.EnsureMigratedAsync(cancellationToken);
             var accounts = (await _accountsRepository.LoadAsync(cancellationToken)).ToList();
 
-            var id = _existingAccountId ?? Guid.NewGuid().ToString("N");
-            var updated = new AccountState(id, Email, QuotaBytes, UsedBytes);
-            var existingIndex = accounts.FindIndex(x => x.Id == id);
-            if(existingIndex >= 0)
-            {
-                accounts[existingIndex] = updated;
-            }
-            else
-            {
-                accounts.Add(updated);
-            }
+            var normalizedEmail = Email.Trim();
+            var id = accountId ?? _existingAccountId ?? Guid.NewGuid().ToString("N");
+            var updated = new AccountState(id, normalizedEmail, QuotaBytes, UsedBytes);
+            _ = accounts.RemoveAll(x => x.Id == updated.Id || string.Equals(x.Email, updated.Email, StringComparison.OrdinalIgnoreCase));
+            accounts.Add(updated);
 
             await _accountsRepository.SaveAsync(accounts, cancellationToken);
             return new AccountInfo(updated.Id, updated.Email, updated.QuotaBytes, updated.UsedBytes);
@@ -186,28 +167,51 @@ public class AccountDialogViewModel : ViewModelBase
         CloseRequested?.Invoke(this, false);
     }
 
-    private void TriggerLogin() => LoginTriggered = true;
-
-    private static Result<bool, string> ValidateEmail(string email)
-        => IsValidEmail(email)
-            ? true
-            : "Invalid email address";
-
-    private static bool IsValidEmail(string email)
+    private async Task TriggerLoginAsync()
     {
-        if(string.IsNullOrWhiteSpace(email))
-        {
-            return false;
-        }
+        var emailHint = Email;
+        Result<AccountSessionState, string> result = IsEditMode && !string.IsNullOrWhiteSpace(_existingAccountId)
+            ? await _accountSessionService.ReauthenticateAsync(_existingAccountId, emailHint)
+            : await _accountSessionService.LinkAccountAsync(emailHint);
 
-        try
-        {
-            _ = new MailAddress(email);
-            return true;
-        }
-        catch(FormatException)
-        {
-            return false;
-        }
+        Result<AccountInfo, Exception> persistResult = await result
+            .MapFailure(message => (Exception)new InvalidOperationException(message))
+            .BindAsync(async session =>
+            {
+                _existingAccountId = session.Profile.AccountId;
+                Email = session.Profile.Email;
+                QuotaBytes = session.Profile.QuotaBytes;
+                UsedBytes = session.Profile.UsedBytes;
+                return await SaveAccountAsync(session.Profile.AccountId);
+            });
+
+        _ = persistResult.Match(
+            _ =>
+            {
+                ValidationError = string.Empty;
+                LoginTriggered = true;
+                IsSaved = true;
+                IsCancelled = false;
+                CloseRequested?.Invoke(this, true);
+                return true;
+            },
+            error =>
+            {
+                ValidationError = error.Message;
+                LoginTriggered = false;
+                IsSaved = false;
+                return false;
+            });
+    }
+
+    private static IAccountSessionService CreateAccountSessionService(string? databasePath)
+    {
+        var path = Path.GetDirectoryName(DatabasePathResolver.ResolveDatabasePath())!;
+        var tokenStorePath = path.CombinePath("secure-store");
+
+        return new OneDriveAccountSessionService(
+            new OneDriveAuthenticationAdapter(),
+            new FileBackedSecureAccountTokenStore(tokenStorePath),
+            new SqliteAccountSessionMetadataRepository(databasePath));
     }
 }

@@ -11,9 +11,9 @@ Legend:
 - `[x]` complete
 
 ## Global Gates (apply to every phase)
-- [ ] Scope aligns with `docs/implementation-plan-part2.md`
+- [x] Scope aligns with `docs/implementation-plan-part2.md`
 - [ ] Onion boundaries respected (UI -> Application -> Domain; Infrastructure -> Application -> Domain)
-- [ ] Tests authored and executed per repository TDD policy (Red/Green/Refactor)
+- [-] Tests authored and executed per repository TDD policy (Red/Green/Refactor)
 - [ ] Logging/metrics impact reviewed
 - [ ] Docs/ADR updates included when architecture changes
 - [ ] Rollback impact assessed
@@ -35,11 +35,11 @@ Legend:
 - [x] Add/update unit tests for orchestration and failures
 
 ### Phase 3: OneDrive authentication and account session (2 days)
-- [ ] Implement real OneDrive auth flow (replace login stub)
-- [ ] Implement token lifecycle (acquire/refresh/expire handling)
-- [ ] Persist account session metadata securely
-- [ ] Implement link/unlink/reauth UI workflow
-- [ ] Add integration tests for auth/session behavior
+- [x] Implement real OneDrive auth flow (replace login stub)
+- [x] Implement token lifecycle (acquire/refresh/expire handling)
+- [x] Persist account session metadata securely
+- [x] Implement link/unlink/reauth UI workflow
+- [x] Add integration tests for auth/session behavior
 
 ### Phase 4: OneDrive Graph client foundation (2 days)
 - [ ] Implement Infrastructure Graph client abstraction

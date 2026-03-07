@@ -23,7 +23,6 @@
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
             <Button Content="{DynamicResource Btn_Login}" Command="{Binding LoginCommand}" />
-            <Button Content="{DynamicResource Btn_Save}" Command="{Binding SaveCommand}" />
             <Button Content="{DynamicResource Btn_Cancel}" Command="{Binding CancelCommand}" />
         </StackPanel>
     </StackPanel>
