@@ -22,6 +22,18 @@ public static class DatabasePathResolver
 
         return applicationDataBasePath.CombinePath(DatabaseName);
     }
+    /// <summary>
+    /// Resolves the full database file path for a specific instance, creating the directory if it doesn't exist.
+    /// </summary>
+    /// <param name="instanceId">The unique identifier for the instance. If null, a new GUID will be generated.</param>
+    /// <returns>The absolute path to the database file for the specified instance.</returns>
+    public static string ResolveDatabasePath(Guid? instanceId = null)
+    {
+        var applicationDataBasePath = ResolvePlatformSpecificDataDirectory().CombinePath(AppFolderName, instanceId?.ToString("N") ?? Guid.CreateVersion7().ToString("N"));
+        _ = Directory.CreateDirectory(applicationDataBasePath);
+
+        return applicationDataBasePath.CombinePath(DatabaseName);
+    }
 
     private static string ResolvePlatformSpecificDataDirectory()
     {

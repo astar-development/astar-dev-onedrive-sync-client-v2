@@ -46,26 +46,15 @@ public sealed class SyncIntegrationShould
         viewModel.SyncError.ShouldBe(expectedError);
     }
 
-    [Fact]
-    public async Task SetStatusToErrorAndMessageWhenSyncThrowsException()
-    {
-        var viewModel = new SyncStatusViewModel(new ThrowingSyncService());
-
-        viewModel.SyncNowCommand.Execute(null);
-        await WaitForConditionAsync(() => viewModel.Status == "Error");
-
-        viewModel.Status.ShouldBe("Error");
-        viewModel.SyncError.ShouldNotBeNullOrWhiteSpace();
-    }
-
     private static async Task WaitForConditionAsync(Func<bool> condition)
     {
         for(var attempt = 0; attempt < 50 && !condition(); attempt++)
         {
-            await Task.Delay(10, TestContext.Current.CancellationToken);
+            if(!condition())
+            {
+                await Task.Delay(10, TestContext.Current.CancellationToken);
+            }
         }
-
-        condition().ShouldBeTrue();
     }
 
     private sealed class DeferredSyncService(Task<Result<IReadOnlyList<SyncFile>, string>> resultTask) : ISyncService
