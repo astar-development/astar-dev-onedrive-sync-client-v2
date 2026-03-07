@@ -13,7 +13,7 @@ internal sealed class ServiceModel(ServiceLifetime lifetime, string implFqn, str
 
     public static ServiceModel? TryCreate(INamedTypeSymbol impl, AttributeData attr)
     {
-        if (!IsValidImplementationType(impl))
+        if(!IsValidImplementationType(impl))
             return null;
 
         ServiceLifetime lifetime = ExtractLifetime(attr);

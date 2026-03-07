@@ -1,0 +1,45 @@
+
+name: Ensure Discussions Categories
+on:
+  workflow_dispatch:
+
+permissions:
+  discussions: write
+  contents: read
+
+jobs:
+  ensure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const categories = [
+              { name: "Q&A", description: "Get help and provide answers.", is_answerable: true },
+              { name: "Ideas", description: "Propose and discuss new ideas.", is_answerable: false },
+              { name: "Show and tell", description: "Share what you've built.", is_answerable: false },
+              { name: "Announcements", description: "Official updates.", is_answerable: false }
+            ];
+            const { data: existing } = await github.rest.discussions.listCategories({
+              owner: context.repo.owner, repo: context.repo.repo
+            });
+            for (const c of categories) {
+              const match = existing.find(e => e.name.toLowerCase() === c.name.toLowerCase());
+              if (match) {
+                await github.rest.discussions.updateDiscussionCategory({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  discussion_category_id: match.id,
+                  name: c.name,
+                  description: c.description,
+                  is_answerable: c.is_answerable
+                });
+              } else {
+                await github.rest.discussions.createDiscussionCategory({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: c.name,
+                  description: c.description,
+                  is_answerable: c.is_answerable
+                });
+              }

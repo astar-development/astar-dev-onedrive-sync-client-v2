@@ -1,6 +1,6 @@
+using AStar.Dev.OneDrive.Sync.Client.UI.Common;
 using Shouldly;
 using Xunit;
-using AStar.Dev.OneDrive.Sync.Client.UI.Common;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Common;
 

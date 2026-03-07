@@ -35,7 +35,7 @@ public sealed class SqliteSettingsRepository(string? databasePath = null)
     {
         await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
         List<SettingEntity> entries = await context.Settings.AsNoTracking().ToListAsync(cancellationToken);
-        if (entries.Count == 0)
+        if(entries.Count == 0)
         {
             return null;
         }
@@ -56,7 +56,7 @@ public sealed class SqliteSettingsRepository(string? databasePath = null)
     {
         using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
         var entries = context.Settings.AsNoTracking().ToList();
-        if (entries.Count == 0)
+        if(entries.Count == 0)
         {
             return null;
         }
@@ -72,7 +72,7 @@ public sealed class SqliteSettingsRepository(string? databasePath = null)
     private static async Task UpsertSettingAsync(AstarOneDriveDbContextModel context, string key, string value, DateTime updatedUtc, CancellationToken cancellationToken)
     {
         SettingEntity? setting = await context.Settings.SingleOrDefaultAsync(x => x.Key == key, cancellationToken);
-        if (setting is null)
+        if(setting is null)
         {
             _ = context.Settings.Add(new SettingEntity
             {

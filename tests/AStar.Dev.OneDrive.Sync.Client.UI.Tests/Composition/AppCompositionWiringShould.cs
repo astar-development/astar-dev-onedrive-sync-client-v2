@@ -24,10 +24,10 @@ public sealed class AppCompositionWiringShould
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);
 
-        while (current is not null)
+        while(current is not null)
         {
             var srcFolder = current.FullName.CombinePath("src", "AStar.Dev.OneDrive.Sync.Client.UI");
-            if (Directory.Exists(srcFolder))
+            if(Directory.Exists(srcFolder))
             {
                 return current.FullName;
             }

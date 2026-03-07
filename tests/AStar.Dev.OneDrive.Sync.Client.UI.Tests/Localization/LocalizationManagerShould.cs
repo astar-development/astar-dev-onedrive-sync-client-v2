@@ -20,7 +20,7 @@ public sealed class LocalizationManagerShould
         var result = LocalizationManager.GetString("Menu_File");
 
         result.ShouldNotBeNullOrWhiteSpace();
-        result.ShouldNotBe("Menu_File"); 
+        result.ShouldNotBe("Menu_File");
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public sealed class LocalizationManagerShould
     public void NotThrowWhenSetLanguageIsCalledMultipleTimesWithSameCulture()
     {
         LocalizationManager.SetLanguage("en-GB");
-        
+
         Action action = () => LocalizationManager.SetLanguage("en-GB");
 
         action.ShouldNotThrow();

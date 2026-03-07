@@ -21,7 +21,7 @@ public sealed class SqliteAccountsRepository(string? databasePath = null)
         context.Accounts.RemoveRange(existing);
 
         DateTime now = DateTime.UtcNow;
-        foreach (AccountState account in accounts)
+        foreach(AccountState account in accounts)
         {
             _ = context.Accounts.Add(new AccountEntity
             {

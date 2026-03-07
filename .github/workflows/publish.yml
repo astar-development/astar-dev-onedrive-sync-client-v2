@@ -1,0 +1,55 @@
+name: Publish NuGet Packages (Selective)
+permissions:
+  pull-requests: write
+  contents: read
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.x
+
+      - name: Determine changed projects
+        id: changes
+        run: |
+          TAG=$(git describe --tags --abbrev=0)
+          PREV=$(git describe --tags --abbrev=0 --tags --match "v*" --exclude="$TAG" $(git rev-list --tags --max-count=2 | tail -n1))
+          echo "Current tag: $TAG"
+          echo "Previous tag: $PREV"
+          CHANGED=$(git diff --name-only $PREV $TAG | grep "^libs/.*\.csproj$" || true)
+          echo "changed=$CHANGED" >> $GITHUB_OUTPUT
+
+      - name: Stop if nothing changed
+        if: ${{ steps.changes.outputs.changed == '' }}
+        run: echo "No NuGet packages changed — skipping publish."
+
+      - name: Build & Pack changed projects
+        if: ${{ steps.changes.outputs.changed != '' }}
+        run: |
+          mkdir -p ./artifacts
+          for csproj in ${{ steps.changes.outputs.changed }}; do
+            echo "Packing $csproj..."
+            dotnet pack "$csproj" -c Release --no-build -o ./artifacts
+          done
+
+      - name: Publish to NuGet
+        if: ${{ steps.changes.outputs.changed != '' }}
+        run: |
+          for pkg in ./artifacts/*.nupkg; do
+            echo "Publishing $pkg..."
+            dotnet nuget push "$pkg"                   --source https://api.nuget.org/v3/index.json                   --api-key ${{ secrets.NUGET_API_KEY }}                   --skip-duplicate
+          done
