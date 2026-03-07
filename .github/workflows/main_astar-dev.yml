@@ -60,7 +60,7 @@ jobs:
 
       - name: Upload TestResults artifact (contains coverage)
         if: success() || failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: testruns-${{ matrix.os }}
           path: TestResults
@@ -163,7 +163,7 @@ jobs:
           reportgenerator -reports:"artifacts/**/coverage.cobertura.xml" -targetdir:coverage-merged -reporttypes:"Html;Cobertura;Opencover"
 
       - name: Upload merged coverage
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-merged
           path: coverage-merged

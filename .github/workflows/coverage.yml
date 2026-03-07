@@ -38,7 +38,7 @@ jobs:
           reportgenerator -reports:"prcov/Cobertura.xml" -targetdir:"coverage-report" -reporttypes:"Html;Cobertura"
 
       - name: Upload HTML Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-html-report
           path: coverage-report
@@ -54,7 +54,7 @@ jobs:
           echo "{ \"schemaVersion\": 1, \"label\": \"coverage\", \"message\": \"$PERCENT%\", \"color\": \"green\" }" > coverage-badge.json
 
       - name: Upload Coverage Badge
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-badge
           path: coverage-badge.json
