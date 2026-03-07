@@ -9,17 +9,15 @@ namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Authentication;
 /// <summary>
 /// Provides encrypted file-backed storage for account tokens.
 /// </summary>
-public sealed class FileBackedSecureAccountTokenStore : ISecureAccountTokenStore
+/// <remarks>
+/// Initializes a new instance of the <see cref="FileBackedSecureAccountTokenStore"/> class.
+/// </remarks>
+/// <param name="rootPath">Optional storage root path.</param>
+public sealed class FileBackedSecureAccountTokenStore(string? rootPath = null) : ISecureAccountTokenStore
 {
     private const string TokenFileName = "account-tokens.json";
     private const string KeyFileName = "account-tokens.key";
-    private readonly string _rootPath;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="FileBackedSecureAccountTokenStore"/> class.
-    /// </summary>
-    /// <param name="rootPath">Optional storage root path.</param>
-    public FileBackedSecureAccountTokenStore(string? rootPath = null) => _rootPath = rootPath ?? Path.Combine(Path.GetDirectoryName(Data.DatabasePathResolver.ResolveDatabasePath())!, "secure-store");
+    private readonly string _rootPath = rootPath ?? Path.GetDirectoryName(Data.DatabasePathResolver.ResolveDatabasePath())!.CombinePath("secure-store");
 
     /// <inheritdoc />
     public async Task<Result<Unit, string>> SaveAsync(string accountId, SecureAccountTokens tokens, CancellationToken cancellationToken = default)
