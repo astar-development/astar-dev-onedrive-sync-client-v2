@@ -31,8 +31,8 @@ Legend:
 - [ ] Expand Application interfaces beyond `GetSyncFilesAsync`
 - [ ] Add contracts for tree enumerate, delta pull, upload/download scheduling
 - [ ] Add pause/resume/cancel semantics
-- [ ] Add domain/application models for queue item, conflict type, checkpoint
-- [ ] Add/update unit tests for orchestration and failures
+- [-] Add domain/application models for queue item, conflict type, checkpoint
+- [-] Add/update unit tests for orchestration and failures
 
 ### Phase 3: OneDrive authentication and account session (2 days)
 - [ ] Implement real OneDrive auth flow (replace login stub)
