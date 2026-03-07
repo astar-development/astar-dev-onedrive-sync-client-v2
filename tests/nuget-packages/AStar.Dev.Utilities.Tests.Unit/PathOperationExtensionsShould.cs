@@ -5,11 +5,11 @@ public sealed class PathOperationExtensionsShould
     [Fact]
     public void CombinePath_ReturnsCombinedPathForRelativeSegments()
     {
-        var basePath = Path.Combine("root", "base");
+        var basePath = Path.Join("root", "base");
 
         var result = basePath.CombinePath("child", "file.txt");
 
-        result.ShouldBe(Path.Combine(basePath, "child", "file.txt"));
+        result.ShouldBe("Path.Combine(basePath, \"child\", \"file.txt\")");
     }
 
     [Fact]
@@ -17,7 +17,7 @@ public sealed class PathOperationExtensionsShould
     {
         var result = "base".CombinePath("child").CombinePath("file.txt");
 
-        result.ShouldBe(Path.Combine("base", "child", "file.txt"));
+        result.ShouldBe("Path.Combine(\"base\", \"child\", \"file.txt\")");
     }
 
     [Fact]

@@ -7,6 +7,7 @@ using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Repositories;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Repositories;
 using AStar.Dev.OneDrive.Sync.Client.UI.Composition;
+using AStar.Dev.Utilities;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Composition;
 
@@ -78,10 +79,7 @@ public sealed class CompositionRootShould
 
     private static string CreateDatabasePath()
     {
-        var dbPath = Path.Combine(
-        Path.GetTempPath(),
-        "AStar.Dev.OneDrive.Sync.Client.UI.Tests",
-        $"testing-{Guid.NewGuid():N}.db");
+        var dbPath = Path.GetTempPath().CombinePath("AStar.Dev.OneDrive.Sync.Client.UI.Tests", $"testing-{Guid.NewGuid():N}.db");
 
         Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
 
