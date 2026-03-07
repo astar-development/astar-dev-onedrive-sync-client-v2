@@ -26,7 +26,7 @@ public sealed class AccountListViewModelShould
         var viewModel = new AccountListViewModel(databasePath);
         var account = new AccountInfo("id", "user@example.com", 1000, 100);
         viewModel.Accounts.Add(account);
-        
+
         viewModel.Accounts.Count.ShouldBe(1);
     }
 
