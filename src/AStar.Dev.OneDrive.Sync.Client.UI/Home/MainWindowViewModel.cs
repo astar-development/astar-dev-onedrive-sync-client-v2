@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
 using AStar.Dev.OneDrive.Sync.Client.UI.FolderTrees;
@@ -103,13 +104,25 @@ public class MainWindowViewModel : ViewModelBase
     /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
     /// </summary>
     /// <param name="initializeLayoutView">Whether to initialize the layout view immediately.</param>
-    public MainWindowViewModel(bool initializeLayoutView = true)
+    /// <param name="accounts">Optional account management view model instance.</param>
+    /// <param name="folderTree">Optional folder tree view model instance.</param>
+    /// <param name="sync">Optional synchronization status view model instance.</param>
+    /// <param name="logs">Optional logs view model instance.</param>
+    /// <param name="settings">Optional settings view model instance.</param>
+    public MainWindowViewModel(
+        bool initializeLayoutView = true,
+        AccountListViewModel? accounts = null,
+        FolderTreeViewModel? folderTree = null,
+        SyncStatusViewModel? sync = null,
+        LogsViewModel? logs = null,
+        SettingsViewModel? settings = null)
     {
-        Accounts = new AccountListViewModel();
-        FolderTree = new FolderTreeViewModel();
-        Sync = new SyncStatusViewModel();
-        Logs = new LogsViewModel();
-        Settings = new SettingsViewModel();
+        Accounts = accounts ?? new AccountListViewModel();
+        FolderTree = folderTree ?? new FolderTreeViewModel();
+        Sync = sync ?? new SyncStatusViewModel();
+        Logs = logs ?? new LogsViewModel();
+        Settings = settings ?? new SettingsViewModel();
+        Accounts.PropertyChanged += OnAccountsPropertyChanged;
         Settings.ThemeChanged += (_, themeName) => ThemeManager.ThemeManager.ApplyTheme(themeName);
 
         SwitchToExplorerCommand = new RelayCommand(_ => CurrentLayout = LayoutType.Explorer);
@@ -172,5 +185,35 @@ public class MainWindowViewModel : ViewModelBase
     {
         TerminalSelectedTabIndex = tabIndex;
         CurrentLayout = LayoutType.Terminal;
+    }
+
+    private void OnAccountsPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs args)
+    {
+        if(args.PropertyName != nameof(AccountListViewModel.SelectedAccount))
+        {
+            return;
+        }
+
+        _ = SyncFolderTreeForSelectedAccountAsync();
+    }
+
+    private async Task SyncFolderTreeForSelectedAccountAsync()
+    {
+        if(Accounts.SelectedAccount is null)
+        {
+            FolderTree.ClearTree();
+            Sync.SyncError = string.Empty;
+            return;
+        }
+
+        Result<bool, Exception> switchResult = await FolderTree.SwitchAccountAsync(Accounts.SelectedAccount.Id);
+        if(Pattern.IsError(switchResult))
+        {
+            FolderTree.ClearTree();
+            Sync.SyncError = switchResult.ToErrorMessage();
+            return;
+        }
+
+        Sync.SyncError = string.Empty;
     }
 }

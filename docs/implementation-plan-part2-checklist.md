@@ -49,11 +49,11 @@ Legend:
 - [x] Add integration tests for transient and terminal failures
 
 ### Phase 5: Remote folder tree and account-scoped selection (2 days)
-- [ ] Load remote folder tree per selected account
-- [ ] Persist account-scoped selected/expanded node state
-- [ ] Support account switch and tree reload without stale state
-- [ ] Ensure tree bindings support operational select/expand/collapse flows
-- [ ] Add tests for per-account state restoration
+- [x] Load remote folder tree per selected account
+- [x] Persist account-scoped selected/expanded node state
+- [x] Support account switch and tree reload without stale state
+- [x] Ensure tree bindings support operational select/expand/collapse flows
+- [x] Add tests for per-account state restoration
 
 ### Phase 6: Local file inventory and change detection baseline (2 days)
 - [ ] Implement local scanner/inventory service

@@ -9,8 +9,9 @@ namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Repositories;
 /// </summary>
 public sealed class SqliteFolderTreeRepository(string? databasePath = null)
 {
-    private const string DefaultAccountId = "local-folder-tree-account";
+    public const string DefaultAccountId = "local-folder-tree-account";
     private const string DefaultEmail = "folder-tree@local.astar";
+    private const char StorageSeparator = ':';
 
     /// <summary>
     /// Saves a collection of folder nodes to the database, replacing all existing nodes.
@@ -18,11 +19,21 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
     /// <param name="nodes">The folder nodes to save.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     public async Task SaveAsync(IReadOnlyList<FolderNodeState> nodes, CancellationToken cancellationToken = default)
-    {
-        await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
-        await EnsureDefaultAccountAsync(context, cancellationToken);
+        => await SaveAsync(DefaultAccountId, nodes, cancellationToken);
 
-        List<SyncFileEntity> existing = await context.SyncFiles.Where(x => x.AccountId == DefaultAccountId).ToListAsync(cancellationToken);
+    /// <summary>
+    /// Saves a collection of folder nodes for a specific account, replacing existing account nodes.
+    /// </summary>
+    /// <param name="accountId">The owning account identifier.</param>
+    /// <param name="nodes">The folder nodes to save.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    public async Task SaveAsync(string accountId, IReadOnlyList<FolderNodeState> nodes, CancellationToken cancellationToken = default)
+    {
+        var scopedAccountId = ResolveAccountId(accountId);
+        await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
+        await EnsureAccountAsync(context, scopedAccountId, cancellationToken);
+
+        List<SyncFileEntity> existing = await context.SyncFiles.Where(x => x.AccountId == scopedAccountId).ToListAsync(cancellationToken);
         context.SyncFiles.RemoveRange(existing);
 
         DateTime now = DateTime.UtcNow;
@@ -30,9 +41,9 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
         {
             _ = context.SyncFiles.Add(new SyncFileEntity
             {
-                Id = node.Id,
-                AccountId = DefaultAccountId,
-                ParentId = node.ParentId,
+                Id = ToStoredNodeId(scopedAccountId, node.Id),
+                AccountId = scopedAccountId,
+                ParentId = ToStoredParentId(scopedAccountId, node.ParentId),
                 Name = node.Name,
                 LocalPath = BuildPath(nodes, node.Id, isRemote: false),
                 RemotePath = BuildPath(nodes, node.Id, isRemote: true),
@@ -54,15 +65,25 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A read-only list of folder node states.</returns>
     public async Task<IReadOnlyList<FolderNodeState>> LoadAsync(CancellationToken cancellationToken = default)
+        => await LoadAsync(DefaultAccountId, cancellationToken);
+
+    /// <summary>
+    /// Loads folder nodes for a specific account, ordered by sort order.
+    /// </summary>
+    /// <param name="accountId">The owning account identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A read-only list of folder node states.</returns>
+    public async Task<IReadOnlyList<FolderNodeState>> LoadAsync(string accountId, CancellationToken cancellationToken = default)
     {
+        var scopedAccountId = ResolveAccountId(accountId);
         await using AstarOneDriveDbContextModel context = AstarOneDriveDbContextFactory.Create(databasePath);
         List<FolderNodeState> items = await context.SyncFiles
             .AsNoTracking()
-            .Where(x => x.AccountId == DefaultAccountId)
+            .Where(x => x.AccountId == scopedAccountId)
             .OrderBy(x => x.SortOrder)
             .Select(x => new FolderNodeState(
-                x.Id,
-                x.ParentId,
+                FromStoredNodeId(scopedAccountId, x.Id),
+                FromStoredParentId(scopedAccountId, x.ParentId),
                 x.Name,
                 x.IsSelected,
                 x.IsExpanded,
@@ -72,18 +93,22 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
         return items;
     }
 
-    private static async Task EnsureDefaultAccountAsync(AstarOneDriveDbContextModel context, CancellationToken cancellationToken)
+    private static async Task EnsureAccountAsync(AstarOneDriveDbContextModel context, string accountId, CancellationToken cancellationToken)
     {
-        AccountEntity? existing = await context.Accounts.SingleOrDefaultAsync(x => x.Id == DefaultAccountId, cancellationToken);
+        AccountEntity? existing = await context.Accounts.SingleOrDefaultAsync(x => x.Id == accountId, cancellationToken);
         if(existing is not null)
         {
             return;
         }
 
+        var email = accountId == DefaultAccountId
+            ? DefaultEmail
+            : $"{accountId}@folder-tree.local";
+
         _ = context.Accounts.Add(new AccountEntity
         {
-            Id = DefaultAccountId,
-            Email = DefaultEmail,
+            Id = accountId,
+            Email = email,
             QuotaBytes = 0,
             UsedBytes = 0,
             IsActive = true,
@@ -113,4 +138,26 @@ public sealed class SqliteFolderTreeRepository(string? databasePath = null)
         var path = string.Join('/', parts);
         return isRemote ? $"/{path}" : $"/local/{path}";
     }
+
+    private static string ResolveAccountId(string? accountId)
+        => string.IsNullOrWhiteSpace(accountId) ? DefaultAccountId : accountId.Trim();
+
+    private static string ToStoredNodeId(string accountId, string nodeId)
+        => $"{accountId}{StorageSeparator}{nodeId}";
+
+    private static string? ToStoredParentId(string accountId, string? parentId)
+        => string.IsNullOrWhiteSpace(parentId) ? null : ToStoredNodeId(accountId, parentId);
+
+    private static string FromStoredNodeId(string accountId, string storedNodeId)
+    {
+        var prefix = $"{accountId}{StorageSeparator}";
+        return storedNodeId.StartsWith(prefix, StringComparison.Ordinal)
+            ? storedNodeId[prefix.Length..]
+            : storedNodeId;
+    }
+
+    private static string? FromStoredParentId(string accountId, string? storedParentId)
+        => string.IsNullOrWhiteSpace(storedParentId)
+            ? null
+            : FromStoredNodeId(accountId, storedParentId);
 }

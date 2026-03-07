@@ -11,7 +11,8 @@ public sealed class OneDriveGraphClientShould
     {
         SequenceHttpMessageHandler handler = new(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("ok") });
         RecordingGraphTelemetry telemetry = new();
-        using DisposableOneDriveGraphClient client = CreateClient(handler, telemetry);
+        using HttpClient httpClient = CreateHttpClient(handler);
+        OneDriveGraphClient client = CreateClient(httpClient, telemetry);
 
         Result<OneDriveGraphResponse, SyncError> result = await client.SendAsync(
             OneDriveGraphRequest.Get("/me/drive/root", "token"),
@@ -28,7 +29,8 @@ public sealed class OneDriveGraphClientShould
     {
         SequenceHttpMessageHandler handler = new(_ => new HttpResponseMessage(HttpStatusCode.NotFound));
         RecordingGraphTelemetry telemetry = new();
-        using DisposableOneDriveGraphClient client = CreateClient(handler, telemetry);
+        using HttpClient httpClient = CreateHttpClient(handler);
+        OneDriveGraphClient client = CreateClient(httpClient, telemetry);
 
         Result<OneDriveGraphResponse, SyncError> result = await client.SendAsync(
             OneDriveGraphRequest.Get("/me/drive/items/missing", "token"),
@@ -44,7 +46,8 @@ public sealed class OneDriveGraphClientShould
     {
         SequenceHttpMessageHandler handler = new(_ => throw new HttpRequestException("offline"));
         RecordingGraphTelemetry telemetry = new();
-        using DisposableOneDriveGraphClient client = CreateClient(handler, telemetry);
+        using HttpClient httpClient = CreateHttpClient(handler);
+        OneDriveGraphClient client = CreateClient(httpClient, telemetry);
 
         Result<OneDriveGraphResponse, SyncError> result = await client.SendAsync(
             OneDriveGraphRequest.Get("/me/drive/root", "token"),
@@ -54,27 +57,17 @@ public sealed class OneDriveGraphClientShould
         telemetry.Events.Single().RetryCount.ShouldBe(0);
     }
 
-    private static DisposableOneDriveGraphClient CreateClient(HttpMessageHandler handler, IOneDriveGraphTelemetry telemetry)
-    {
-        HttpClient httpClient = new(handler) { BaseAddress = new Uri("https://graph.microsoft.com/v1.0/") };
-        return new DisposableOneDriveGraphClient(httpClient, telemetry);
-    }
+    private static HttpClient CreateHttpClient(HttpMessageHandler handler)
+        => new(handler) { BaseAddress = new OneDriveGraphClientOptions().BaseUri };
+
+    private static OneDriveGraphClient CreateClient(HttpClient httpClient, IOneDriveGraphTelemetry telemetry)
+        => new(httpClient, telemetry);
 
     private sealed class RecordingGraphTelemetry : IOneDriveGraphTelemetry
     {
         public List<GraphRequestTelemetryEvent> Events { get; } = [];
 
         public void Track(GraphRequestTelemetryEvent telemetryEvent) => Events.Add(telemetryEvent);
-    }
-
-    private sealed class DisposableOneDriveGraphClient : OneDriveGraphClient, IDisposable
-    {
-        private readonly HttpClient _httpClient;
-
-        public DisposableOneDriveGraphClient(HttpClient httpClient, IOneDriveGraphTelemetry telemetry)
-            : base(httpClient, telemetry) => _httpClient = httpClient;
-
-        public void Dispose() => _httpClient.Dispose();
     }
 
     private sealed class SequenceHttpMessageHandler(params Func<HttpRequestMessage, HttpResponseMessage>[] sequence)

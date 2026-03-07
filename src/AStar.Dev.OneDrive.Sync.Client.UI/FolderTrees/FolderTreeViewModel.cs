@@ -38,6 +38,15 @@ public class FolderTreeViewModel : ViewModelBase
     }
 
     /// <summary>
+    /// Gets the currently active account identifier used for tree persistence.
+    /// </summary>
+    public string? ActiveAccountId
+    {
+        get;
+        private set => this.RaiseAndSetIfChanged(ref field, value);
+    }
+
+    /// <summary>
     /// Command to toggle the selection state of a node. When executed, it will update the specified node's IsSelected property to the opposite of its current value.
     /// </summary>
     public ICommand ToggleNodeSelectionCommand { get; }
@@ -99,20 +108,41 @@ public class FolderTreeViewModel : ViewModelBase
     }
 
     public Task<Result<bool, Exception>> SaveTreeAsync(CancellationToken cancellationToken = default)
+        => SaveTreeAsync(ActiveAccountId ?? SqliteFolderTreeRepository.DefaultAccountId, cancellationToken);
+
+    /// <summary>
+    /// Persists the current tree state for a specific account.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The result of the save operation.</returns>
+    public Task<Result<bool, Exception>> SaveTreeAsync(string accountId, CancellationToken cancellationToken = default)
         => Try.RunAsync(async () =>
         {
+            var scopedAccountId = ResolveAccountId(accountId);
             await _migrator.EnsureMigratedAsync(cancellationToken);
             var state = FlattenTree(Nodes).ToList();
-            await _folderTreeRepository.SaveAsync(state, cancellationToken);
+            await _folderTreeRepository.SaveAsync(scopedAccountId, state, cancellationToken);
+            ActiveAccountId = scopedAccountId;
 
             return true;
         });
 
     public Task<Result<bool, Exception>> LoadTreeAsync(CancellationToken cancellationToken = default)
+        => LoadTreeAsync(ActiveAccountId ?? SqliteFolderTreeRepository.DefaultAccountId, cancellationToken);
+
+    /// <summary>
+    /// Loads tree state for a specific account.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The result of the load operation.</returns>
+    public Task<Result<bool, Exception>> LoadTreeAsync(string accountId, CancellationToken cancellationToken = default)
         => Try.RunAsync(async () =>
         {
+            var scopedAccountId = ResolveAccountId(accountId);
             await _migrator.EnsureMigratedAsync(cancellationToken);
-            IReadOnlyList<FolderNodeState> state = await _folderTreeRepository.LoadAsync(cancellationToken);
+            IReadOnlyList<FolderNodeState> state = await _folderTreeRepository.LoadAsync(scopedAccountId, cancellationToken);
             List<FolderNode> restored = BuildTree(state);
 
             Nodes.Clear();
@@ -121,8 +151,30 @@ public class FolderTreeViewModel : ViewModelBase
                 Nodes.Add(node);
             }
 
+            SelectedNode = null;
+            ActiveAccountId = scopedAccountId;
+
             return true;
         });
+
+    /// <summary>
+    /// Switches to a new account and reloads the tree for that account.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The result of the reload operation.</returns>
+    public Task<Result<bool, Exception>> SwitchAccountAsync(string accountId, CancellationToken cancellationToken = default)
+        => LoadTreeAsync(accountId, cancellationToken);
+
+    /// <summary>
+    /// Clears the loaded tree and active account selection.
+    /// </summary>
+    public void ClearTree()
+    {
+        Nodes.Clear();
+        SelectedNode = null;
+        ActiveAccountId = null;
+    }
 
     private static IEnumerable<FolderNodeState> FlattenTree(IReadOnlyList<FolderNode> nodes)
     {
@@ -174,4 +226,9 @@ public class FolderTreeViewModel : ViewModelBase
 
         return nodes;
     }
+
+    private static string ResolveAccountId(string? accountId)
+        => string.IsNullOrWhiteSpace(accountId)
+            ? SqliteFolderTreeRepository.DefaultAccountId
+            : accountId.Trim();
 }
