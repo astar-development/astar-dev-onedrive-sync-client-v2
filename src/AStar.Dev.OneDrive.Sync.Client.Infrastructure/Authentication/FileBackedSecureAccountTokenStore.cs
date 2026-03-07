@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using AStar.Dev.Functional.Extensions;
+using AStar.Dev.Utilities;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Infrastructure.Authentication;
 
@@ -63,7 +64,7 @@ public sealed class FileBackedSecureAccountTokenStore : ISecureAccountTokenStore
     private async Task<Dictionary<string, string>> LoadEncryptedMapAsync(CancellationToken cancellationToken)
     {
         _ = Directory.CreateDirectory(_rootPath);
-        var path = Path.Join(_rootPath, TokenFileName);
+        var path = _rootPath.CombinePath(TokenFileName);
         if(!File.Exists(path))
         {
             return [];
@@ -76,7 +77,7 @@ public sealed class FileBackedSecureAccountTokenStore : ISecureAccountTokenStore
     private async Task PersistEncryptedMapAsync(Dictionary<string, string> encrypted, CancellationToken cancellationToken)
     {
         _ = Directory.CreateDirectory(_rootPath);
-        var path = Path.Join(_rootPath, TokenFileName);
+        var path = _rootPath.CombinePath(TokenFileName);
         var json = JsonSerializer.Serialize(encrypted);
         await File.WriteAllTextAsync(path, json, cancellationToken);
     }
@@ -111,7 +112,7 @@ public sealed class FileBackedSecureAccountTokenStore : ISecureAccountTokenStore
     private byte[] GetOrCreateKey()
     {
         _ = Directory.CreateDirectory(_rootPath);
-        var keyPath = Path.Combine(_rootPath, KeyFileName);
+        var keyPath = _rootPath.CombinePath(KeyFileName);
         if(File.Exists(keyPath))
         {
             return File.ReadAllBytes(keyPath);
