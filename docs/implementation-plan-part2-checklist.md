@@ -28,11 +28,11 @@ Legend:
 - [x] Get architecture review sign-off
 
 ### Phase 2: Application contracts for real sync (2 days)
-- [ ] Expand Application interfaces beyond `GetSyncFilesAsync`
-- [ ] Add contracts for tree enumerate, delta pull, upload/download scheduling
-- [ ] Add pause/resume/cancel semantics
-- [-] Add domain/application models for queue item, conflict type, checkpoint
-- [-] Add/update unit tests for orchestration and failures
+- [x] Expand Application interfaces beyond `GetSyncFilesAsync`
+- [x] Add contracts for tree enumerate, delta pull, upload/download scheduling
+- [x] Add pause/resume/cancel semantics
+- [x] Add domain/application models for queue item, conflict type, checkpoint
+- [x] Add/update unit tests for orchestration and failures
 
 ### Phase 3: OneDrive authentication and account session (2 days)
 - [ ] Implement real OneDrive auth flow (replace login stub)

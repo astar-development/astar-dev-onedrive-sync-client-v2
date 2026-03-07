@@ -1,5 +1,6 @@
 using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
+using AStar.Dev.OneDrive.Sync.Client.Application.Models;
 using AStar.Dev.OneDrive.Sync.Client.Domain.Entities;
 using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
 
@@ -70,6 +71,21 @@ public sealed class SyncIntegrationShould
 
         public Task<Result<Unit, string>> CancelSyncAsync(CancellationToken cancellationToken = default)
             => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> RunDeltaSyncAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> EnqueueUploadAsync(SyncQueueItem queueItem, CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> EnqueueDownloadAsync(SyncQueueItem queueItem, CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<IReadOnlyList<SyncQueueItem>, string>> GetFailedOperationsAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<IReadOnlyList<SyncQueueItem>, string>>(Array.Empty<SyncQueueItem>());
+
+        public Task<Result<Unit, string>> RetryFailedOperationsAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
     }
 
     private sealed class FixedSyncService : ISyncService
@@ -93,6 +109,21 @@ public sealed class SyncIntegrationShould
 
         public Task<Result<Unit, string>> CancelSyncAsync(CancellationToken cancellationToken = default)
             => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> RunDeltaSyncAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> EnqueueUploadAsync(SyncQueueItem queueItem, CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> EnqueueDownloadAsync(SyncQueueItem queueItem, CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<IReadOnlyList<SyncQueueItem>, string>> GetFailedOperationsAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<IReadOnlyList<SyncQueueItem>, string>>(Array.Empty<SyncQueueItem>());
+
+        public Task<Result<Unit, string>> RetryFailedOperationsAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
     }
 
     private sealed class ThrowingSyncService : ISyncService
@@ -107,6 +138,21 @@ public sealed class SyncIntegrationShould
             => throw new InvalidOperationException("OneDrive unavailable");
 
         public Task<Result<Unit, string>> CancelSyncAsync(CancellationToken cancellationToken = default)
+            => throw new InvalidOperationException("OneDrive unavailable");
+
+        public Task<Result<Unit, string>> RunDeltaSyncAsync(CancellationToken cancellationToken = default)
+            => throw new InvalidOperationException("OneDrive unavailable");
+
+        public Task<Result<Unit, string>> EnqueueUploadAsync(SyncQueueItem queueItem, CancellationToken cancellationToken = default)
+            => throw new InvalidOperationException("OneDrive unavailable");
+
+        public Task<Result<Unit, string>> EnqueueDownloadAsync(SyncQueueItem queueItem, CancellationToken cancellationToken = default)
+            => throw new InvalidOperationException("OneDrive unavailable");
+
+        public Task<Result<IReadOnlyList<SyncQueueItem>, string>> GetFailedOperationsAsync(CancellationToken cancellationToken = default)
+            => throw new InvalidOperationException("OneDrive unavailable");
+
+        public Task<Result<Unit, string>> RetryFailedOperationsAsync(CancellationToken cancellationToken = default)
             => throw new InvalidOperationException("OneDrive unavailable");
     }
 }
