@@ -42,11 +42,11 @@ Legend:
 - [x] Add integration tests for auth/session behavior
 
 ### Phase 4: OneDrive Graph client foundation (2 days)
-- [ ] Implement Infrastructure Graph client abstraction
-- [ ] Add retry/backoff/throttling handling
-- [ ] Map HTTP/API failures to typed sync errors
-- [ ] Add request latency/error class telemetry
-- [ ] Add integration tests for transient and terminal failures
+- [x] Implement Infrastructure Graph client abstraction
+- [x] Add retry/backoff/throttling handling
+- [x] Map HTTP/API failures to typed sync errors
+- [x] Add request latency/error class telemetry
+- [x] Add integration tests for transient and terminal failures
 
 ### Phase 5: Remote folder tree and account-scoped selection (2 days)
 - [ ] Load remote folder tree per selected account
