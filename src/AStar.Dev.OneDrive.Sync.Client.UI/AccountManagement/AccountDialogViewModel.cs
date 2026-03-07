@@ -2,11 +2,14 @@ using System.Collections.ObjectModel;
 using System.Net.Mail;
 using System.Windows.Input;
 using AStar.Dev.Functional.Extensions;
+using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Contracts;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Repositories;
+using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Authentication;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
 using ReactiveUI;
+using AStar.Dev.OneDrive.Sync.Client.Application.Models;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 
@@ -17,19 +20,21 @@ public class AccountDialogViewModel : ViewModelBase
 {
     private readonly SqliteDatabaseMigrator _migrator;
     private readonly SqliteAccountsRepository _accountsRepository;
+    private readonly IAccountSessionService _accountSessionService;
     private readonly string? _existingAccountId;
 
     /// <summary>
     /// Initializes a new dialog for creating a new account.
     /// </summary>
     /// <param name="databasePath">Optional SQLite database file path.</param>
-    public AccountDialogViewModel(string? databasePath = null)
+    public AccountDialogViewModel(string? databasePath = null, IAccountSessionService? accountSessionService = null)
     {
         _migrator = new SqliteDatabaseMigrator(databasePath);
         _accountsRepository = new SqliteAccountsRepository(databasePath);
+        _accountSessionService = accountSessionService ?? CreateAccountSessionService(databasePath);
         SaveCommand = new RelayCommand(async _ => await Save());
         CancelCommand = new RelayCommand(_ => Cancel());
-        LoginCommand = new RelayCommand(_ => TriggerLogin());
+        LoginCommand = new RelayCommand(async _ => await TriggerLoginAsync());
     }
 
     /// <summary>
@@ -37,8 +42,8 @@ public class AccountDialogViewModel : ViewModelBase
     /// </summary>
     /// <param name="account">The account being edited.</param>
     /// <param name="databasePath">Optional SQLite database file path.</param>
-    public AccountDialogViewModel(AccountInfo account, string? databasePath = null)
-        : this(databasePath)
+    public AccountDialogViewModel(AccountInfo account, string? databasePath = null, IAccountSessionService? accountSessionService = null)
+        : this(databasePath, accountSessionService)
     {
         _existingAccountId = account.Id;
         Email = account.Email;
@@ -130,7 +135,7 @@ public class AccountDialogViewModel : ViewModelBase
     public ICommand CancelCommand { get; }
 
     /// <summary>
-    /// Gets the command that triggers the authentication stub.
+    /// Gets the command that performs account link or reauthentication.
     /// </summary>
     public ICommand LoginCommand { get; }
 
@@ -186,7 +191,39 @@ public class AccountDialogViewModel : ViewModelBase
         CloseRequested?.Invoke(this, false);
     }
 
-    private void TriggerLogin() => LoginTriggered = true;
+    private async Task TriggerLoginAsync()
+    {
+        var emailHint = Email;
+        Result<AccountSessionState, string> result = IsEditMode && !string.IsNullOrWhiteSpace(_existingAccountId)
+            ? await _accountSessionService.ReauthenticateAsync(_existingAccountId, emailHint)
+            : await _accountSessionService.LinkAccountAsync(emailHint);
+
+        _ = result.Match(
+            session =>
+            {
+                Email = session.Profile.Email;
+                QuotaBytes = session.Profile.QuotaBytes;
+                UsedBytes = session.Profile.UsedBytes;
+                ValidationError = string.Empty;
+                LoginTriggered = true;
+                return true;
+            },
+            error =>
+            {
+                ValidationError = error;
+                LoginTriggered = false;
+                return false;
+            });
+    }
+
+    private static IAccountSessionService CreateAccountSessionService(string? databasePath)
+    {
+        var tokenStorePath = Path.Combine(Path.GetDirectoryName(DatabasePathResolver.ResolveDatabasePath())!, "secure-store");
+        return new OneDriveAccountSessionService(
+            new OneDriveAuthenticationAdapter(),
+            new FileBackedSecureAccountTokenStore(tokenStorePath),
+            new SqliteAccountSessionMetadataRepository(databasePath));
+    }
 
     private static Result<bool, string> ValidateEmail(string email)
         => IsValidEmail(email)

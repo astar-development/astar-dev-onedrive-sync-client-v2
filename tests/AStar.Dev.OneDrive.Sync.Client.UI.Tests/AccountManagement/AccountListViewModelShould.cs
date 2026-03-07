@@ -1,4 +1,6 @@
 using AStar.Dev.Functional.Extensions;
+using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
+using AStar.Dev.OneDrive.Sync.Client.Application.Models;
 using AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 using AStar.Dev.Utilities;
 
@@ -83,6 +85,59 @@ public sealed class AccountListViewModelShould
         loadedViewModel.Accounts[0].Email.ShouldBe("persisted@example.com");
     }
 
+    [Fact]
+    public async Task RemoveAccountCommand_UnlinksSessionAndRemovesAccount()
+    {
+        var accountSessionService = new TrackingAccountSessionService();
+        var viewModel = new AccountListViewModel(accountSessionService: accountSessionService);
+        var account = new AccountInfo("acct-9", "unlink@example.com", 100, 25);
+        viewModel.Accounts.Add(account);
+        viewModel.SelectedAccount = account;
+
+        viewModel.RemoveAccountCommand.Execute(null);
+        await WaitForConditionAsync(() => accountSessionService.UnlinkedAccountIds.Count == 1);
+
+        viewModel.Accounts.ShouldBeEmpty();
+        viewModel.SelectedAccount.ShouldBeNull();
+        accountSessionService.UnlinkedAccountIds.ShouldContain("acct-9");
+    }
+
     private static string CreateDatabasePath()
         => Path.GetTempPath().CombinePath($"astar-ui-accounts-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
+
+    private static async Task WaitForConditionAsync(Func<bool> condition)
+    {
+        for(var attempt = 0; attempt < 50 && !condition(); attempt++)
+        {
+            if(!condition())
+            {
+                await Task.Delay(10, TestContext.Current.CancellationToken);
+            }
+        }
+    }
+
+    private sealed class TrackingAccountSessionService : IAccountSessionService
+    {
+        public List<string> UnlinkedAccountIds { get; } = [];
+
+        public Task<Result<AccountSessionState, string>> LinkAccountAsync(string emailHint, CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<AccountSessionState, string>>(CreateState("acct-link", emailHint));
+
+        public Task<Result<AccountSessionState, string>> ReauthenticateAsync(string accountId, string emailHint, CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<AccountSessionState, string>>(CreateState(accountId, emailHint));
+
+        public Task<Result<AccountSessionState, string>> GetValidSessionAsync(string accountId, CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<AccountSessionState, string>>(CreateState(accountId, "user@example.com"));
+
+        public Task<Result<Unit, string>> UnlinkAccountAsync(string accountId, CancellationToken cancellationToken = default)
+        {
+            UnlinkedAccountIds.Add(accountId);
+            return Task.FromResult<Result<Unit, string>>(Unit.Value);
+        }
+
+        private static AccountSessionState CreateState(string accountId, string email)
+            => new(
+                new OneDriveAccountProfile(accountId, email, 0, 0),
+                new AccountSessionMetadata(accountId, DateTime.UtcNow.AddMinutes(30), DateTime.UtcNow, null, false));
+    }
 }

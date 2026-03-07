@@ -1,9 +1,11 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using AStar.Dev.Functional.Extensions;
+using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Contracts;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Repositories;
+using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Authentication;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
 using ReactiveUI;
 
@@ -18,6 +20,7 @@ public class AccountListViewModel : ViewModelBase
     private readonly RelayCommand _manageAccountCommand;
     private readonly SqliteDatabaseMigrator _migrator;
     private readonly SqliteAccountsRepository _accountsRepository;
+    private readonly IAccountSessionService _accountSessionService;
     private readonly string? _databasePath;
 
     public ObservableCollection<AccountInfo> Accounts { get; } = [];
@@ -66,14 +69,15 @@ public class AccountListViewModel : ViewModelBase
     /// Initializes a new instance of the AccountListViewModel class. This constructor sets up the database migrator and accounts repository, and initializes the commands for adding, removing, and managing accounts. The database path can be optionally provided; if not, it will use a default location.
     /// </summary>
     /// <param name="databasePath">The optional path to the database file. If not provided, a default location will be used.</param>
-    public AccountListViewModel(string? databasePath = null)
+    public AccountListViewModel(string? databasePath = null, IAccountSessionService? accountSessionService = null)
     {
         _databasePath = databasePath;
         _migrator = new SqliteDatabaseMigrator(databasePath);
         _accountsRepository = new SqliteAccountsRepository(databasePath);
+        _accountSessionService = accountSessionService ?? CreateAccountSessionService(databasePath);
 
         AddAccountCommand = new RelayCommand(_ => AddAccount());
-        _removeAccountCommand = new RelayCommand(_ => RemoveSelectedAccount(), _ => SelectedAccount is not null);
+        _removeAccountCommand = new RelayCommand(async account => await RemoveSelectedAccountAsync(account as AccountInfo), CanRemoveAccount);
         _manageAccountCommand = new RelayCommand(account => ManageAccount(account as AccountInfo), CanManageAccount);
         ManageAccountCommand = _manageAccountCommand;
     }
@@ -115,14 +119,25 @@ public class AccountListViewModel : ViewModelBase
 
     private void AddAccount()
     {
-        var dialogViewModel = new AccountDialogViewModel(_databasePath);
+        var dialogViewModel = new AccountDialogViewModel(_databasePath, _accountSessionService);
         dialogViewModel.CloseRequested += OnDialogCloseRequested;
         AccountDialogRequested?.Invoke(this, dialogViewModel);
     }
 
-    private void RemoveSelectedAccount()
+    private async Task RemoveSelectedAccountAsync(AccountInfo? account)
     {
+        if(account is not null)
+        {
+            SelectedAccount = account;
+        }
+
         if(SelectedAccount is null)
+        {
+            return;
+        }
+
+        Result<Unit, string> unlinkResult = await _accountSessionService.UnlinkAccountAsync(SelectedAccount.Id);
+        if(Pattern.IsError(unlinkResult))
         {
             return;
         }
@@ -139,10 +154,13 @@ public class AccountListViewModel : ViewModelBase
         }
 
         SelectedAccount = account;
-        var dialogViewModel = new AccountDialogViewModel(account, _databasePath);
+        var dialogViewModel = new AccountDialogViewModel(account, _databasePath, _accountSessionService);
         dialogViewModel.CloseRequested += OnDialogCloseRequested;
         AccountDialogRequested?.Invoke(this, dialogViewModel);
     }
+
+    private bool CanRemoveAccount(object? parameter)
+        => parameter is AccountInfo || SelectedAccount is not null;
 
     private bool CanManageAccount(object? parameter)
         => parameter is AccountInfo || SelectedAccount is not null;
@@ -164,5 +182,14 @@ public class AccountListViewModel : ViewModelBase
             .MatchAsync(
                 _ => Task.CompletedTask,
                 _ => Task.CompletedTask);
+    }
+
+    private static IAccountSessionService CreateAccountSessionService(string? databasePath)
+    {
+        var tokenStorePath = Path.Combine(Path.GetDirectoryName(DatabasePathResolver.ResolveDatabasePath())!, "secure-store");
+        return new OneDriveAccountSessionService(
+            new OneDriveAuthenticationAdapter(),
+            new FileBackedSecureAccountTokenStore(tokenStorePath),
+            new SqliteAccountSessionMetadataRepository(databasePath));
     }
 }

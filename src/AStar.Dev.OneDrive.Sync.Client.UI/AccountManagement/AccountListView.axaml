@@ -21,16 +21,21 @@
                             <TextBlock Text="{Binding Email}" />
                             <TextBlock Text="{Binding StorageUsed}" FontSize="11" />
 
-                            <Button Content="{DynamicResource Accounts_Manage}"
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="{DynamicResource Btn_ManageAccount}"
                                     Command="{Binding $parent[UserControl].DataContext.ManageAccountCommand}"
                                     CommandParameter="{Binding}" />
+                                <Button Content="{DynamicResource Btn_Logout}"
+                                    Command="{Binding $parent[UserControl].DataContext.RemoveAccountCommand}"
+                                    CommandParameter="{Binding}" />
+                                </StackPanel>
                         </StackPanel>
                     </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <Button Content="{DynamicResource Accounts_Add}"
+        <Button Content="{DynamicResource Btn_AddAccount}"
                 Command="{Binding AddAccountCommand}" />
 
     </StackPanel>
