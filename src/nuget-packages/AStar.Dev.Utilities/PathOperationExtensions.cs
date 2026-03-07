@@ -26,7 +26,7 @@ public static class PathOperationExtensions
                 throw new ArgumentException("Path segments must be relative.", nameof(segments));
             }
 
-            combined = Path.Combine(combined, segment);
+            combined = Path.Join(combined, segment);
         }
 
         return combined;

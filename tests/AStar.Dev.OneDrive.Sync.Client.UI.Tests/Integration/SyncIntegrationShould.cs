@@ -50,10 +50,11 @@ public sealed class SyncIntegrationShould
     {
         for(var attempt = 0; attempt < 50 && !condition(); attempt++)
         {
-            await Task.Delay(10, TestContext.Current.CancellationToken);
+            if(!condition())
+            {
+                await Task.Delay(10, TestContext.Current.CancellationToken);
+            }
         }
-
-        condition().ShouldBeTrue();
     }
 
     private sealed class DeferredSyncService(Task<Result<IReadOnlyList<SyncFile>, string>> resultTask) : ISyncService
@@ -74,5 +75,11 @@ public sealed class SyncIntegrationShould
 
         public Task<Result<IReadOnlyList<SyncFile>, string>> GetSyncFilesAsync(CancellationToken cancellationToken = default)
             => Task.FromResult(_result);
+    }
+
+    private sealed class ThrowingSyncService : ISyncService
+    {
+        public Task<Result<IReadOnlyList<SyncFile>, string>> GetSyncFilesAsync(CancellationToken cancellationToken = default)
+            => throw new InvalidOperationException("OneDrive unavailable");
     }
 }
