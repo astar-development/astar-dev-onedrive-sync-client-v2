@@ -6,6 +6,7 @@ using AStar.Dev.OneDrive.Sync.Client.UI.Logs;
 using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
 using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
 using AStar.Dev.OneDrive.Sync.Client.UI.Tests.ThemeManager;
+using AStar.Dev.Utilities;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Home;
 
@@ -226,7 +227,7 @@ public sealed class MainWindowViewModelShould
     [Fact]
     public async Task ClearTreeAndReportErrorWhenAccountReloadFails()
     {
-        var databasePath = Path.Combine(Path.GetTempPath(), $"astar-ui-main-window-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
+        var databasePath = Path.GetTempPath().CombinePath($"astar-ui-main-window-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
         var accounts = new AccountListViewModel(databasePath);
         var folderTree = new FolderTreeViewModel(databasePath);
         var vm = new MainWindowViewModel(accounts: accounts, folderTree: folderTree);
@@ -241,7 +242,7 @@ public sealed class MainWindowViewModelShould
             File.Delete(databasePath);
         }
 
-        Directory.CreateDirectory(databasePath);
+        Directory.CreateDirectory(Path.GetDirectoryName(databasePath) ?? string.Empty);
 
         try
         {
