@@ -63,11 +63,11 @@ Legend:
 - [x] Document hash/fingerprint policy decision
 
 ### Phase 7: Delta pull from OneDrive (2 days)
-- [ ] Implement delta pagination and checkpoint commit flow
-- [ ] Persist delta cursor per account/scope
-- [ ] Implement interrupted-run safe replay behavior
-- [ ] Add integration tests for incremental runs
-- [ ] Verify no full refresh on unchanged runs
+- [x] Implement delta pagination and checkpoint commit flow
+- [x] Persist delta cursor per account/scope
+- [x] Implement interrupted-run safe replay behavior
+- [x] Add integration tests for incremental runs
+- [x] Verify no full refresh on unchanged runs
 
 ### Phase 8: Download pipeline (remote -> local) (3 days)
 - [ ] Build queued download runner with bounded concurrency

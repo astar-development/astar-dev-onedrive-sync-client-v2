@@ -3,6 +3,7 @@ using AStar.Dev.OneDrive.Sync.Client.Application.Services;
 using AStar.Dev.OneDrive.Sync.Client.Domain.Interfaces;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Repositories;
+using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Graph;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Repositories;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Composition;
@@ -28,6 +29,10 @@ public static class CompositionRoot
         Registrations[typeof(ILocalFileScanner)] = () => new FileSystemLocalFileScanner();
         Registrations[typeof(ILocalInventoryStore)] = () => new SqliteLocalInventoryStore(databasePath);
         Registrations[typeof(ILocalInventoryService)] = () => new LocalInventoryService(Resolve<ILocalFileScanner>(), Resolve<ILocalInventoryStore>());
+        Registrations[typeof(IDeltaCheckpointStore)] = () => new SqliteDeltaCheckpointStore(databasePath);
+        Registrations[typeof(IRemoteDeltaSource)] = () => new NoOpRemoteDeltaSource();
+        Registrations[typeof(IRemoteDeltaApplier)] = () => new NoOpRemoteDeltaApplier();
+        Registrations[typeof(IDeltaSyncService)] = () => new DeltaSyncService(Resolve<IRemoteDeltaSource>(), Resolve<IDeltaCheckpointStore>(), Resolve<IRemoteDeltaApplier>());
         Registrations[typeof(AstarOneDriveDbContextModel)] = () => AstarOneDriveDbContextFactory.Create(databasePath);
         Registrations[typeof(SqliteSettingsRepository)] = () => new SqliteSettingsRepository(databasePath);
         Registrations[typeof(SqliteAccountsRepository)] = () => new SqliteAccountsRepository(databasePath);
