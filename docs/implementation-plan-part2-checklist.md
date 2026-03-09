@@ -112,11 +112,11 @@ Legend:
 - [x] Add diagnostics documentation/runbook updates
 
 ### Phase 14: Reliability, performance, and resilience tests (2 days)
-- [ ] Add fault-injection tests (network failures, throttling, restarts)
-- [ ] Add soak tests for repeated sync cycles
-- [ ] Capture baseline performance for scan/delta/upload/download
-- [ ] Validate restart safety and partial-transfer recovery
-- [ ] Track and resolve blocking reliability defects
+- [x] Add fault-injection tests (network failures, throttling, restarts)
+- [x] Add soak tests for repeated sync cycles
+- [x] Capture baseline performance for scan/delta/upload/download
+- [x] Validate restart safety and partial-transfer recovery
+- [x] Track and resolve blocking reliability defects
 
 ### Phase 15: Release readiness and controlled rollout (1 day)
 - [ ] Confirm feature flags/safe defaults
