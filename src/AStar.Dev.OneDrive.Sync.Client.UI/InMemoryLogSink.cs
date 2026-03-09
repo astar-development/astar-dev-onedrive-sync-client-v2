@@ -1,5 +1,6 @@
 using Serilog.Core;
 using Serilog.Events;
+using System.Text.RegularExpressions;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI;
 
@@ -11,6 +12,8 @@ public class InMemoryLogSink(int maxLines = 200) : ILogEventSink
     private readonly Lock _syncLock = new();
     private readonly int _maxLines = maxLines;
     private readonly List<string> _lines = [];
+    private static readonly Regex EmailPattern = new(@"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex TokenPattern = new(@"(?i)(token\s*[=:]\s*)([^\s,;]+)", RegexOptions.Compiled);
 
     /// <summary>
     /// Occurs when new log events are added.
@@ -20,7 +23,7 @@ public class InMemoryLogSink(int maxLines = 200) : ILogEventSink
     /// <inheritdoc />
     public void Emit(LogEvent logEvent)
     {
-        var line = logEvent.RenderMessage();
+        var line = RedactSensitiveData(logEvent.RenderMessage());
 
         lock(_syncLock)
         {
@@ -40,6 +43,18 @@ public class InMemoryLogSink(int maxLines = 200) : ILogEventSink
     {
         lock(_syncLock)
             return string.Join(Environment.NewLine, _lines);
+    }
+
+    public static string RedactSensitiveData(string text)
+    {
+        if(string.IsNullOrWhiteSpace(text))
+        {
+            return text;
+        }
+
+        var redacted = EmailPattern.Replace(text, "[REDACTED_EMAIL]");
+        redacted = TokenPattern.Replace(redacted, "$1[REDACTED_TOKEN]");
+        return redacted;
     }
 }
 

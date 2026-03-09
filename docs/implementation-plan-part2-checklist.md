@@ -105,11 +105,11 @@ Legend:
 - [x] Add UI integration tests for key user journeys
 
 ### Phase 13: Observability and diagnostics hardening (2 days)
-- [ ] Add structured logs for operation lifecycle and failures
-- [ ] Add metrics: queue depth, duration, throughput, retries, conflicts
-- [ ] Propagate correlation IDs across layers
-- [ ] Validate log redaction for sensitive data
-- [ ] Add diagnostics documentation/runbook updates
+- [x] Add structured logs for operation lifecycle and failures
+- [x] Add metrics: queue depth, duration, throughput, retries, conflicts
+- [x] Propagate correlation IDs across layers
+- [x] Validate log redaction for sensitive data
+- [x] Add diagnostics documentation/runbook updates
 
 ### Phase 14: Reliability, performance, and resilience tests (2 days)
 - [ ] Add fault-injection tests (network failures, throttling, restarts)

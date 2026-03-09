@@ -25,7 +25,8 @@ public static class CompositionRoot
         Registrations.Clear();
 
         Registrations[typeof(ISyncFileRepository)] = () => new OneDriveSyncFileRepository();
-        Registrations[typeof(ISyncService)] = () => new SyncService(Resolve<ISyncFileRepository>());
+        Registrations[typeof(ISyncDiagnosticsSink)] = () => new SyncDiagnosticsSink();
+        Registrations[typeof(ISyncService)] = () => new SyncService(Resolve<ISyncFileRepository>(), diagnosticsSink: Resolve<ISyncDiagnosticsSink>());
         Registrations[typeof(ILocalFileScanner)] = () => new FileSystemLocalFileScanner();
         Registrations[typeof(ILocalInventoryStore)] = () => new SqliteLocalInventoryStore(databasePath);
         Registrations[typeof(ILocalInventoryService)] = () => new LocalInventoryService(Resolve<ILocalFileScanner>(), Resolve<ILocalInventoryStore>());

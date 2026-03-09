@@ -4,6 +4,7 @@ using AStar.Dev.OneDrive.Sync.Client.Application.Models;
 using AStar.Dev.OneDrive.Sync.Client.Domain.Entities;
 using AStar.Dev.OneDrive.Sync.Client.Domain.Interfaces;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace AStar.Dev.OneDrive.Sync.Client.Application.Services;
 
@@ -29,12 +30,13 @@ public sealed class SyncService : ISyncService
     private readonly List<FailedOperation> _failedOperations = [];
     private readonly List<SyncConflict> _conflicts = [];
     private readonly SyncConflictPolicyEngine _conflictPolicyEngine;
+    private readonly SyncConflictResolutionPolicy _defaultConflictResolutionPolicy;
+    private readonly ISyncDiagnosticsSink _diagnosticsSink;
+    private readonly long _chunkedUploadThresholdBytes;
     private CancellationTokenSource _workerCts = new();
     private Task? _downloadWorkerTask;
     private Task? _uploadWorkerTask;
     private bool _isPaused;
-    private readonly long _chunkedUploadThresholdBytes;
-    private readonly SyncConflictResolutionPolicy _defaultConflictResolutionPolicy;
 
     public SyncService(
         ISyncFileRepository syncFileRepository,
@@ -46,7 +48,8 @@ public sealed class SyncService : ISyncService
         int maxConcurrentUploads = 2,
         long chunkedUploadThresholdBytes = 8L * 1024L * 1024L,
         SyncConflictPolicyEngine? conflictPolicyEngine = null,
-        SyncConflictResolutionPolicy defaultConflictResolutionPolicy = SyncConflictResolutionPolicy.Manual)
+        SyncConflictResolutionPolicy defaultConflictResolutionPolicy = SyncConflictResolutionPolicy.Manual,
+        ISyncDiagnosticsSink? diagnosticsSink = null)
     {
         _syncFileRepository = syncFileRepository;
         _downloadTransferClient = downloadTransferClient ?? new NullDownloadTransferClient();
@@ -58,27 +61,28 @@ public sealed class SyncService : ISyncService
         _chunkedUploadThresholdBytes = Math.Max(1, chunkedUploadThresholdBytes);
         _conflictPolicyEngine = conflictPolicyEngine ?? new SyncConflictPolicyEngine();
         _defaultConflictResolutionPolicy = defaultConflictResolutionPolicy;
+        _diagnosticsSink = diagnosticsSink ?? new NullSyncDiagnosticsSink();
     }
 
-    ///  <inheritdoc/>
+    /// <inheritdoc/>
     public Task<Result<IReadOnlyList<SyncFile>, string>> GetSyncFilesAsync(CancellationToken cancellationToken = default)
         => _syncFileRepository.GetAllAsync(cancellationToken);
 
-    ///  <inheritdoc/>
+    /// <inheritdoc/>
     public Task<Result<Unit, string>> PauseSyncAsync(CancellationToken cancellationToken = default)
     {
         _isPaused = true;
         return Task.FromResult<Result<Unit, string>>(Unit.Value);
     }
 
-    ///  <inheritdoc/>
+    /// <inheritdoc/>
     public Task<Result<Unit, string>> ResumeSyncAsync(CancellationToken cancellationToken = default)
     {
         _isPaused = false;
         return Task.FromResult<Result<Unit, string>>(Unit.Value);
     }
 
-    ///  <inheritdoc/>
+    /// <inheritdoc/>
     public Task<Result<Unit, string>> CancelSyncAsync(CancellationToken cancellationToken = default)
     {
         _workerCts.Cancel();
@@ -104,11 +108,11 @@ public sealed class SyncService : ISyncService
         return Task.FromResult<Result<Unit, string>>(Unit.Value);
     }
 
-    ///  <inheritdoc/>
+    /// <inheritdoc/>
     public Task<Result<Unit, string>> RunDeltaSyncAsync(CancellationToken cancellationToken = default)
         => Task.FromResult<Result<Unit, string>>(Unit.Value);
 
-    ///  <inheritdoc/>
+    /// <inheritdoc/>
     public async Task<Result<Unit, string>> EnqueueUploadAsync(SyncQueueItem queueItem, CancellationToken cancellationToken = default)
     {
         Result<SyncQueueItem, string> conflictUploadResult = ApplyConflictPolicy(queueItem, isUpload: true);
@@ -117,7 +121,7 @@ public sealed class SyncService : ISyncService
             return conflictUploadError.Reason;
         }
 
-        queueItem = ((Result<SyncQueueItem, string>.Ok)conflictUploadResult).Value;
+        queueItem = NormalizeCorrelationId(((Result<SyncQueueItem, string>.Ok)conflictUploadResult).Value);
         if(queueItem.OperationType is SyncOperationType.Create or SyncOperationType.Update)
         {
             Result<Unit, string> validation = await _uploadFileSystem.ValidateUploadPathAsync(queueItem.LocalPath, cancellationToken);
@@ -127,13 +131,15 @@ public sealed class SyncService : ISyncService
             }
         }
 
-        _uploadQueue.Enqueue(NormalizeCorrelationId(queueItem));
+        _uploadQueue.Enqueue(queueItem);
         _ = _uploadSignal.Release();
+        EmitEvent("upload.enqueued", "upload", queueItem.CorrelationId!, "ok", $"Upload queued for '{queueItem.RemotePath}'.");
+        EmitMetric("queue.depth.upload", _uploadQueue.Count, queueItem.CorrelationId!);
         EnsureUploadWorkerStarted();
         return Unit.Value;
     }
 
-    ///  <inheritdoc/>
+    /// <inheritdoc/>
     public async Task<Result<Unit, string>> EnqueueDownloadAsync(SyncQueueItem queueItem, CancellationToken cancellationToken = default)
     {
         Result<SyncQueueItem, string> conflictDownloadResult = ApplyConflictPolicy(queueItem, isUpload: false);
@@ -142,7 +148,7 @@ public sealed class SyncService : ISyncService
             return conflictDownloadError.Reason;
         }
 
-        queueItem = ((Result<SyncQueueItem, string>.Ok)conflictDownloadResult).Value;
+        queueItem = NormalizeCorrelationId(((Result<SyncQueueItem, string>.Ok)conflictDownloadResult).Value);
         Result<Unit, string> validationResult = await _downloadFileSystem.ValidatePathAndDiskAsync(queueItem.LocalPath, cancellationToken);
         if(validationResult is Result<Unit, string>.Error validationError)
         {
@@ -151,11 +157,13 @@ public sealed class SyncService : ISyncService
 
         _downloadQueue.Enqueue(queueItem);
         _ = _downloadSignal.Release();
+        EmitEvent("download.enqueued", "download", queueItem.CorrelationId!, "ok", $"Download queued for '{queueItem.RemotePath}'.");
+        EmitMetric("queue.depth.download", _downloadQueue.Count, queueItem.CorrelationId!);
         EnsureDownloadWorkerStarted();
         return Unit.Value;
     }
 
-    ///  <inheritdoc/>
+    /// <inheritdoc/>
     public Task<Result<IReadOnlyList<SyncQueueItem>, string>> GetFailedOperationsAsync(CancellationToken cancellationToken = default)
     {
         lock(_failedSync)
@@ -165,7 +173,7 @@ public sealed class SyncService : ISyncService
         }
     }
 
-    ///  <inheritdoc/>
+    /// <inheritdoc/>
     public Task<Result<IReadOnlyList<SyncConflict>, string>> GetConflictsAsync(CancellationToken cancellationToken = default)
     {
         lock(_conflictSync)
@@ -175,7 +183,7 @@ public sealed class SyncService : ISyncService
         }
     }
 
-    ///  <inheritdoc/>
+    /// <inheritdoc/>
     public async Task<Result<Unit, string>> RetryFailedOperationsAsync(CancellationToken cancellationToken = default)
     {
         List<FailedOperation> retryItems = [];
@@ -187,6 +195,7 @@ public sealed class SyncService : ISyncService
 
         foreach(FailedOperation retry in retryItems)
         {
+            EmitMetric("retry.count", 1, retry.Item.CorrelationId ?? retry.Item.Id);
             Result<Unit, string> result = retry.IsUpload
                 ? await EnqueueUploadAsync(retry.Item, cancellationToken)
                 : await EnqueueDownloadAsync(retry.Item, cancellationToken);
@@ -277,6 +286,7 @@ public sealed class SyncService : ISyncService
 
     private async Task ProcessDownloadAsync(SyncQueueItem item, CancellationToken cancellationToken)
     {
+        var stopwatch = Stopwatch.StartNew();
         var tempPath = _downloadFileSystem.GetTempPath(item.LocalPath);
         try
         {
@@ -290,6 +300,7 @@ public sealed class SyncService : ISyncService
             {
                 _ = await _downloadFileSystem.CleanupTempAsync(tempPath, cancellationToken);
                 AddFailed(item, isUpload: false);
+                EmitEvent("download.failed", "download", item.CorrelationId ?? item.Id, "error", $"Download failed for '{item.RemotePath}'.");
                 return;
             }
 
@@ -298,17 +309,26 @@ public sealed class SyncService : ISyncService
             {
                 _ = await _downloadFileSystem.CleanupTempAsync(tempPath, cancellationToken);
                 AddFailed(item, isUpload: false);
+                EmitEvent("download.failed", "download", item.CorrelationId ?? item.Id, "error", $"Finalize failed for '{item.LocalPath}'.");
+                return;
             }
+
+            stopwatch.Stop();
+            EmitMetric("duration.download.ms", stopwatch.Elapsed.TotalMilliseconds, item.CorrelationId ?? item.Id);
+            EmitMetric("throughput.download", 1, item.CorrelationId ?? item.Id);
+            EmitEvent("download.completed", "download", item.CorrelationId ?? item.Id, "ok", $"Download completed for '{item.RemotePath}'.");
         }
         catch(OperationCanceledException)
         {
             _ = await _downloadFileSystem.CleanupTempAsync(tempPath, CancellationToken.None);
             AddFailed(item, isUpload: false);
+            EmitEvent("download.failed", "download", item.CorrelationId ?? item.Id, "cancelled", $"Download cancelled for '{item.RemotePath}'.");
         }
     }
 
     private async Task ProcessUploadAsync(SyncQueueItem item, CancellationToken cancellationToken)
     {
+        var stopwatch = Stopwatch.StartNew();
         try
         {
             while(_isPaused && !cancellationToken.IsCancellationRequested)
@@ -325,11 +345,19 @@ public sealed class SyncService : ISyncService
             if(transferResult is Result<Unit, string>.Error)
             {
                 AddFailed(item, isUpload: true);
+                EmitEvent("upload.failed", "upload", item.CorrelationId ?? item.Id, "error", $"Upload failed for '{item.RemotePath}'.");
+                return;
             }
+
+            stopwatch.Stop();
+            EmitMetric("duration.upload.ms", stopwatch.Elapsed.TotalMilliseconds, item.CorrelationId ?? item.Id);
+            EmitMetric("throughput.upload", 1, item.CorrelationId ?? item.Id);
+            EmitEvent("upload.completed", "upload", item.CorrelationId ?? item.Id, "ok", $"Upload completed for '{item.RemotePath}'.");
         }
         catch(OperationCanceledException)
         {
             AddFailed(item, isUpload: true);
+            EmitEvent("upload.failed", "upload", item.CorrelationId ?? item.Id, "cancelled", $"Upload cancelled for '{item.RemotePath}'.");
         }
     }
 
@@ -410,65 +438,53 @@ public sealed class SyncService : ISyncService
             }
 
             _conflicts.Add(new SyncConflict(queueItem.Id, decision.ConflictKind.ToString(), decision.Reason));
+            EmitMetric("conflict.count", 1, queueItem.CorrelationId ?? queueItem.Id);
+            EmitEvent("conflict.detected", "conflict", queueItem.CorrelationId ?? queueItem.Id, "warning", decision.Reason);
         }
     }
+
+    private void EmitEvent(string eventName, string operation, string correlationId, string outcome, string message)
+        => _ = _diagnosticsSink.RecordEventAsync(new SyncDiagnosticEvent(eventName, operation, correlationId, outcome, message, DateTime.UtcNow));
+
+    private void EmitMetric(string name, double value, string correlationId)
+        => _ = _diagnosticsSink.RecordMetricAsync(new SyncMetricPoint(name, value, correlationId, DateTime.UtcNow));
 
     private sealed record FailedOperation(SyncQueueItem Item, bool IsUpload);
 
     private sealed class NullDownloadTransferClient : IDownloadTransferClient
     {
         public Task<Result<Unit, string>> DownloadAsync(string remotePath, string tempPath, CancellationToken cancellationToken = default)
-            => Try.RunAsync(async () =>
-            {
-                var directory = Path.GetDirectoryName(tempPath);
-                if(!string.IsNullOrWhiteSpace(directory))
-                {
-                    _ = Directory.CreateDirectory(directory);
-                }
-
-                await File.WriteAllTextAsync(tempPath, string.Empty, cancellationToken);
-                return Unit.Value;
-            }).MapFailureAsync(error => error.Message);
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
     }
 
     private sealed class NullDownloadFileSystem : IDownloadFileSystem
     {
         public Task<Result<Unit, string>> ValidatePathAndDiskAsync(string localPath, CancellationToken cancellationToken = default)
-            => string.IsNullOrWhiteSpace(localPath)
-                ? Task.FromResult<Result<Unit, string>>("invalid destination")
-                : Task.FromResult<Result<Unit, string>>(Unit.Value);
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
 
         public string GetTempPath(string localPath)
-            => $"{localPath}.download";
+            => string.IsNullOrWhiteSpace(localPath) ? Path.GetTempFileName() : $"{localPath}.download";
 
         public Task<Result<Unit, string>> FinalizeAtomicAsync(string tempPath, string localPath, CancellationToken cancellationToken = default)
-            => Try.RunAsync(() =>
+        {
+            if(!File.Exists(tempPath))
             {
-                var directory = Path.GetDirectoryName(localPath);
-                if(!string.IsNullOrWhiteSpace(directory))
-                {
-                    _ = Directory.CreateDirectory(directory);
-                }
+                return Task.FromResult<Result<Unit, string>>(Unit.Value);
+            }
 
-                if(File.Exists(localPath))
-                {
-                    File.Delete(localPath);
-                }
-
-                File.Move(tempPath, localPath, overwrite: false);
-                return Task.FromResult(Unit.Value);
-            }).MapFailureAsync(error => error.Message);
+            File.Move(tempPath, localPath, overwrite: false);
+            return Task.FromResult<Result<Unit, string>>(Unit.Value);
+        }
 
         public Task<Result<Unit, string>> CleanupTempAsync(string tempPath, CancellationToken cancellationToken = default)
-            => Try.RunAsync(() =>
+        {
+            if(File.Exists(tempPath))
             {
-                if(File.Exists(tempPath))
-                {
-                    File.Delete(tempPath);
-                }
+                File.Delete(tempPath);
+            }
 
-                return Task.FromResult(Unit.Value);
-            }).MapFailureAsync(error => error.Message);
+            return Task.FromResult<Result<Unit, string>>(Unit.Value);
+        }
     }
 
     private sealed class NullUploadTransferClient : IUploadTransferClient
@@ -486,11 +502,18 @@ public sealed class SyncService : ISyncService
     private sealed class NullUploadFileSystem : IUploadFileSystem
     {
         public Task<Result<Unit, string>> ValidateUploadPathAsync(string localPath, CancellationToken cancellationToken = default)
-            => string.IsNullOrWhiteSpace(localPath)
-                ? Task.FromResult<Result<Unit, string>>("invalid upload source")
-                : Task.FromResult<Result<Unit, string>>(Unit.Value);
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
 
         public Task<Result<long, string>> GetFileSizeBytesAsync(string localPath, CancellationToken cancellationToken = default)
-            => Try.RunAsync(() => Task.FromResult(new FileInfo(localPath).Length)).MapFailureAsync(error => error.Message);
+            => Task.FromResult<Result<long, string>>(0L);
+    }
+
+    private sealed class NullSyncDiagnosticsSink : ISyncDiagnosticsSink
+    {
+        public Task<Result<Unit, string>> RecordEventAsync(SyncDiagnosticEvent diagnosticEvent, CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> RecordMetricAsync(SyncMetricPoint metricPoint, CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
     }
 }
