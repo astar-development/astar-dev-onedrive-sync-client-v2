@@ -119,6 +119,7 @@ public class SyncStatusViewModel : ViewModelBase
             ProgressPercentage = 100;
             Status = IdleStatus;
             AddActivity("Info", "Sync completed: 0 item(s)");
+            await LogConflictOutcomesAsync(cancellationToken);
             return Unit.Value;
         }
 
@@ -137,7 +138,22 @@ public class SyncStatusViewModel : ViewModelBase
 
         Status = IdleStatus;
         AddActivity("Info", $"Sync completed: {syncedFiles.Count} item(s)");
+        await LogConflictOutcomesAsync(cancellationToken);
         return Unit.Value;
+    }
+
+    private async Task LogConflictOutcomesAsync(CancellationToken cancellationToken)
+    {
+        Result<IReadOnlyList<SyncConflict>, string> conflictsResult = await _syncService.GetConflictsAsync(cancellationToken);
+        if(conflictsResult is not Result<IReadOnlyList<SyncConflict>, string>.Ok conflictsOk)
+        {
+            return;
+        }
+
+        foreach(SyncConflict conflict in conflictsOk.Value)
+        {
+            AddActivity("Warning", $"Conflict ({conflict.ConflictType}): {conflict.Reason}");
+        }
     }
 
     private Unit FailSync(string error)

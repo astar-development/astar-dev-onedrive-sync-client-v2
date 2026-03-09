@@ -83,6 +83,9 @@ public sealed class SyncIntegrationShould
 
         public Task<Result<IReadOnlyList<SyncQueueItem>, string>> GetFailedOperationsAsync(CancellationToken cancellationToken = default)
             => Task.FromResult<Result<IReadOnlyList<SyncQueueItem>, string>>(Array.Empty<SyncQueueItem>());
+        
+            public Task<Result<IReadOnlyList<SyncConflict>, string>> GetConflictsAsync(CancellationToken cancellationToken = default)
+                => Task.FromResult<Result<IReadOnlyList<SyncConflict>, string>>(Array.Empty<SyncConflict>());
 
         public Task<Result<Unit, string>> RetryFailedOperationsAsync(CancellationToken cancellationToken = default)
             => Task.FromResult<Result<Unit, string>>(Unit.Value);
@@ -121,6 +124,9 @@ public sealed class SyncIntegrationShould
 
         public Task<Result<IReadOnlyList<SyncQueueItem>, string>> GetFailedOperationsAsync(CancellationToken cancellationToken = default)
             => Task.FromResult<Result<IReadOnlyList<SyncQueueItem>, string>>(Array.Empty<SyncQueueItem>());
+        
+            public Task<Result<IReadOnlyList<SyncConflict>, string>> GetConflictsAsync(CancellationToken cancellationToken = default)
+                => Task.FromResult<Result<IReadOnlyList<SyncConflict>, string>>(Array.Empty<SyncConflict>());
 
         public Task<Result<Unit, string>> RetryFailedOperationsAsync(CancellationToken cancellationToken = default)
             => Task.FromResult<Result<Unit, string>>(Unit.Value);
@@ -130,6 +136,9 @@ public sealed class SyncIntegrationShould
     {
         public Task<Result<IReadOnlyList<SyncFile>, string>> GetSyncFilesAsync(CancellationToken cancellationToken = default)
             => throw new InvalidOperationException("OneDrive unavailable");
+        
+            public Task<Result<IReadOnlyList<SyncConflict>, string>> GetConflictsAsync(CancellationToken cancellationToken = default)
+                => throw new InvalidOperationException("OneDrive unavailable");
 
         public Task<Result<Unit, string>> PauseSyncAsync(CancellationToken cancellationToken = default)
             => throw new InvalidOperationException("OneDrive unavailable");

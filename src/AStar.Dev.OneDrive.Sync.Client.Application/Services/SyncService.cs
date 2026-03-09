@@ -25,12 +25,16 @@ public sealed class SyncService : ISyncService
     private readonly SemaphoreSlim _uploadParallelism;
     private readonly Lock _workerSync = new();
     private readonly Lock _failedSync = new();
+    private readonly Lock _conflictSync = new();
     private readonly List<FailedOperation> _failedOperations = [];
+    private readonly List<SyncConflict> _conflicts = [];
+    private readonly SyncConflictPolicyEngine _conflictPolicyEngine;
     private CancellationTokenSource _workerCts = new();
     private Task? _downloadWorkerTask;
     private Task? _uploadWorkerTask;
     private bool _isPaused;
     private readonly long _chunkedUploadThresholdBytes;
+    private readonly SyncConflictResolutionPolicy _defaultConflictResolutionPolicy;
 
     public SyncService(
         ISyncFileRepository syncFileRepository,
@@ -40,7 +44,9 @@ public sealed class SyncService : ISyncService
         IUploadFileSystem? uploadFileSystem = null,
         int maxConcurrentDownloads = 2,
         int maxConcurrentUploads = 2,
-        long chunkedUploadThresholdBytes = 8L * 1024L * 1024L)
+        long chunkedUploadThresholdBytes = 8L * 1024L * 1024L,
+        SyncConflictPolicyEngine? conflictPolicyEngine = null,
+        SyncConflictResolutionPolicy defaultConflictResolutionPolicy = SyncConflictResolutionPolicy.Manual)
     {
         _syncFileRepository = syncFileRepository;
         _downloadTransferClient = downloadTransferClient ?? new NullDownloadTransferClient();
@@ -50,6 +56,8 @@ public sealed class SyncService : ISyncService
         _downloadParallelism = new SemaphoreSlim(Math.Max(1, maxConcurrentDownloads));
         _uploadParallelism = new SemaphoreSlim(Math.Max(1, maxConcurrentUploads));
         _chunkedUploadThresholdBytes = Math.Max(1, chunkedUploadThresholdBytes);
+        _conflictPolicyEngine = conflictPolicyEngine ?? new SyncConflictPolicyEngine();
+        _defaultConflictResolutionPolicy = defaultConflictResolutionPolicy;
     }
 
     ///  <inheritdoc/>
@@ -103,6 +111,13 @@ public sealed class SyncService : ISyncService
     ///  <inheritdoc/>
     public async Task<Result<Unit, string>> EnqueueUploadAsync(SyncQueueItem queueItem, CancellationToken cancellationToken = default)
     {
+        Result<SyncQueueItem, string> conflictUploadResult = ApplyConflictPolicy(queueItem, isUpload: true);
+        if(conflictUploadResult is Result<SyncQueueItem, string>.Error conflictUploadError)
+        {
+            return conflictUploadError.Reason;
+        }
+
+        queueItem = ((Result<SyncQueueItem, string>.Ok)conflictUploadResult).Value;
         if(queueItem.OperationType is SyncOperationType.Create or SyncOperationType.Update)
         {
             Result<Unit, string> validation = await _uploadFileSystem.ValidateUploadPathAsync(queueItem.LocalPath, cancellationToken);
@@ -121,6 +136,13 @@ public sealed class SyncService : ISyncService
     ///  <inheritdoc/>
     public async Task<Result<Unit, string>> EnqueueDownloadAsync(SyncQueueItem queueItem, CancellationToken cancellationToken = default)
     {
+        Result<SyncQueueItem, string> conflictDownloadResult = ApplyConflictPolicy(queueItem, isUpload: false);
+        if(conflictDownloadResult is Result<SyncQueueItem, string>.Error conflictDownloadError)
+        {
+            return conflictDownloadError.Reason;
+        }
+
+        queueItem = ((Result<SyncQueueItem, string>.Ok)conflictDownloadResult).Value;
         Result<Unit, string> validationResult = await _downloadFileSystem.ValidatePathAndDiskAsync(queueItem.LocalPath, cancellationToken);
         if(validationResult is Result<Unit, string>.Error validationError)
         {
@@ -139,6 +161,16 @@ public sealed class SyncService : ISyncService
         lock(_failedSync)
         {
             Result<IReadOnlyList<SyncQueueItem>, string> result = _failedOperations.Select(x => x.Item).ToList();
+            return Task.FromResult(result);
+        }
+    }
+
+    ///  <inheritdoc/>
+    public Task<Result<IReadOnlyList<SyncConflict>, string>> GetConflictsAsync(CancellationToken cancellationToken = default)
+    {
+        lock(_conflictSync)
+        {
+            Result<IReadOnlyList<SyncConflict>, string> result = _conflicts.ToList();
             return Task.FromResult(result);
         }
     }
@@ -336,6 +368,48 @@ public sealed class SyncService : ISyncService
             }
 
             _failedOperations.Add(new FailedOperation(item, isUpload));
+        }
+    }
+
+    private Result<SyncQueueItem, string> ApplyConflictPolicy(SyncQueueItem queueItem, bool isUpload)
+    {
+        if(queueItem.ConflictContext is null)
+        {
+            return queueItem;
+        }
+
+        SyncConflictResolutionPolicy policy = queueItem.ConflictResolutionPolicy ?? _defaultConflictResolutionPolicy;
+        ConflictPolicyDecision decision = _conflictPolicyEngine.Resolve(queueItem.ConflictContext, policy);
+        if(decision.ConflictKind == SyncConflictKind.None)
+        {
+            return queueItem;
+        }
+
+        AddConflict(queueItem, decision);
+        return decision.Outcome switch
+        {
+            SyncConflictResolutionOutcome.ProceedWithRemote when isUpload => $"Conflict resolved using remote wins. Upload skipped for '{queueItem.LocalPath}'.",
+            SyncConflictResolutionOutcome.ProceedWithLocal when !isUpload => $"Conflict resolved using local wins. Download skipped for '{queueItem.LocalPath}'.",
+            SyncConflictResolutionOutcome.RenameAndProceed => queueItem with
+            {
+                LocalPath = isUpload ? queueItem.LocalPath : $"{queueItem.LocalPath}.conflict-copy",
+                RemotePath = isUpload ? $"{queueItem.RemotePath}.conflict-copy" : queueItem.RemotePath
+            },
+            SyncConflictResolutionOutcome.QueueForManualResolution => $"Conflict queued for manual resolution: {decision.Reason}",
+            _ => queueItem
+        };
+    }
+
+    private void AddConflict(SyncQueueItem queueItem, ConflictPolicyDecision decision)
+    {
+        lock(_conflictSync)
+        {
+            if(_conflicts.Any(x => string.Equals(x.QueueItemId, queueItem.Id, StringComparison.Ordinal)))
+            {
+                return;
+            }
+
+            _conflicts.Add(new SyncConflict(queueItem.Id, decision.ConflictKind.ToString(), decision.Reason));
         }
     }
 

@@ -84,11 +84,11 @@ Legend:
 - [x] Add integration tests for retry/restart safety
 
 ### Phase 10: Conflict detection and resolution policy (2 days)
-- [ ] Implement conflict classifier (etag/timestamp/rename/delete)
-- [ ] Implement policy engine (remote wins/local wins/rename/manual)
-- [ ] Expose conflict outcomes in UI/logs
-- [ ] Add tests for deterministic conflict outcomes
-- [ ] Validate no silent overwrite/data loss paths
+- [x] Implement conflict classifier (etag/timestamp/rename/delete)
+- [x] Implement policy engine (remote wins/local wins/rename/manual)
+- [x] Expose conflict outcomes in UI/logs
+- [x] Add tests for deterministic conflict outcomes
+- [x] Validate no silent overwrite/data loss paths
 
 ### Phase 11: Sync orchestrator + scheduling (2 days)
 - [ ] Implement orchestration state machine for scan/delta/upload/download
