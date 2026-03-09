@@ -17,7 +17,19 @@
                 <TreeDataTemplate ItemsSource="{Binding Children}"
                                   x:DataType="vm:FolderNode">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <CheckBox IsChecked="{Binding IsSelected}" />
+                        <Button Content="+"
+                                Width="22"
+                                Height="22"
+                                Command="{Binding $parent[UserControl].DataContext.ExpandNodeCommand}"
+                                CommandParameter="{Binding}" />
+                        <Button Content="-"
+                                Width="22"
+                                Height="22"
+                                Command="{Binding $parent[UserControl].DataContext.CollapseNodeCommand}"
+                                CommandParameter="{Binding}" />
+                        <CheckBox IsChecked="{Binding IsSelected}"
+                                  Command="{Binding $parent[UserControl].DataContext.ToggleNodeSelectionCommand}"
+                                  CommandParameter="{Binding}" />
                         <TextBlock Text="{Binding Name}" />
                     </StackPanel>
                 </TreeDataTemplate>

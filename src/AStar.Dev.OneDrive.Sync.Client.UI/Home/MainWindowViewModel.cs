@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
 using AStar.Dev.OneDrive.Sync.Client.UI.FolderTrees;
@@ -8,6 +9,7 @@ using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
 using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
 using Avalonia.Threading;
 using ReactiveUI;
+using System.ComponentModel;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Home;
 
@@ -103,13 +105,14 @@ public class MainWindowViewModel : ViewModelBase
     /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
     /// </summary>
     /// <param name="initializeLayoutView">Whether to initialize the layout view immediately.</param>
-    public MainWindowViewModel(bool initializeLayoutView = true)
+    public MainWindowViewModel(string? databasePath = null, bool initializeLayoutView = true)
     {
-        Accounts = new AccountListViewModel();
-        FolderTree = new FolderTreeViewModel();
+        Accounts = new AccountListViewModel(databasePath);
+        FolderTree = new FolderTreeViewModel(databasePath);
         Sync = new SyncStatusViewModel();
         Logs = new LogsViewModel();
         Settings = new SettingsViewModel();
+        Accounts.PropertyChanged += OnAccountsPropertyChanged;
         Settings.ThemeChanged += (_, themeName) => ThemeManager.ThemeManager.ApplyTheme(themeName);
 
         SwitchToExplorerCommand = new RelayCommand(_ => CurrentLayout = LayoutType.Explorer);
@@ -172,5 +175,30 @@ public class MainWindowViewModel : ViewModelBase
     {
         TerminalSelectedTabIndex = tabIndex;
         CurrentLayout = LayoutType.Terminal;
+    }
+
+    private void OnAccountsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if(!string.Equals(e.PropertyName, nameof(AccountListViewModel.SelectedAccount), StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _ = ReloadFolderTreeForSelectedAccountAsync();
+    }
+
+    private async Task ReloadFolderTreeForSelectedAccountAsync()
+    {
+        AccountInfo? selectedAccount = Accounts.SelectedAccount;
+        if(selectedAccount is null)
+        {
+            FolderTree.ClearTree();
+            return;
+        }
+
+        _ = await FolderTree.LoadTreeAsync(selectedAccount.Id)
+            .MatchAsync(
+                _ => Task.CompletedTask,
+                _ => Task.CompletedTask);
     }
 }

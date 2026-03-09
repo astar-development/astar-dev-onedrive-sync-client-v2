@@ -14,6 +14,7 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.FolderTrees;
 /// </summary>
 public class FolderTreeViewModel : ViewModelBase
 {
+    private const string DefaultAccountId = "local-folder-tree-account";
     private const string RootNodeKey = "__root__";
     private readonly SqliteDatabaseMigrator _migrator;
     private readonly SqliteFolderTreeRepository _folderTreeRepository;
@@ -51,6 +52,15 @@ public class FolderTreeViewModel : ViewModelBase
     /// Command to collapse a node. When executed, it will set the specified node's IsExpanded property to false, causing its child nodes to be hidden in the UI.
     /// </summary>
     public ICommand CollapseNodeCommand { get; }
+
+    /// <summary>
+    /// Gets the active account identifier used for load/save operations.
+    /// </summary>
+    public string ActiveAccountId
+    {
+        get;
+        private set => this.RaiseAndSetIfChanged(ref field, NormalizeAccountId(value));
+    } = DefaultAccountId;
 
     /// <summary>
     /// Initializes a new instance of the FolderTreeViewModel class. This constructor sets up the necessary infrastructure for managing the folder tree, including initializing the database migrator and repository, and creating commands for node interactions.
@@ -99,20 +109,40 @@ public class FolderTreeViewModel : ViewModelBase
     }
 
     public Task<Result<bool, Exception>> SaveTreeAsync(CancellationToken cancellationToken = default)
+        => SaveTreeAsync(ActiveAccountId, cancellationToken);
+
+    /// <summary>
+    /// Saves the current folder tree for the specified account.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Result indicating success or failure.</returns>
+    public Task<Result<bool, Exception>> SaveTreeAsync(string accountId, CancellationToken cancellationToken = default)
         => Try.RunAsync(async () =>
         {
+            ActiveAccountId = accountId;
             await _migrator.EnsureMigratedAsync(cancellationToken);
             var state = FlattenTree(Nodes).ToList();
-            await _folderTreeRepository.SaveAsync(state, cancellationToken);
+            await _folderTreeRepository.SaveAsync(ActiveAccountId, state, cancellationToken);
 
             return true;
         });
 
     public Task<Result<bool, Exception>> LoadTreeAsync(CancellationToken cancellationToken = default)
+        => LoadTreeAsync(ActiveAccountId, cancellationToken);
+
+    /// <summary>
+    /// Loads the folder tree for the specified account.
+    /// </summary>
+    /// <param name="accountId">The account identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Result indicating success or failure.</returns>
+    public Task<Result<bool, Exception>> LoadTreeAsync(string accountId, CancellationToken cancellationToken = default)
         => Try.RunAsync(async () =>
         {
+            ActiveAccountId = accountId;
             await _migrator.EnsureMigratedAsync(cancellationToken);
-            IReadOnlyList<FolderNodeState> state = await _folderTreeRepository.LoadAsync(cancellationToken);
+            IReadOnlyList<FolderNodeState> state = await _folderTreeRepository.LoadAsync(ActiveAccountId, cancellationToken);
             List<FolderNode> restored = BuildTree(state);
 
             Nodes.Clear();
@@ -123,6 +153,15 @@ public class FolderTreeViewModel : ViewModelBase
 
             return true;
         });
+
+    /// <summary>
+    /// Clears the currently displayed tree nodes.
+    /// </summary>
+    public void ClearTree()
+        => Nodes.Clear();
+
+    private static string NormalizeAccountId(string accountId)
+        => string.IsNullOrWhiteSpace(accountId) ? DefaultAccountId : accountId;
 
     private static IEnumerable<FolderNodeState> FlattenTree(IReadOnlyList<FolderNode> nodes)
     {

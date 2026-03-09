@@ -1,3 +1,4 @@
+using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
 using AStar.Dev.OneDrive.Sync.Client.UI.FolderTrees;
@@ -6,6 +7,7 @@ using AStar.Dev.OneDrive.Sync.Client.UI.Logs;
 using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
 using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
 using AStar.Dev.OneDrive.Sync.Client.UI.Tests.ThemeManager;
+using AStar.Dev.Utilities;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Tests.Home;
 
@@ -180,5 +182,51 @@ public sealed class MainWindowViewModelShould
         vm.TerminalSelectedTabIndex = 1;
 
         propertyChanged.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task ReloadFolderTreeWhenSelectedAccountChanges()
+    {
+        var databasePath = Path.GetTempPath().CombinePath($"astar-ui-main-window-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
+        var accountA = new AccountInfo("acct-a", "a@example.com", 0, 0);
+        var accountB = new AccountInfo("acct-b", "b@example.com", 0, 0);
+
+        var seedA = new FolderTreeViewModel(databasePath);
+        seedA.Nodes.Add(new FolderNode(Guid.NewGuid().ToString("N"), "A Root", true, false, []));
+        Result<bool, Exception> saveA = await seedA.SaveTreeAsync(accountA.Id, TestContext.Current.CancellationToken);
+        Pattern.IsSuccess(saveA).ShouldBeTrue();
+
+        var seedB = new FolderTreeViewModel(databasePath);
+        seedB.Nodes.Add(new FolderNode(Guid.NewGuid().ToString("N"), "B Root", false, true, []));
+        Result<bool, Exception> saveB = await seedB.SaveTreeAsync(accountB.Id, TestContext.Current.CancellationToken);
+        Pattern.IsSuccess(saveB).ShouldBeTrue();
+
+        var vm = new MainWindowViewModel(databasePath, initializeLayoutView: false);
+        vm.Accounts.Accounts.Clear();
+        vm.Accounts.Accounts.Add(accountA);
+        vm.Accounts.Accounts.Add(accountB);
+
+        vm.Accounts.SelectedAccount = accountA;
+        await WaitForConditionAsync(() => vm.FolderTree.Nodes.Count == 1 && vm.FolderTree.Nodes[0].Name == "A Root");
+        vm.FolderTree.Nodes[0].Name.ShouldBe("A Root");
+
+        vm.Accounts.SelectedAccount = accountB;
+        await WaitForConditionAsync(() => vm.FolderTree.Nodes.Count == 1 && vm.FolderTree.Nodes[0].Name == "B Root");
+        vm.FolderTree.Nodes[0].Name.ShouldBe("B Root");
+    }
+
+    private static async Task WaitForConditionAsync(Func<bool> condition)
+    {
+        for(var attempt = 0; attempt < 60; attempt++)
+        {
+            if(condition())
+            {
+                return;
+            }
+
+            await Task.Delay(20, TestContext.Current.CancellationToken);
+        }
+
+        throw new TimeoutException("Condition was not met within the allowed time.");
     }
 }
