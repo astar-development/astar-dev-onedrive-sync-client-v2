@@ -56,11 +56,11 @@ Legend:
 - [x] Add tests for per-account state restoration
 
 ### Phase 6: Local file inventory and change detection baseline (2 days)
-- [ ] Implement local scanner/inventory service
-- [ ] Persist file fingerprints/metadata required for comparison
-- [ ] Add startup/manual scan entry points
-- [ ] Add deterministic tests for inventory output
-- [ ] Document hash/fingerprint policy decision
+- [x] Implement local scanner/inventory service
+- [x] Persist file fingerprints/metadata required for comparison
+- [x] Add startup/manual scan entry points
+- [x] Add deterministic tests for inventory output
+- [x] Document hash/fingerprint policy decision
 
 ### Phase 7: Delta pull from OneDrive (2 days)
 - [ ] Implement delta pagination and checkpoint commit flow

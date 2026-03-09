@@ -25,6 +25,9 @@ public static class CompositionRoot
 
         Registrations[typeof(ISyncFileRepository)] = () => new OneDriveSyncFileRepository();
         Registrations[typeof(ISyncService)] = () => new SyncService(Resolve<ISyncFileRepository>());
+        Registrations[typeof(ILocalFileScanner)] = () => new FileSystemLocalFileScanner();
+        Registrations[typeof(ILocalInventoryStore)] = () => new SqliteLocalInventoryStore(databasePath);
+        Registrations[typeof(ILocalInventoryService)] = () => new LocalInventoryService(Resolve<ILocalFileScanner>(), Resolve<ILocalInventoryStore>());
         Registrations[typeof(AstarOneDriveDbContextModel)] = () => AstarOneDriveDbContextFactory.Create(databasePath);
         Registrations[typeof(SqliteSettingsRepository)] = () => new SqliteSettingsRepository(databasePath);
         Registrations[typeof(SqliteAccountsRepository)] = () => new SqliteAccountsRepository(databasePath);
