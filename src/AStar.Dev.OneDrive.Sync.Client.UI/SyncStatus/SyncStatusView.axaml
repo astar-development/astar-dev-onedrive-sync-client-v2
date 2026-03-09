@@ -22,6 +22,8 @@
                     Command="{Binding StartSyncCommand}" />
             <Button Content="{DynamicResource Sync_Pause}"
                     Command="{Binding PauseSyncCommand}" />
+            <Button Content="Resume"
+                Command="{Binding ResumeSyncCommand}" />
         </StackPanel>
 
     </StackPanel>

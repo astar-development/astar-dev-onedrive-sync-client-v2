@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using AStar.Dev.Functional.Extensions;
 using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
+using AStar.Dev.OneDrive.Sync.Client.Application.Models;
 using AStar.Dev.OneDrive.Sync.Client.Domain.Entities;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
 using AStar.Dev.OneDrive.Sync.Client.UI.Composition;
@@ -85,6 +86,7 @@ public class SyncStatusViewModel : ViewModelBase
 
     public ICommand StartSyncCommand { get; }
     public ICommand PauseSyncCommand { get; }
+    public ICommand ResumeSyncCommand { get; }
 
     public ICommand SyncNowCommand => StartSyncCommand;
     public ICommand PauseCommand => PauseSyncCommand;
@@ -93,7 +95,8 @@ public class SyncStatusViewModel : ViewModelBase
     {
         _syncService = syncService ?? CompositionRoot.Resolve<ISyncService>();
         StartSyncCommand = new RelayCommand(_ => _ = StartSyncAsync());
-        PauseSyncCommand = new RelayCommand(_ => PauseSync());
+        PauseSyncCommand = new RelayCommand(_ => _ = PauseSyncAsync());
+        ResumeSyncCommand = new RelayCommand(_ => _ = ResumeSyncAsync());
     }
 
     private async Task StartSyncAsync(CancellationToken cancellationToken = default)
@@ -105,13 +108,33 @@ public class SyncStatusViewModel : ViewModelBase
 
         _ = await _syncService.GetSyncFilesAsync(cancellationToken)
             .MatchAsync(
-                syncedFiles => Task.FromResult(CompleteSync(syncedFiles)),
+                syncedFiles => QueueDownloadsAsync(syncedFiles, cancellationToken),
                 failureMessage => Task.FromResult(FailSync(failureMessage)));
     }
 
-    private Unit CompleteSync(IReadOnlyList<SyncFile> syncedFiles)
+    private async Task<Unit> QueueDownloadsAsync(IReadOnlyList<SyncFile> syncedFiles, CancellationToken cancellationToken)
     {
-        ProgressPercentage = 100;
+        if(syncedFiles.Count == 0)
+        {
+            ProgressPercentage = 100;
+            Status = IdleStatus;
+            AddActivity("Info", "Sync completed: 0 item(s)");
+            return Unit.Value;
+        }
+
+        for(var index = 0; index < syncedFiles.Count; index++)
+        {
+            SyncFile file = syncedFiles[index];
+            var queueItem = new SyncQueueItem(Guid.NewGuid().ToString("N"), file.LocalPath, file.RemotePath);
+            Result<Unit, string> enqueueResult = await _syncService.EnqueueDownloadAsync(queueItem, cancellationToken);
+            if(enqueueResult is Result<Unit, string>.Error enqueueError)
+            {
+                return FailSync(enqueueError.Reason);
+            }
+
+            ProgressPercentage = (index + 1) * 100 / syncedFiles.Count;
+        }
+
         Status = IdleStatus;
         AddActivity("Info", $"Sync completed: {syncedFiles.Count} item(s)");
         return Unit.Value;
@@ -124,7 +147,23 @@ public class SyncStatusViewModel : ViewModelBase
         return Unit.Value;
     }
 
-    private void PauseSync() => Status = PausedStatus;
+    private async Task PauseSyncAsync()
+    {
+        Result<Unit, string> pauseResult = await _syncService.PauseSyncAsync();
+        if(pauseResult is Result<Unit, string>.Ok)
+        {
+            Status = PausedStatus;
+        }
+    }
+
+    private async Task ResumeSyncAsync()
+    {
+        Result<Unit, string> resumeResult = await _syncService.ResumeSyncAsync();
+        if(resumeResult is Result<Unit, string>.Ok)
+        {
+            Status = IdleStatus;
+        }
+    }
 
     private void AddActivity(string level, string message)
         => RecentActivity.Add(new SyncActivityEntry(DateTime.UtcNow, level, message));

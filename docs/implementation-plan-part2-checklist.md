@@ -70,11 +70,11 @@ Legend:
 - [x] Verify no full refresh on unchanged runs
 
 ### Phase 8: Download pipeline (remote -> local) (3 days)
-- [ ] Build queued download runner with bounded concurrency
-- [ ] Use temp-file + atomic finalize strategy
-- [ ] Wire progress/cancel/resume status to UI sync view
-- [ ] Add path/disk validation
-- [ ] Add failure recovery tests for partial/interrupted downloads
+- [x] Build queued download runner with bounded concurrency
+- [x] Use temp-file + atomic finalize strategy
+- [x] Wire progress/cancel/resume status to UI sync view
+- [x] Add path/disk validation
+- [x] Add failure recovery tests for partial/interrupted downloads
 
 ### Phase 9: Upload pipeline (local -> remote) (3 days)
 - [ ] Build queued upload runner for create/update/delete
