@@ -119,11 +119,11 @@ Legend:
 - [x] Track and resolve blocking reliability defects
 
 ### Phase 15: Release readiness and controlled rollout (1 day)
-- [ ] Confirm feature flags/safe defaults
-- [ ] Publish rollback plan (schema/client behavior)
-- [ ] Complete release checklist and support notes
-- [ ] Final architecture + QA sign-off
-- [ ] Mark Part 2 ready for staged rollout
+- [x] Confirm feature flags/safe defaults
+- [x] Publish rollback plan (schema/client behavior)
+- [x] Complete release checklist and support notes
+- [x] Final architecture + QA sign-off
+- [x] Mark Part 2 ready for staged rollout
 
 ## Optional Tracking Fields Per Phase
 - Owner:
