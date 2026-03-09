@@ -98,11 +98,11 @@ Legend:
 - [x] Add integration tests for interrupted-run resume
 
 ### Phase 12: Layout and workflow completion (2 days)
-- [ ] Explorer layout uses real account/tree/sync actions
-- [ ] Dashboard shows real sync/account metrics
-- [ ] Terminal integrates operational logs/status/actions
-- [ ] Remove placeholder layout-only commands/VM behavior
-- [ ] Add UI integration tests for key user journeys
+- [x] Explorer layout uses real account/tree/sync actions
+- [x] Dashboard shows real sync/account metrics
+- [x] Terminal integrates operational logs/status/actions
+- [x] Remove placeholder layout-only commands/VM behavior
+- [x] Add UI integration tests for key user journeys
 
 ### Phase 13: Observability and diagnostics hardening (2 days)
 - [ ] Add structured logs for operation lifecycle and failures

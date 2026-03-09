@@ -10,6 +10,7 @@ using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
 using Avalonia.Threading;
 using ReactiveUI;
 using System.ComponentModel;
+using System.Collections.Specialized;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Home;
 
@@ -102,6 +103,42 @@ public class MainWindowViewModel : ViewModelBase
     }
 
     /// <summary>
+    /// Gets the linked account count used by dashboard metrics.
+    /// </summary>
+    public int LinkedAccountCount
+    {
+        get;
+        private set => this.RaiseAndSetIfChanged(ref field, value);
+    }
+
+    /// <summary>
+    /// Gets the selected account email used by dashboard metrics.
+    /// </summary>
+    public string SelectedAccountEmail
+    {
+        get;
+        private set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "No account selected";
+
+    /// <summary>
+    /// Gets the current sync progress percentage used by dashboard metrics.
+    /// </summary>
+    public int SyncProgressMetric
+    {
+        get;
+        private set => this.RaiseAndSetIfChanged(ref field, value);
+    }
+
+    /// <summary>
+    /// Gets the terminal operational status text.
+    /// </summary>
+    public string TerminalOperationalStatus
+    {
+        get;
+        private set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "Idle";
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
     /// </summary>
     /// <param name="initializeLayoutView">Whether to initialize the layout view immediately.</param>
@@ -113,6 +150,9 @@ public class MainWindowViewModel : ViewModelBase
         Logs = new LogsViewModel();
         Settings = new SettingsViewModel();
         Accounts.PropertyChanged += OnAccountsPropertyChanged;
+        Accounts.Accounts.CollectionChanged += OnAccountsCollectionChanged;
+        Sync.PropertyChanged += OnSyncPropertyChanged;
+        Sync.RecentActivity.CollectionChanged += OnSyncRecentActivityChanged;
         Settings.ThemeChanged += (_, themeName) => ThemeManager.ThemeManager.ApplyTheme(themeName);
 
         SwitchToExplorerCommand = new RelayCommand(_ => CurrentLayout = LayoutType.Explorer);
@@ -125,6 +165,9 @@ public class MainWindowViewModel : ViewModelBase
         {
             ApplyLayout(LayoutType.Explorer);
         }
+
+        RefreshDashboardMetrics();
+        RefreshTerminalOperationalStatus();
 
         Settings.LayoutChanged += (_, layoutName) =>
                     {
@@ -185,7 +228,50 @@ public class MainWindowViewModel : ViewModelBase
         }
 
         _ = ReloadFolderTreeForSelectedAccountAsync();
+        RefreshDashboardMetrics();
     }
+
+    private void OnAccountsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        => RefreshDashboardMetrics();
+
+    private void OnSyncPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if(string.Equals(e.PropertyName, nameof(SyncStatusViewModel.Status), StringComparison.Ordinal)
+            || string.Equals(e.PropertyName, nameof(SyncStatusViewModel.ProgressPercentage), StringComparison.Ordinal)
+            || string.Equals(e.PropertyName, nameof(SyncStatusViewModel.SyncError), StringComparison.Ordinal))
+        {
+            RefreshDashboardMetrics();
+            RefreshTerminalOperationalStatus();
+        }
+    }
+
+    private void OnSyncRecentActivityChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if(e.Action is not (NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Replace))
+        {
+            return;
+        }
+
+        if(Sync.RecentActivity.Count == 0)
+        {
+            return;
+        }
+
+        SyncActivityEntry latest = Sync.RecentActivity[^1];
+        Logs.Append($"[{latest.Level}] {latest.Message}");
+    }
+
+    private void RefreshDashboardMetrics()
+    {
+        LinkedAccountCount = Accounts.Accounts.Count;
+        SelectedAccountEmail = Accounts.SelectedAccount?.Email ?? "No account selected";
+        SyncProgressMetric = Sync.ProgressPercentage;
+    }
+
+    private void RefreshTerminalOperationalStatus()
+        => TerminalOperationalStatus = string.IsNullOrWhiteSpace(Sync.SyncError)
+            ? $"{Sync.Status} ({Sync.ProgressPercentage}%)"
+            : $"{Sync.Status}: {Sync.SyncError}";
 
     private async Task ReloadFolderTreeForSelectedAccountAsync()
     {

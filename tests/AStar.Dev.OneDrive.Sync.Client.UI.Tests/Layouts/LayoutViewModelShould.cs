@@ -39,37 +39,34 @@ public sealed class LayoutViewModelShould
     }
 
     [Fact]
-    public void UpdateSummaryWhenExplorerLayoutCommandIsExecuted()
+    public void ReflectSyncStatusWhenExplorerLayoutViewModelIsCreated()
     {
         MainWindowViewModel mainWindowViewModel = CreateMainWindowContext();
         var sut = new ExplorerLayoutViewModel(mainWindowViewModel);
-
-        sut.RefreshSummaryCommand.Execute(null);
 
         sut.SyncSummary.ShouldBe(mainWindowViewModel.Sync.Status);
     }
 
     [Fact]
-    public void ChangeThemeWhenDashboardLayoutCommandIsExecuted()
+    public void ReflectThemeWhenDashboardLayoutViewModelTracksSettings()
     {
         MainWindowViewModel mainWindowViewModel = CreateMainWindowContext();
         var sut = new DashboardLayoutViewModel(mainWindowViewModel);
-        var initialTheme = sut.CurrentTheme;
 
-        sut.CycleThemeCommand.Execute(null);
+        mainWindowViewModel.Settings.SelectedTheme = "Dark";
 
-        sut.CurrentTheme.ShouldNotBe(initialTheme);
+        sut.CurrentTheme.ShouldBe("Dark");
     }
 
     [Fact]
-    public void UpdateTerminalStatusWhenTerminalLayoutCommandIsExecuted()
+    public void ReflectTerminalOperationalStatusWhenSyncChanges()
     {
         MainWindowViewModel mainWindowViewModel = CreateMainWindowContext();
         var sut = new TerminalLayoutViewModel(mainWindowViewModel);
 
-        sut.RunHealthCheckCommand.Execute(null);
+        mainWindowViewModel.Sync.Status = "Syncing...";
 
-        sut.TerminalStatus.ShouldBe("Connected");
+        sut.TerminalStatus.ShouldContain("Syncing");
     }
 
     private static MainWindowViewModel CreateMainWindowContext()

@@ -32,7 +32,14 @@
 
         <!-- Bottom Console Status Bar -->
         <Border DockPanel.Dock="Bottom" Background="{DynamicResource TerminalStatusBackground}" Height="28">
-            <TextBlock Text="{Binding Sync.CurrentStatus}" Margin="8,0" />
+            <DockPanel Margin="8,0">
+                <TextBlock Text="{Binding TerminalOperationalStatus}" VerticalAlignment="Center" />
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
+                    <Button Content="Sync" Command="{Binding Sync.StartSyncCommand}" />
+                    <Button Content="Pause" Command="{Binding Sync.PauseSyncCommand}" />
+                    <Button Content="Resume" Command="{Binding Sync.ResumeSyncCommand}" />
+                </StackPanel>
+            </DockPanel>
         </Border>
 
         <!-- Main Split View -->

@@ -1,7 +1,10 @@
 using System.Windows.Input;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
 using AStar.Dev.OneDrive.Sync.Client.UI.Home;
+using AStar.Dev.OneDrive.Sync.Client.UI.Settings;
+using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
 using ReactiveUI;
+using System.ComponentModel;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Layouts;
 
@@ -16,27 +19,19 @@ public class ExplorerLayoutViewModel : ViewModelBase
     public MainWindowViewModel MainWindow { get; }
 
     /// <summary>
-    /// Gets or sets the synchronization summary text.
+    /// Gets the synchronization summary text.
     /// </summary>
-    public string SyncSummary
-    {
-        get;
-        set { field = value; _ = this.RaiseAndSetIfChanged(ref field, value); }
-    } = "Idle";
+    public string SyncSummary => MainWindow.Sync.Status;
 
     /// <summary>
-    /// Gets the command to refresh the synchronization summary.
+    /// Gets the command to start synchronization.
     /// </summary>
-    public ICommand RefreshSummaryCommand { get; }
+    public ICommand StartSyncCommand => MainWindow.Sync.StartSyncCommand;
 
     /// <summary>
-    /// Gets or sets the currently selected theme.
+    /// Gets the currently selected theme.
     /// </summary>
-    public string CurrentTheme
-    {
-        get;
-        set { field = value; _ = this.RaiseAndSetIfChanged(ref field, value); }
-    } = "System";
+    public string CurrentTheme => MainWindow.Settings.SelectedTheme;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ExplorerLayoutViewModel"/> class.
@@ -45,6 +40,23 @@ public class ExplorerLayoutViewModel : ViewModelBase
     public ExplorerLayoutViewModel(MainWindowViewModel mainWindow)
     {
         MainWindow = mainWindow;
-        RefreshSummaryCommand = new RelayCommand(_ => SyncSummary = MainWindow.Sync.Status);
+        MainWindow.Sync.PropertyChanged += OnSyncPropertyChanged;
+        MainWindow.Settings.PropertyChanged += OnSettingsPropertyChanged;
+    }
+
+    private void OnSyncPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if(string.Equals(e.PropertyName, nameof(SyncStatusViewModel.Status), StringComparison.Ordinal))
+        {
+            this.RaisePropertyChanged(nameof(SyncSummary));
+        }
+    }
+
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if(string.Equals(e.PropertyName, nameof(SettingsViewModel.SelectedTheme), StringComparison.Ordinal))
+        {
+            this.RaisePropertyChanged(nameof(CurrentTheme));
+        }
     }
 }
