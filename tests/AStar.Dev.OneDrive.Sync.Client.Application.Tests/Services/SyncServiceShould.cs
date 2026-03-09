@@ -15,13 +15,25 @@ public sealed class SyncServiceShould
     private readonly ISyncService _sut;
     private readonly IDownloadTransferClient _downloadClient;
     private readonly IDownloadFileSystem _downloadFileSystem;
+    private readonly IUploadTransferClient _uploadClient;
+    private readonly IUploadFileSystem _uploadFileSystem;
 
     public SyncServiceShould()
     {
         _repository = Substitute.For<ISyncFileRepository>();
         _downloadClient = Substitute.For<IDownloadTransferClient>();
         _downloadFileSystem = Substitute.For<IDownloadFileSystem>();
-        _sut = new SyncService(_repository, _downloadClient, _downloadFileSystem, maxConcurrentDownloads: 2);
+        _uploadClient = Substitute.For<IUploadTransferClient>();
+        _uploadFileSystem = Substitute.For<IUploadFileSystem>();
+        _sut = new SyncService(
+            _repository,
+            _downloadClient,
+            _downloadFileSystem,
+            _uploadClient,
+            _uploadFileSystem,
+            maxConcurrentDownloads: 2,
+            maxConcurrentUploads: 2,
+            chunkedUploadThresholdBytes: 100);
     }
 
     [Fact]
@@ -203,5 +215,99 @@ public sealed class SyncServiceShould
         }
 
         throw new TimeoutException("Condition was not met within the allowed time.");
+    }
+
+    [Fact]
+    public async Task ProcessCreateUpdateAndDeleteOperationsWhenUploadsAreQueued()
+    {
+        var create = new SyncQueueItem("u1", "/tmp/local/c.txt", "/remote/c.txt", SyncOperationType.Create);
+        var update = new SyncQueueItem("u2", "/tmp/local/u.txt", "/remote/u.txt", SyncOperationType.Update);
+        var delete = new SyncQueueItem("u3", string.Empty, "/remote/d.txt", SyncOperationType.Delete);
+        _ = _uploadFileSystem.ValidateUploadPathAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<Unit, string>>(Unit.Value));
+        _ = _uploadFileSystem.GetFileSizeBytesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<long, string>>(10));
+        _ = _uploadClient.UploadAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<Unit, string>>(Unit.Value));
+        _ = _uploadClient.DeleteAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<Unit, string>>(Unit.Value));
+
+        _ = await _sut.EnqueueUploadAsync(create, TestContext.Current.CancellationToken);
+        _ = await _sut.EnqueueUploadAsync(update, TestContext.Current.CancellationToken);
+        _ = await _sut.EnqueueUploadAsync(delete, TestContext.Current.CancellationToken);
+
+        await WaitForConditionAsync(async () =>
+        {
+            await _uploadClient.Received(2).UploadAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+            await _uploadClient.Received(1).DeleteAsync("/remote/d.txt", Arg.Any<string>(), Arg.Any<CancellationToken>());
+            return true;
+        });
+    }
+
+    [Fact]
+    public async Task UseChunkedUploadWhenFileExceedsThreshold()
+    {
+        var queueItem = new SyncQueueItem("u4", "/tmp/local/big.bin", "/remote/big.bin", SyncOperationType.Update);
+        _ = _uploadFileSystem.ValidateUploadPathAsync(queueItem.LocalPath, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<Unit, string>>(Unit.Value));
+        _ = _uploadFileSystem.GetFileSizeBytesAsync(queueItem.LocalPath, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<long, string>>(1000));
+        _ = _uploadClient.UploadChunkedAsync(queueItem.LocalPath, queueItem.RemotePath, Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<Unit, string>>(Unit.Value));
+
+        _ = await _sut.EnqueueUploadAsync(queueItem, TestContext.Current.CancellationToken);
+
+        await WaitForConditionAsync(async () =>
+        {
+            await _uploadClient.Received(1).UploadChunkedAsync(queueItem.LocalPath, queueItem.RemotePath, Arg.Any<string>(), Arg.Any<CancellationToken>());
+            await _uploadClient.DidNotReceive().UploadAsync(queueItem.LocalPath, queueItem.RemotePath, Arg.Any<string>(), Arg.Any<CancellationToken>());
+            return true;
+        });
+    }
+
+    [Fact]
+    public async Task PassCorrelationIdToUploadOperations()
+    {
+        var queueItem = new SyncQueueItem("u5", "/tmp/local/corr.txt", "/remote/corr.txt", SyncOperationType.Update, "corr-123");
+        _ = _uploadFileSystem.ValidateUploadPathAsync(queueItem.LocalPath, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<Unit, string>>(Unit.Value));
+        _ = _uploadFileSystem.GetFileSizeBytesAsync(queueItem.LocalPath, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<long, string>>(20));
+        _ = _uploadClient.UploadAsync(queueItem.LocalPath, queueItem.RemotePath, queueItem.CorrelationId!, Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<Unit, string>>(Unit.Value));
+
+        _ = await _sut.EnqueueUploadAsync(queueItem, TestContext.Current.CancellationToken);
+
+        await WaitForConditionAsync(async () =>
+        {
+            await _uploadClient.Received(1).UploadAsync(queueItem.LocalPath, queueItem.RemotePath, "corr-123", Arg.Any<CancellationToken>());
+            return true;
+        });
+    }
+
+    [Fact]
+    public async Task RetryFailedUploadsIdempotently()
+    {
+        var queueItem = new SyncQueueItem("u6", "/tmp/local/retry.txt", "/remote/retry.txt", SyncOperationType.Update);
+        _ = _uploadFileSystem.ValidateUploadPathAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<Unit, string>>(Unit.Value));
+        _ = _uploadFileSystem.GetFileSizeBytesAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<long, string>>(10));
+        _ = _uploadClient.UploadAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<Unit, string>>("network"), Task.FromResult<Result<Unit, string>>(Unit.Value));
+
+        _ = await _sut.EnqueueUploadAsync(queueItem, TestContext.Current.CancellationToken);
+        await WaitForConditionAsync(async () =>
+        {
+            Result<IReadOnlyList<SyncQueueItem>, string> failed = await _sut.GetFailedOperationsAsync(TestContext.Current.CancellationToken);
+            return failed.ShouldBeOfType<Result<IReadOnlyList<SyncQueueItem>, string>.Ok>().Value.Count == 1;
+        });
+
+        _ = await _sut.RetryFailedOperationsAsync(TestContext.Current.CancellationToken);
+        await WaitForConditionAsync(async () =>
+        {
+            Result<IReadOnlyList<SyncQueueItem>, string> failed = await _sut.GetFailedOperationsAsync(TestContext.Current.CancellationToken);
+            return failed.ShouldBeOfType<Result<IReadOnlyList<SyncQueueItem>, string>.Ok>().Value.Count == 0;
+        });
     }
 }

@@ -77,11 +77,11 @@ Legend:
 - [x] Add failure recovery tests for partial/interrupted downloads
 
 ### Phase 9: Upload pipeline (local -> remote) (3 days)
-- [ ] Build queued upload runner for create/update/delete
-- [ ] Implement idempotent retries
-- [ ] Add chunked upload path for large files
-- [ ] Add operation correlation IDs
-- [ ] Add integration tests for retry/restart safety
+- [x] Build queued upload runner for create/update/delete
+- [x] Implement idempotent retries
+- [x] Add chunked upload path for large files
+- [x] Add operation correlation IDs
+- [x] Add integration tests for retry/restart safety
 
 ### Phase 10: Conflict detection and resolution policy (2 days)
 - [ ] Implement conflict classifier (etag/timestamp/rename/delete)
