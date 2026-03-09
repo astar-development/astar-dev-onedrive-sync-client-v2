@@ -91,11 +91,11 @@ Legend:
 - [x] Validate no silent overwrite/data loss paths
 
 ### Phase 11: Sync orchestrator + scheduling (2 days)
-- [ ] Implement orchestration state machine for scan/delta/upload/download
-- [ ] Add pause/resume/cancel behavior end-to-end
-- [ ] Add startup/background scheduling
-- [ ] Persist queue/checkpoints for crash recovery
-- [ ] Add integration tests for interrupted-run resume
+- [x] Implement orchestration state machine for scan/delta/upload/download
+- [x] Add pause/resume/cancel behavior end-to-end
+- [x] Add startup/background scheduling
+- [x] Persist queue/checkpoints for crash recovery
+- [x] Add integration tests for interrupted-run resume
 
 ### Phase 12: Layout and workflow completion (2 days)
 - [ ] Explorer layout uses real account/tree/sync actions
