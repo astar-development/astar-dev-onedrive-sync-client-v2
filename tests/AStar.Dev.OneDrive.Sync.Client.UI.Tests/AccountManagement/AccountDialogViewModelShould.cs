@@ -112,6 +112,54 @@ public sealed class AccountDialogViewModelShould
         closeRequested.ShouldBeFalse();
     }
 
+    [Fact]
+    public async Task PersistConfiguredLocalSyncRootWhenLoginCommandExecutes()
+    {
+        var databasePath = CreateDatabasePath();
+        var service = new TestAccountSessionService(new AccountSessionState(
+            new OneDriveAccountProfile("acct-root-1", "rooted@example.com", 4096, 64),
+            new AccountSessionMetadata("acct-root-1", DateTime.UtcNow.AddMinutes(30), DateTime.UtcNow, null, false)));
+        var viewModel = new AccountDialogViewModel(databasePath, service)
+        {
+            Email = "rooted@example.com",
+            LocalSyncRootPath = "/tmp/astar-sync/rooted"
+        };
+
+        viewModel.LoginCommand.Execute(null);
+        await WaitForConditionAsync(() => viewModel.IsSaved);
+
+        var loaded = new AccountListViewModel(databasePath);
+        _ = await loaded.LoadAccountsAsync(TestContext.Current.CancellationToken);
+
+        loaded.Accounts.Count.ShouldBe(1);
+        loaded.Accounts[0].LocalSyncRootPath.ShouldBe("/tmp/astar-sync/rooted");
+    }
+
+    [Fact]
+    public async Task RejectOverlappingLocalSyncRootWhenLoginCommandExecutes()
+    {
+        var databasePath = CreateDatabasePath();
+        var seed = new AccountListViewModel(databasePath);
+        seed.Accounts.Add(new AccountInfo("acct-a", "alpha@example.com", 1000, 100, "/tmp/astar-sync/alpha"));
+        Result<bool, Exception> seedSave = await seed.SaveAccountsAsync(TestContext.Current.CancellationToken);
+        Pattern.IsSuccess(seedSave).ShouldBeTrue();
+
+        var service = new TestAccountSessionService(new AccountSessionState(
+            new OneDriveAccountProfile("acct-b", "beta@example.com", 2000, 200),
+            new AccountSessionMetadata("acct-b", DateTime.UtcNow.AddMinutes(30), DateTime.UtcNow, null, false)));
+        var viewModel = new AccountDialogViewModel(databasePath, service)
+        {
+            Email = "beta@example.com",
+            LocalSyncRootPath = "/tmp/astar-sync/alpha/sub"
+        };
+
+        viewModel.LoginCommand.Execute(null);
+        await WaitForConditionAsync(() => !string.IsNullOrWhiteSpace(viewModel.ValidationError));
+
+        viewModel.IsSaved.ShouldBeFalse();
+        viewModel.ValidationError.ToLowerInvariant().ShouldContain("overlap");
+    }
+
     private static string CreateDatabasePath()
         => Path.GetTempPath().CombinePath($"astar-ui-account-dialog-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
 

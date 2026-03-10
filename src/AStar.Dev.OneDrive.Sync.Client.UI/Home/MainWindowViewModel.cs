@@ -1,7 +1,9 @@
 using System.Windows.Input;
 using AStar.Dev.Functional.Extensions;
+using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
 using AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
+using AStar.Dev.OneDrive.Sync.Client.UI.Composition;
 using AStar.Dev.OneDrive.Sync.Client.UI.FolderTrees;
 using AStar.Dev.OneDrive.Sync.Client.UI.Layouts;
 using AStar.Dev.OneDrive.Sync.Client.UI.Logs;
@@ -20,7 +22,7 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Home;
 public class MainWindowViewModel : ViewModelBase
 {
     private const string DefaultScopeId = "drive-root";
-    private const string DefaultRootPath = "/";
+    private static readonly string DefaultRootPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".astar-sync", "default");
 
     /// <summary>
     /// Gets the account management view model.
@@ -149,7 +151,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         Accounts = new AccountListViewModel(databasePath);
         FolderTree = new FolderTreeViewModel(databasePath);
-        Sync = new SyncStatusViewModel();
+        Sync = new SyncStatusViewModel(orchestratorService: ResolveOrchestratorService());
         Logs = new LogsViewModel();
         Settings = new SettingsViewModel();
         Accounts.PropertyChanged += OnAccountsPropertyChanged;
@@ -172,6 +174,10 @@ public class MainWindowViewModel : ViewModelBase
         RefreshDashboardMetrics();
         RefreshTerminalOperationalStatus();
         UpdateSyncRunContext();
+        if(initializeLayoutView && Accounts.SelectedAccount is not null)
+        {
+            _ = ReloadFolderTreeForSelectedAccountAsync();
+        }
 
         Settings.LayoutChanged += (_, layoutName) =>
                     {
@@ -302,6 +308,21 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        Sync.SetRunContext(selectedAccount.Id, DefaultScopeId, DefaultRootPath, useStartupScan: true);
+        var rootPath = string.IsNullOrWhiteSpace(selectedAccount.LocalSyncRootPath)
+            ? DefaultRootPath
+            : selectedAccount.LocalSyncRootPath;
+        Sync.SetRunContext(selectedAccount.Id, DefaultScopeId, rootPath, useStartupScan: true);
+    }
+
+    private static ISyncOrchestratorService? ResolveOrchestratorService()
+    {
+        try
+        {
+            return CompositionRoot.Resolve<ISyncOrchestratorService>();
+        }
+        catch(InvalidOperationException)
+        {
+            return null;
+        }
     }
 }

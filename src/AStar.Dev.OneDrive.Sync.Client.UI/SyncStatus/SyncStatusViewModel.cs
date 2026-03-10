@@ -161,9 +161,9 @@ public class SyncStatusViewModel : ViewModelBase
         if(syncedFiles.Count == 0)
         {
             ProgressPercentage = 100;
+            await LogConflictOutcomesAsync(cancellationToken);
             Status = IdleStatus;
             AddActivity("Info", "Sync completed: 0 item(s)");
-            await LogConflictOutcomesAsync(cancellationToken);
             return Unit.Value;
         }
 
@@ -180,9 +180,9 @@ public class SyncStatusViewModel : ViewModelBase
             ProgressPercentage = (index + 1) * 100 / syncedFiles.Count;
         }
 
+        await LogConflictOutcomesAsync(cancellationToken);
         Status = IdleStatus;
         AddActivity("Info", $"Sync completed: {syncedFiles.Count} item(s)");
-        await LogConflictOutcomesAsync(cancellationToken);
         return Unit.Value;
     }
 
@@ -220,6 +220,12 @@ public class SyncStatusViewModel : ViewModelBase
 
     private async Task ResumeSyncAsync()
     {
+        if(string.Equals(Status, IdleStatus, StringComparison.Ordinal))
+        {
+            await StartSyncAsync();
+            return;
+        }
+
         Result<Unit, string> resumeResult = _orchestratorService is null
             ? await _syncService.ResumeSyncAsync()
             : await _orchestratorService.ResumeAsync();
@@ -228,7 +234,6 @@ public class SyncStatusViewModel : ViewModelBase
             Status = IdleStatus;
         }
     }
-
     private void AddActivity(string level, string message)
         => RecentActivity.Add(new SyncActivityEntry(DateTime.UtcNow, level, message));
 }

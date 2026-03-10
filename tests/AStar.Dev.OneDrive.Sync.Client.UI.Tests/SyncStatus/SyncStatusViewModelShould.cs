@@ -133,6 +133,21 @@ public sealed class SyncStatusViewModelShould
         orchestrator.RunCalls.ShouldBe(0);
     }
 
+    [Fact]
+    public async Task StartOrchestratedSyncWhenResumeCommandIsExecutedWhileIdle()
+    {
+        var orchestrator = new TrackingOrchestratorService();
+        var viewModel = new SyncStatusViewModel(new TrackingSyncService(), orchestrator);
+        viewModel.SetRunContext("acct-real", "drive-root", "/tmp", true);
+
+        viewModel.ResumeSyncCommand.Execute(null);
+        await WaitForConditionAsync(() => orchestrator.RunCalls == 1 && viewModel.Status == "Idle" && viewModel.ProgressPercentage == 100);
+
+        orchestrator.RunCalls.ShouldBe(1);
+        orchestrator.LastAccountId.ShouldBe("acct-real");
+        orchestrator.LastScopeId.ShouldBe("drive-root");
+    }
+
     private sealed class DeferredSyncService(Task<Result<IReadOnlyList<SyncFile>, string>> resultTask) : ISyncService
     {
         public Task<Result<IReadOnlyList<SyncFile>, string>> GetSyncFilesAsync(CancellationToken cancellationToken = default)

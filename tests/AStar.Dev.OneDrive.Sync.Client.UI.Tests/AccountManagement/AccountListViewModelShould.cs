@@ -101,6 +101,24 @@ public sealed class AccountListViewModelShould
     }
 
     [Fact]
+    public async Task SelectFirstLoadedAccountWhenNoSelectionExists()
+    {
+        var databasePath = CreateDatabasePath();
+        var seed = new AccountListViewModel(databasePath);
+        seed.Accounts.Add(new AccountInfo("acct-1", "alpha@example.com", 2000, 250));
+        seed.Accounts.Add(new AccountInfo("acct-2", "beta@example.com", 3000, 350));
+        Result<bool, Exception> saveResult = await seed.SaveAccountsAsync(TestContext.Current.CancellationToken);
+        Pattern.IsSuccess(saveResult).ShouldBeTrue();
+
+        var loaded = new AccountListViewModel(databasePath);
+        Result<bool, Exception> loadResult = await loaded.LoadAccountsAsync(TestContext.Current.CancellationToken);
+
+        Pattern.IsSuccess(loadResult).ShouldBeTrue();
+        loaded.SelectedAccount.ShouldNotBeNull();
+        loaded.SelectedAccount!.Id.ShouldBe("acct-1");
+    }
+
+    [Fact]
     public async Task RemoveAccountCommand_UnlinksSessionAndRemovesAccount()
     {
         var accountSessionService = new TrackingAccountSessionService();

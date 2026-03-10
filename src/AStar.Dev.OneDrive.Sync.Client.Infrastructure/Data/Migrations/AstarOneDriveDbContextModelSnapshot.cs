@@ -34,6 +34,12 @@ partial class AstarOneDriveDbContextModelSnapshot : ModelSnapshot
                 _ = b.Property<bool>("IsActive")
                     .HasColumnType("INTEGER");
 
+                _ = b.Property<string>("LocalSyncRootPath")
+                    .IsRequired()
+                    .HasMaxLength(1024)
+                    .HasColumnType("TEXT")
+                    .HasDefaultValue("");
+
                 _ = b.Property<long>("QuotaBytes")
                     .HasColumnType("INTEGER");
 

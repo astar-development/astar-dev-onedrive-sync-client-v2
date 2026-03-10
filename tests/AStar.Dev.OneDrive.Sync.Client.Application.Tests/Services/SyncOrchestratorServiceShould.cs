@@ -10,6 +10,30 @@ namespace AStar.Dev.OneDrive.Sync.Client.Application.Tests.Services;
 public sealed class SyncOrchestratorServiceShould
 {
     [Fact]
+    public async Task EmitLifecycleAndFailureDiagnosticsWhenStageFails()
+    {
+        ILocalInventoryService inventory = Substitute.For<ILocalInventoryService>();
+        IDeltaSyncService delta = Substitute.For<IDeltaSyncService>();
+        ISyncService sync = Substitute.For<ISyncService>();
+        var store = new InMemorySyncRunStateStore();
+        var diagnostics = new InMemorySyncDiagnosticsSink();
+
+        _ = inventory.RunStartupScanAsync("acct", "/root", Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<IReadOnlyList<LocalInventoryItem>, string>>(Array.Empty<LocalInventoryItem>()));
+        _ = delta.PullAsync("acct", "scope", Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Result<DeltaPullSummary, string>>("delta-down"));
+
+        var sut = new SyncOrchestratorService(inventory, delta, sync, store, diagnostics);
+        Result<Unit, string> result = await sut.RunOnceAsync("acct", "scope", "/root", true, TestContext.Current.CancellationToken);
+
+        result.ShouldBeOfType<Result<Unit, string>.Error>();
+        diagnostics.Events.Any(x => x.EventName == "sync.run.started" && x.CorrelationId == "acct:scope").ShouldBeTrue();
+        diagnostics.Events.Any(x => x.EventName == "sync.stage.scan.completed" && x.CorrelationId == "acct:scope").ShouldBeTrue();
+        diagnostics.Events.Any(x => x.EventName == "sync.stage.delta.failed" && x.Outcome == "error").ShouldBeTrue();
+        diagnostics.Events.Any(x => x.EventName == "sync.run.failed" && x.Message.Contains("delta-down", StringComparison.Ordinal)).ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task RunStateMachineInScanDeltaUploadDownloadOrder()
     {
         var events = new List<string>();
@@ -224,5 +248,19 @@ public sealed class SyncOrchestratorServiceShould
             _ = _states.Remove($"{accountId}:{scopeId}");
             return Task.FromResult<Result<Unit, string>>(Unit.Value);
         }
+    }
+
+    private sealed class InMemorySyncDiagnosticsSink : ISyncDiagnosticsSink
+    {
+        public List<SyncDiagnosticEvent> Events { get; } = [];
+
+        public Task<Result<Unit, string>> RecordEventAsync(SyncDiagnosticEvent diagnosticEvent, CancellationToken cancellationToken = default)
+        {
+            Events.Add(diagnosticEvent);
+            return Task.FromResult<Result<Unit, string>>(Unit.Value);
+        }
+
+        public Task<Result<Unit, string>> RecordMetricAsync(SyncMetricPoint metricPoint, CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
     }
 }

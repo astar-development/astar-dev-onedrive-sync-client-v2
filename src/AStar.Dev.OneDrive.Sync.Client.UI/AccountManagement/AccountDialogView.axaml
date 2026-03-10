@@ -15,6 +15,9 @@
         <TextBlock Text="{DynamicResource Account_Email}" />
         <TextBox Text="{Binding Email}" />
 
+        <TextBlock Text="Local Sync Folder" />
+        <TextBox Text="{Binding LocalSyncRootPath}" />
+
         <TextBlock Text="{DynamicResource Account_Storage}" FontWeight="Bold" />
         <TextBlock Text="{Binding UsedBytes, StringFormat=Used: {0} bytes}" />
         <TextBlock Text="{Binding QuotaBytes, StringFormat=Quota: {0} bytes}" />

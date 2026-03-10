@@ -31,6 +31,11 @@ public sealed class AccountEntity
     public long UsedBytes { get; set; }
 
     /// <summary>
+    /// Gets or sets the account-specific local sync root path.
+    /// </summary>
+    public string LocalSyncRootPath { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets or sets a value indicating whether the account is currently active.
     /// </summary>
     public bool IsActive { get; set; }

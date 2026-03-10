@@ -12,8 +12,10 @@ public sealed class SyncOrchestratorService(
     ILocalInventoryService inventory,
     IDeltaSyncService delta,
     ISyncService sync,
-    ISyncRunStateStore stateStore) : ISyncOrchestratorService
+    ISyncRunStateStore stateStore,
+    ISyncDiagnosticsSink? diagnosticsSink = null) : ISyncOrchestratorService
 {
+    private readonly ISyncDiagnosticsSink _diagnostics = diagnosticsSink ?? new NullSyncDiagnosticsSink();
     private readonly SemaphoreSlim _runLock = new(1, 1);
     private readonly Lock _stateLock = new();
     private CancellationTokenSource _runCts = new();
@@ -55,17 +57,28 @@ public sealed class SyncOrchestratorService(
         await _runLock.WaitAsync(cancellationToken);
         try
         {
+            var runCorrelationId = BuildRunCorrelationId(accountId, scopeId);
+            EmitEvent("sync.run.started", "orchestrator", runCorrelationId, "ok", "Sync run started.");
             using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _runCts.Token);
             Result<Option<SyncRunState>, string> loadResult = await stateStore.LoadAsync(accountId, scopeId, linked.Token);
             if(loadResult is Result<Option<SyncRunState>, string>.Error loadError)
             {
+                EmitEvent("sync.run.failed", "orchestrator", runCorrelationId, "error", loadError.Reason);
                 return loadError.Reason;
             }
 
             SyncRunState state = ((Result<Option<SyncRunState>, string>.Ok)loadResult).Value is Option<SyncRunState>.Some some
                 ? some.Value
                 : NewState(accountId, scopeId, rootPath, useStartupScan, SyncRunStage.Scan, [], []);
-            return await ExecuteAsync(state, linked.Token);
+            Result<Unit, string> runResult = await ExecuteAsync(state, linked.Token);
+            if(runResult is Result<Unit, string>.Error runError)
+            {
+                EmitEvent("sync.run.failed", "orchestrator", runCorrelationId, "error", runError.Reason);
+                return runError.Reason;
+            }
+
+            EmitEvent("sync.run.completed", "orchestrator", runCorrelationId, "ok", "Sync run completed.");
+            return Unit.Value;
         }
         finally
         {
@@ -137,37 +150,48 @@ public sealed class SyncOrchestratorService(
 
     private async Task<Result<SyncRunState, string>> RunScanAsync(SyncRunState state, CancellationToken cancellationToken)
     {
+        var correlationId = BuildRunCorrelationId(state.AccountId, state.ScopeId);
+        EmitEvent("sync.stage.scan.started", "orchestrator", correlationId, "ok", "Scan stage started.");
         Result<IReadOnlyList<LocalInventoryItem>, string> scanResult = state.UseStartupScan
             ? await inventory.RunStartupScanAsync(state.AccountId, state.RootPath, cancellationToken)
             : await inventory.RunManualScanAsync(state.AccountId, state.RootPath, cancellationToken);
         if(scanResult is Result<IReadOnlyList<LocalInventoryItem>, string>.Error scanError)
         {
+            EmitEvent("sync.stage.scan.failed", "orchestrator", correlationId, "error", scanError.Reason);
             return scanError.Reason;
         }
 
         SyncRunState next = state with { Stage = SyncRunStage.Delta, UpdatedUtc = DateTime.UtcNow };
+        EmitEvent("sync.stage.scan.completed", "orchestrator", correlationId, "ok", "Scan stage completed.");
         return await PersistStateAsync(next, cancellationToken);
     }
 
     private async Task<Result<SyncRunState, string>> RunDeltaAsync(SyncRunState state, CancellationToken cancellationToken)
     {
+        var correlationId = BuildRunCorrelationId(state.AccountId, state.ScopeId);
+        EmitEvent("sync.stage.delta.started", "orchestrator", correlationId, "ok", "Delta stage started.");
         Result<DeltaPullSummary, string> deltaResult = await delta.PullAsync(state.AccountId, state.ScopeId, cancellationToken);
         if(deltaResult is Result<DeltaPullSummary, string>.Error deltaError)
         {
+            EmitEvent("sync.stage.delta.failed", "orchestrator", correlationId, "error", deltaError.Reason);
             return deltaError.Reason;
         }
 
         SyncRunState next = state with { Stage = SyncRunStage.Upload, UpdatedUtc = DateTime.UtcNow };
+        EmitEvent("sync.stage.delta.completed", "orchestrator", correlationId, "ok", "Delta stage completed.");
         return await PersistStateAsync(next, cancellationToken);
     }
 
     private async Task<Result<SyncRunState, string>> RunUploadAsync(SyncRunState state, CancellationToken cancellationToken)
     {
+        var correlationId = BuildRunCorrelationId(state.AccountId, state.ScopeId);
+        EmitEvent("sync.stage.upload.started", "orchestrator", correlationId, "ok", "Upload stage started.");
         foreach(SyncQueueItem item in state.PendingUploads)
         {
             Result<Unit, string> enqueueResult = await sync.EnqueueUploadAsync(item, cancellationToken);
             if(enqueueResult is Result<Unit, string>.Error enqueueError)
             {
+                EmitEvent("sync.stage.upload.failed", "orchestrator", correlationId, "error", enqueueError.Reason);
                 return enqueueError.Reason;
             }
         }
@@ -175,21 +199,26 @@ public sealed class SyncOrchestratorService(
         Result<Unit, string> retryResult = await sync.RetryFailedOperationsAsync(cancellationToken);
         if(retryResult is Result<Unit, string>.Error retryError)
         {
+            EmitEvent("sync.stage.upload.failed", "orchestrator", correlationId, "error", retryError.Reason);
             return retryError.Reason;
         }
 
         SyncRunState next = state with { Stage = SyncRunStage.Download, PendingUploads = [], UpdatedUtc = DateTime.UtcNow };
+        EmitEvent("sync.stage.upload.completed", "orchestrator", correlationId, "ok", "Upload stage completed.");
         return await PersistStateAsync(next, cancellationToken);
     }
 
     private async Task<Result<SyncRunState, string>> RunDownloadAsync(SyncRunState state, CancellationToken cancellationToken)
     {
+        var correlationId = BuildRunCorrelationId(state.AccountId, state.ScopeId);
+        EmitEvent("sync.stage.download.started", "orchestrator", correlationId, "ok", "Download stage started.");
         List<SyncQueueItem> pending = [.. state.PendingDownloads];
         if(pending.Count == 0)
         {
             Result<IReadOnlyList<SyncFile>, string> filesResult = await sync.GetSyncFilesAsync(cancellationToken);
             if(filesResult is Result<IReadOnlyList<SyncFile>, string>.Error filesError)
             {
+                EmitEvent("sync.stage.download.failed", "orchestrator", correlationId, "error", filesError.Reason);
                 return filesError.Reason;
             }
 
@@ -201,6 +230,7 @@ public sealed class SyncOrchestratorService(
         Result<SyncRunState, string> saveQueueResult = await PersistStateAsync(withQueue, cancellationToken);
         if(saveQueueResult is Result<SyncRunState, string>.Error saveQueueError)
         {
+            EmitEvent("sync.stage.download.failed", "orchestrator", correlationId, "error", saveQueueError.Reason);
             return saveQueueError.Reason;
         }
 
@@ -209,6 +239,7 @@ public sealed class SyncOrchestratorService(
             Result<Unit, string> enqueueResult = await sync.EnqueueDownloadAsync(pending[index], cancellationToken);
             if(enqueueResult is Result<Unit, string>.Error enqueueError)
             {
+                EmitEvent("sync.stage.download.failed", "orchestrator", correlationId, "error", enqueueError.Reason);
                 return enqueueError.Reason;
             }
 
@@ -217,6 +248,7 @@ public sealed class SyncOrchestratorService(
             Result<SyncRunState, string> saveProgressResult = await PersistStateAsync(progressed, cancellationToken);
             if(saveProgressResult is Result<SyncRunState, string>.Error saveProgressError)
             {
+                EmitEvent("sync.stage.download.failed", "orchestrator", correlationId, "error", saveProgressError.Reason);
                 return saveProgressError.Reason;
             }
 
@@ -224,6 +256,7 @@ public sealed class SyncOrchestratorService(
         }
 
         SyncRunState next = withQueue with { Stage = SyncRunStage.Completed, PendingDownloads = [], UpdatedUtc = DateTime.UtcNow };
+        EmitEvent("sync.stage.download.completed", "orchestrator", correlationId, "ok", "Download stage completed.");
         return await PersistStateAsync(next, cancellationToken);
     }
 
@@ -250,4 +283,19 @@ public sealed class SyncOrchestratorService(
         IReadOnlyList<SyncQueueItem> pendingUploads,
         IReadOnlyList<SyncQueueItem> pendingDownloads)
         => new(accountId, scopeId, rootPath, useStartupScan, stage, pendingUploads, pendingDownloads, DateTime.UtcNow);
+
+    private static string BuildRunCorrelationId(string accountId, string scopeId)
+        => $"{accountId}:{scopeId}";
+
+    private void EmitEvent(string eventName, string operation, string correlationId, string outcome, string message)
+        => _ = _diagnostics.RecordEventAsync(new SyncDiagnosticEvent(eventName, operation, correlationId, outcome, message, DateTime.UtcNow));
+
+    private sealed class NullSyncDiagnosticsSink : ISyncDiagnosticsSink
+    {
+        public Task<Result<Unit, string>> RecordEventAsync(SyncDiagnosticEvent diagnosticEvent, CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> RecordMetricAsync(SyncMetricPoint metricPoint, CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+    }
 }

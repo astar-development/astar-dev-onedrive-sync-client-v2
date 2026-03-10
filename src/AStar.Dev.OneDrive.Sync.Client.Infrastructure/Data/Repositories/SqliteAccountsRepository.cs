@@ -29,6 +29,7 @@ public sealed class SqliteAccountsRepository(string? databasePath = null)
                 Email = account.Email,
                 QuotaBytes = account.QuotaBytes,
                 UsedBytes = account.UsedBytes,
+                LocalSyncRootPath = account.LocalSyncRootPath,
                 IsActive = true,
                 CreatedUtc = now,
                 UpdatedUtc = now
@@ -49,7 +50,7 @@ public sealed class SqliteAccountsRepository(string? databasePath = null)
         List<AccountState> accounts = await context.Accounts
             .AsNoTracking()
             .OrderBy(x => x.Email)
-            .Select(x => new AccountState(x.Id, x.Email, x.QuotaBytes, x.UsedBytes))
+            .Select(x => new AccountState(x.Id, x.Email, x.QuotaBytes, x.UsedBytes, x.LocalSyncRootPath))
             .ToListAsync(cancellationToken);
 
         return accounts;

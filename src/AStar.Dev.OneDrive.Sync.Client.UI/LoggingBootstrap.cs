@@ -24,7 +24,7 @@ public static class LoggingBootstrap
     /// <summary>
     /// Gets the in-memory log sink for debug log viewing.
     /// </summary>
-    public static InMemoryLogSink DebugLogSink { get; private set; } = new();
+    public static InMemoryLogSink DebugLogSink { get; private set; } = new(5000);
 
     /// <summary>
     /// Initializes logging and metrics providers.

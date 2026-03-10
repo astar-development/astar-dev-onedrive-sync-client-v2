@@ -61,7 +61,8 @@ public static class CompositionRoot
             Resolve<ILocalInventoryService>(),
             Resolve<IDeltaSyncService>(),
             Resolve<ISyncService>(),
-            Resolve<ISyncRunStateStore>());
+            Resolve<ISyncRunStateStore>(),
+            Resolve<ISyncDiagnosticsSink>());
         Registrations[typeof(AstarOneDriveDbContextModel)] = () => AstarOneDriveDbContextFactory.Create(databasePath);
         Registrations[typeof(SqliteSettingsRepository)] = () => new SqliteSettingsRepository(databasePath);
         Registrations[typeof(SqliteAccountsRepository)] = () => new SqliteAccountsRepository(databasePath);

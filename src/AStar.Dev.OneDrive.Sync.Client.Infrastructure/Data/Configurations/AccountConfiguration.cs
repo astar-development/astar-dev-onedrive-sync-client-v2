@@ -34,6 +34,11 @@ public sealed class AccountConfiguration : IEntityTypeConfiguration<AccountEntit
         _ = builder.Property(x => x.UsedBytes)
             .IsRequired();
 
+        _ = builder.Property(x => x.LocalSyncRootPath)
+            .IsRequired()
+            .HasMaxLength(1024)
+            .HasDefaultValue(string.Empty);
+
         _ = builder.Property(x => x.IsActive)
             .IsRequired();
 

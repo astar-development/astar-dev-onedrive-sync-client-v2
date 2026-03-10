@@ -10,6 +10,7 @@ using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Repositories;
 using AStar.Dev.OneDrive.Sync.Client.UI.Common;
 using AStar.Dev.Utilities;
 using ReactiveUI;
+using System.Runtime.InteropServices;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.AccountManagement;
 
@@ -50,6 +51,7 @@ public class AccountDialogViewModel : ViewModelBase
         Email = account.Email;
         QuotaBytes = account.QuotaBytes;
         UsedBytes = account.UsedBytes;
+        LocalSyncRootPath = account.LocalSyncRootPath;
     }
 
     /// <summary>
@@ -83,6 +85,15 @@ public class AccountDialogViewModel : ViewModelBase
         get;
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
+
+    /// <summary>
+    /// Gets or sets the account-specific local sync root path.
+    /// </summary>
+    public string LocalSyncRootPath
+    {
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
 
     /// <summary>
     /// Gets the login providers available in the stub flow.
@@ -152,12 +163,19 @@ public class AccountDialogViewModel : ViewModelBase
 
             var normalizedEmail = Email.Trim();
             var id = accountId ?? _existingAccountId ?? Guid.NewGuid().ToString("N");
-            var updated = new AccountState(id, normalizedEmail, QuotaBytes, UsedBytes);
+            var normalizedRoot = NormalizeRootPath(LocalSyncRootPath, id);
+            var overlap = FindOverlap(accounts, id, normalizedRoot);
+            if(!string.IsNullOrWhiteSpace(overlap))
+            {
+                throw new InvalidOperationException($"Local sync root overlap detected with '{overlap}'.");
+            }
+
+            var updated = new AccountState(id, normalizedEmail, QuotaBytes, UsedBytes, normalizedRoot);
             _ = accounts.RemoveAll(x => x.Id == updated.Id || string.Equals(x.Email, updated.Email, StringComparison.OrdinalIgnoreCase));
             accounts.Add(updated);
 
             await _accountsRepository.SaveAsync(accounts, cancellationToken);
-            return new AccountInfo(updated.Id, updated.Email, updated.QuotaBytes, updated.UsedBytes);
+            return new AccountInfo(updated.Id, updated.Email, updated.QuotaBytes, updated.UsedBytes, updated.LocalSyncRootPath);
         });
 
     private void Cancel()
@@ -182,6 +200,11 @@ public class AccountDialogViewModel : ViewModelBase
                 Email = session.Profile.Email;
                 QuotaBytes = session.Profile.QuotaBytes;
                 UsedBytes = session.Profile.UsedBytes;
+                if(string.IsNullOrWhiteSpace(LocalSyncRootPath))
+                {
+                    LocalSyncRootPath = BuildDefaultLocalSyncRootPath(session.Profile.AccountId);
+                }
+
                 return await SaveAccountAsync(session.Profile.AccountId);
             });
 
@@ -213,5 +236,52 @@ public class AccountDialogViewModel : ViewModelBase
             new OneDriveAuthenticationAdapter(),
             new FileBackedSecureAccountTokenStore(tokenStorePath),
             new SqliteAccountSessionMetadataRepository(databasePath));
+    }
+
+    private static string BuildDefaultLocalSyncRootPath(string accountId)
+        => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".astar-sync", accountId);
+
+    private static string NormalizeRootPath(string rootPath, string accountId)
+    {
+        var candidate = string.IsNullOrWhiteSpace(rootPath)
+            ? BuildDefaultLocalSyncRootPath(accountId)
+            : rootPath.Trim();
+        var normalized = Path.GetFullPath(candidate)
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? normalized.ToUpperInvariant()
+            : normalized;
+    }
+
+    private static string? FindOverlap(IReadOnlyList<AccountState> accounts, string accountId, string normalizedRoot)
+    {
+        foreach(AccountState account in accounts)
+        {
+            if(string.Equals(account.Id, accountId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var otherRoot = NormalizeRootPath(account.LocalSyncRootPath, account.Id);
+            if(IsOverlappingPath(normalizedRoot, otherRoot))
+            {
+                return account.Email;
+            }
+        }
+
+        return null;
+    }
+
+    private static bool IsOverlappingPath(string first, string second)
+    {
+        if(string.Equals(first, second, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        var firstPrefix = first + Path.DirectorySeparatorChar;
+        var secondPrefix = second + Path.DirectorySeparatorChar;
+        return first.StartsWith(secondPrefix, StringComparison.Ordinal)
+            || second.StartsWith(firstPrefix, StringComparison.Ordinal);
     }
 }

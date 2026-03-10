@@ -94,7 +94,7 @@ public class AccountListViewModel : ViewModelBase
         {
             await _migrator.EnsureMigratedAsync(cancellationToken);
             var state = Accounts
-                .Select(x => new AccountState(x.Id, x.Email, x.QuotaBytes, x.UsedBytes))
+                .Select(x => new AccountState(x.Id, x.Email, x.QuotaBytes, x.UsedBytes, x.LocalSyncRootPath))
                 .ToList();
             await _accountsRepository.SaveAsync(state, cancellationToken);
             return true;
@@ -113,15 +113,22 @@ public class AccountListViewModel : ViewModelBase
             Accounts.Clear();
             foreach(AccountState account in state)
             {
-                Accounts.Add(new AccountInfo(account.Id, account.Email, account.QuotaBytes, account.UsedBytes));
+                Accounts.Add(new AccountInfo(account.Id, account.Email, account.QuotaBytes, account.UsedBytes, account.LocalSyncRootPath));
             }
+
+            SelectedAccount = Accounts.Count > 0
+                ? Accounts[0]
+                : null;
 
             return true;
         });
 
     private void AddAccount()
     {
-        var dialogViewModel = new AccountDialogViewModel(_databasePath, _accountSessionService);
+        var dialogViewModel = new AccountDialogViewModel(_databasePath, _accountSessionService)
+        {
+            LocalSyncRootPath = BuildDefaultLocalSyncRootPath(Guid.NewGuid().ToString("N"))
+        };
         dialogViewModel.CloseRequested += OnDialogCloseRequested;
         AccountDialogRequested?.Invoke(this, dialogViewModel);
     }
@@ -196,4 +203,7 @@ public class AccountListViewModel : ViewModelBase
             new FileBackedSecureAccountTokenStore(tokenStorePath),
             new SqliteAccountSessionMetadataRepository(databasePath));
     }
+
+    private static string BuildDefaultLocalSyncRootPath(string accountId)
+        => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".astar-sync", accountId);
 }

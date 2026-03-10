@@ -215,6 +215,43 @@ public sealed class MainWindowViewModelShould
         vm.FolderTree.Nodes[0].Name.ShouldBe("B Root");
     }
 
+    [Fact]
+    public async Task LoadFolderTreeOnStartupForInitiallySelectedAccount()
+    {
+        var databasePath = Path.GetTempPath().CombinePath($"astar-ui-main-window-tests-{Guid.NewGuid():N}", "astar-onedrive.db");
+        var selectedAccount = new AccountInfo("acct-startup", "startup@example.com", 0, 0);
+
+        var seededAccounts = new AccountListViewModel(databasePath);
+        seededAccounts.Accounts.Clear();
+        seededAccounts.Accounts.Add(selectedAccount);
+        Result<bool, Exception> saveAccounts = await seededAccounts.SaveAccountsAsync(TestContext.Current.CancellationToken);
+        Pattern.IsSuccess(saveAccounts).ShouldBeTrue();
+
+        var seededTree = new FolderTreeViewModel(databasePath);
+        seededTree.Nodes.Add(new FolderNode(Guid.NewGuid().ToString("N"), "Startup Root", true, true, []));
+        Result<bool, Exception> saveTree = await seededTree.SaveTreeAsync(selectedAccount.Id, TestContext.Current.CancellationToken);
+        Pattern.IsSuccess(saveTree).ShouldBeTrue();
+
+        var vm = new MainWindowViewModel(databasePath, initializeLayoutView: true);
+        await WaitForConditionAsync(() => vm.FolderTree.Nodes.Count == 1 && vm.FolderTree.Nodes[0].Name == "Startup Root");
+
+        vm.FolderTree.Nodes[0].Name.ShouldBe("Startup Root");
+    }
+
+    [Fact]
+    public void UseSelectedAccountLocalSyncRootWhenUpdatingSyncRunContext()
+    {
+        var vm = new MainWindowViewModel(initializeLayoutView: false);
+        vm.Accounts.Accounts.Clear();
+        vm.Accounts.Accounts.Add(new AccountInfo("acct-root", "root@example.com", 0, 0, "/tmp/astar-sync/root-account"));
+
+        vm.Accounts.SelectedAccount = vm.Accounts.Accounts[0];
+
+        System.Reflection.FieldInfo? rootPathField = typeof(SyncStatusViewModel).GetField("_rootPath", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        rootPathField.ShouldNotBeNull();
+        rootPathField!.GetValue(vm.Sync).ShouldBe("/tmp/astar-sync/root-account");
+    }
+
     private static async Task WaitForConditionAsync(Func<bool> condition)
     {
         for(var attempt = 0; attempt < 60; attempt++)

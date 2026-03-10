@@ -23,7 +23,8 @@ public class InMemoryLogSink(int maxLines = 200) : ILogEventSink
     /// <inheritdoc />
     public void Emit(LogEvent logEvent)
     {
-        var line = RedactSensitiveData(logEvent.RenderMessage());
+        var rendered = logEvent.RenderMessage();
+        var line = RedactSensitiveData($"{logEvent.Timestamp:O} [{logEvent.Level}] {rendered}");
 
         lock(_syncLock)
         {
