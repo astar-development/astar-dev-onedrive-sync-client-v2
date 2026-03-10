@@ -145,6 +145,11 @@ public class FolderTreeViewModel : ViewModelBase
             IReadOnlyList<FolderNodeState> state = await _folderTreeRepository.LoadAsync(ActiveAccountId, cancellationToken);
             List<FolderNode> restored = BuildTree(state);
 
+            if(restored.Count == 0)
+            {
+                restored = [CreateDefaultRootNode(ActiveAccountId)];
+            }
+
             Nodes.Clear();
             foreach(FolderNode node in restored)
             {
@@ -162,6 +167,9 @@ public class FolderTreeViewModel : ViewModelBase
 
     private static string NormalizeAccountId(string accountId)
         => string.IsNullOrWhiteSpace(accountId) ? DefaultAccountId : accountId;
+
+    private static FolderNode CreateDefaultRootNode(string accountId)
+        => new($"{NormalizeAccountId(accountId)}-root", "OneDrive", true, true, []);
 
     private static IEnumerable<FolderNodeState> FlattenTree(IReadOnlyList<FolderNode> nodes)
     {

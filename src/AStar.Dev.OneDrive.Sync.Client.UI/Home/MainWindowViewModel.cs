@@ -19,6 +19,9 @@ namespace AStar.Dev.OneDrive.Sync.Client.UI.Home;
 /// </summary>
 public class MainWindowViewModel : ViewModelBase
 {
+    private const string DefaultScopeId = "drive-root";
+    private const string DefaultRootPath = "/";
+
     /// <summary>
     /// Gets the account management view model.
     /// </summary>
@@ -168,6 +171,7 @@ public class MainWindowViewModel : ViewModelBase
 
         RefreshDashboardMetrics();
         RefreshTerminalOperationalStatus();
+        UpdateSyncRunContext();
 
         Settings.LayoutChanged += (_, layoutName) =>
                     {
@@ -227,6 +231,7 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
+        UpdateSyncRunContext();
         _ = ReloadFolderTreeForSelectedAccountAsync();
         RefreshDashboardMetrics();
     }
@@ -286,5 +291,17 @@ public class MainWindowViewModel : ViewModelBase
             .MatchAsync(
                 _ => Task.CompletedTask,
                 _ => Task.CompletedTask);
+    }
+
+    private void UpdateSyncRunContext()
+    {
+        AccountInfo? selectedAccount = Accounts.SelectedAccount;
+        if(selectedAccount is null)
+        {
+            Sync.ClearRunContext();
+            return;
+        }
+
+        Sync.SetRunContext(selectedAccount.Id, DefaultScopeId, DefaultRootPath, useStartupScan: true);
     }
 }

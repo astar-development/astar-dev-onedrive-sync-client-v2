@@ -105,6 +105,34 @@ public sealed class SyncStatusViewModelShould
         raised.ShouldBeTrue();
     }
 
+    [Fact]
+    public async Task RunOrchestratedSyncWhenAccountContextIsConfigured()
+    {
+        var orchestrator = new TrackingOrchestratorService();
+        var viewModel = new SyncStatusViewModel(new TrackingSyncService(), orchestrator);
+        viewModel.SetRunContext("acct-real", "drive-root", "/tmp", true);
+
+        viewModel.StartSyncCommand.Execute(null);
+        await WaitForConditionAsync(() => orchestrator.RunCalls == 1 && viewModel.Status == "Idle" && viewModel.ProgressPercentage == 100);
+
+        orchestrator.RunCalls.ShouldBe(1);
+        orchestrator.LastAccountId.ShouldBe("acct-real");
+        orchestrator.LastScopeId.ShouldBe("drive-root");
+    }
+
+    [Fact]
+    public async Task ReportErrorWhenOrchestratedSyncStartsWithoutAccountContext()
+    {
+        var orchestrator = new TrackingOrchestratorService();
+        var viewModel = new SyncStatusViewModel(new TrackingSyncService(), orchestrator);
+
+        viewModel.StartSyncCommand.Execute(null);
+        await WaitForConditionAsync(() => viewModel.Status == "Error");
+
+        viewModel.SyncError.ShouldBe("Select an account before syncing.");
+        orchestrator.RunCalls.ShouldBe(0);
+    }
+
     private sealed class DeferredSyncService(Task<Result<IReadOnlyList<SyncFile>, string>> resultTask) : ISyncService
     {
         public Task<Result<IReadOnlyList<SyncFile>, string>> GetSyncFilesAsync(CancellationToken cancellationToken = default)
@@ -178,6 +206,36 @@ public sealed class SyncStatusViewModelShould
             => Task.FromResult<Result<IReadOnlyList<SyncConflict>, string>>(Array.Empty<SyncConflict>());
 
         public Task<Result<Unit, string>> RetryFailedOperationsAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+    }
+
+    private sealed class TrackingOrchestratorService : ISyncOrchestratorService
+    {
+        public int RunCalls { get; private set; }
+        public string LastAccountId { get; private set; } = string.Empty;
+        public string LastScopeId { get; private set; } = string.Empty;
+
+        public Task<Result<Unit, string>> RunOnceAsync(string accountId, string scopeId, string rootPath, bool useStartupScan, CancellationToken cancellationToken = default)
+        {
+            RunCalls++;
+            LastAccountId = accountId;
+            LastScopeId = scopeId;
+            return Task.FromResult<Result<Unit, string>>(Unit.Value);
+        }
+
+        public Task<Result<Unit, string>> PauseAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> ResumeAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> CancelAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> StartBackgroundSchedulingAsync(string accountId, string scopeId, string rootPath, TimeSpan interval, CancellationToken cancellationToken = default)
+            => Task.FromResult<Result<Unit, string>>(Unit.Value);
+
+        public Task<Result<Unit, string>> StopBackgroundSchedulingAsync(CancellationToken cancellationToken = default)
             => Task.FromResult<Result<Unit, string>>(Unit.Value);
     }
 

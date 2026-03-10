@@ -77,3 +77,4 @@ tests/
 - Architecture decisions (ADR index): [docs/architecture/README.md](docs/architecture/README.md)
 - Implementation plan: [docs/implementation-plan.md](docs/implementation-plan.md)
 - Copilot quick reference: [docs/copilot/quick-reference.md](docs/copilot/quick-reference.md)
+- Usage Guide: [docs/usage.md](docs/usage.md)

@@ -19,7 +19,13 @@ public class SyncStatusViewModel : ViewModelBase
     private const string SyncingStatus = "Syncing...";
     private const string PausedStatus = "Paused";
     private const string ErrorStatus = "Error";
+    private const string MissingContextError = "Select an account before syncing.";
     private readonly ISyncService _syncService;
+    private readonly ISyncOrchestratorService? _orchestratorService;
+    private string? _accountId;
+    private string? _scopeId;
+    private string? _rootPath;
+    private bool _useStartupScan;
 
     /// <summary>
     /// Gets or sets the current synchronization status text.
@@ -91,12 +97,29 @@ public class SyncStatusViewModel : ViewModelBase
     public ICommand SyncNowCommand => StartSyncCommand;
     public ICommand PauseCommand => PauseSyncCommand;
 
-    public SyncStatusViewModel(ISyncService? syncService = null)
+    public SyncStatusViewModel(ISyncService? syncService = null, ISyncOrchestratorService? orchestratorService = null)
     {
         _syncService = syncService ?? CompositionRoot.Resolve<ISyncService>();
+        _orchestratorService = orchestratorService;
         StartSyncCommand = new RelayCommand(_ => _ = StartSyncAsync());
         PauseSyncCommand = new RelayCommand(_ => _ = PauseSyncAsync());
         ResumeSyncCommand = new RelayCommand(_ => _ = ResumeSyncAsync());
+    }
+
+    public void SetRunContext(string accountId, string scopeId, string rootPath, bool useStartupScan)
+    {
+        _accountId = accountId;
+        _scopeId = scopeId;
+        _rootPath = rootPath;
+        _useStartupScan = useStartupScan;
+    }
+
+    public void ClearRunContext()
+    {
+        _accountId = null;
+        _scopeId = null;
+        _rootPath = null;
+        _useStartupScan = false;
     }
 
     private async Task StartSyncAsync(CancellationToken cancellationToken = default)
@@ -105,6 +128,27 @@ public class SyncStatusViewModel : ViewModelBase
         ProgressPercentage = 0;
         SyncError = string.Empty;
         await Task.Yield();
+
+        if(_orchestratorService is not null)
+        {
+            if(string.IsNullOrWhiteSpace(_accountId) || string.IsNullOrWhiteSpace(_scopeId) || string.IsNullOrWhiteSpace(_rootPath))
+            {
+                _ = FailSync(MissingContextError);
+                return;
+            }
+
+            Result<Unit, string> runResult = await _orchestratorService.RunOnceAsync(_accountId, _scopeId, _rootPath, _useStartupScan, cancellationToken);
+            if(runResult is Result<Unit, string>.Error runError)
+            {
+                _ = FailSync(runError.Reason);
+                return;
+            }
+
+            ProgressPercentage = 100;
+            Status = IdleStatus;
+            AddActivity("Info", "Sync completed");
+            return;
+        }
 
         _ = await _syncService.GetSyncFilesAsync(cancellationToken)
             .MatchAsync(
@@ -165,7 +209,9 @@ public class SyncStatusViewModel : ViewModelBase
 
     private async Task PauseSyncAsync()
     {
-        Result<Unit, string> pauseResult = await _syncService.PauseSyncAsync();
+        Result<Unit, string> pauseResult = _orchestratorService is null
+            ? await _syncService.PauseSyncAsync()
+            : await _orchestratorService.PauseAsync();
         if(pauseResult is Result<Unit, string>.Ok)
         {
             Status = PausedStatus;
@@ -174,7 +220,9 @@ public class SyncStatusViewModel : ViewModelBase
 
     private async Task ResumeSyncAsync()
     {
-        Result<Unit, string> resumeResult = await _syncService.ResumeSyncAsync();
+        Result<Unit, string> resumeResult = _orchestratorService is null
+            ? await _syncService.ResumeSyncAsync()
+            : await _orchestratorService.ResumeAsync();
         if(resumeResult is Result<Unit, string>.Ok)
         {
             Status = IdleStatus;

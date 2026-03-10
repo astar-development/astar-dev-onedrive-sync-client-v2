@@ -1,10 +1,13 @@
+using System.Net.Http;
 using AStar.Dev.OneDrive.Sync.Client.Application.Interfaces;
 using AStar.Dev.OneDrive.Sync.Client.Application.Services;
 using AStar.Dev.OneDrive.Sync.Client.Domain.Interfaces;
+using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Authentication;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Data.Repositories;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Graph;
 using AStar.Dev.OneDrive.Sync.Client.Infrastructure.Repositories;
+using AStar.Dev.OneDrive.Sync.Client.UI.SyncStatus;
 
 namespace AStar.Dev.OneDrive.Sync.Client.UI.Composition;
 
@@ -24,6 +27,10 @@ public static class CompositionRoot
     {
         Registrations.Clear();
 
+        var secureStorePath = string.IsNullOrWhiteSpace(databasePath)
+            ? null
+            : Path.Combine(Path.GetDirectoryName(databasePath) ?? string.Empty, "secure-store");
+
         Registrations[typeof(ISyncFileRepository)] = () => new OneDriveSyncFileRepository();
         Registrations[typeof(ISyncDiagnosticsSink)] = () => new SyncDiagnosticsSink();
         Registrations[typeof(ISyncService)] = () => new SyncService(Resolve<ISyncFileRepository>(), diagnosticsSink: Resolve<ISyncDiagnosticsSink>());
@@ -31,9 +38,30 @@ public static class CompositionRoot
         Registrations[typeof(ILocalInventoryStore)] = () => new SqliteLocalInventoryStore(databasePath);
         Registrations[typeof(ILocalInventoryService)] = () => new LocalInventoryService(Resolve<ILocalFileScanner>(), Resolve<ILocalInventoryStore>());
         Registrations[typeof(IDeltaCheckpointStore)] = () => new SqliteDeltaCheckpointStore(databasePath);
-        Registrations[typeof(IRemoteDeltaSource)] = () => new NoOpRemoteDeltaSource();
-        Registrations[typeof(IRemoteDeltaApplier)] = () => new NoOpRemoteDeltaApplier();
+        Registrations[typeof(IOneDriveGraphClient)] = () =>
+        {
+            var options = new OneDriveGraphClientOptions();
+            var httpClient = new HttpClient { BaseAddress = options.BaseUri, Timeout = options.RequestTimeout };
+            return new OneDriveGraphClient(httpClient, new NoOpOneDriveGraphTelemetry());
+        };
+        Registrations[typeof(ISecureAccountTokenStore)] = () => new FileBackedSecureAccountTokenStore(secureStorePath);
+        Registrations[typeof(SqliteAccountSessionMetadataRepository)] = () => new SqliteAccountSessionMetadataRepository(databasePath);
+        Registrations[typeof(IAccountSessionService)] = () => new OneDriveAccountSessionService(
+            new OneDriveAuthenticationAdapter(),
+            Resolve<ISecureAccountTokenStore>(),
+            Resolve<SqliteAccountSessionMetadataRepository>());
+        Registrations[typeof(IRemoteDeltaSource)] = () => new OneDriveRemoteDeltaSource(
+            Resolve<IOneDriveGraphClient>(),
+            Resolve<IAccountSessionService>(),
+            Resolve<ISecureAccountTokenStore>());
+        Registrations[typeof(IRemoteDeltaApplier)] = () => new SqliteRemoteDeltaApplier(databasePath);
         Registrations[typeof(IDeltaSyncService)] = () => new DeltaSyncService(Resolve<IRemoteDeltaSource>(), Resolve<IDeltaCheckpointStore>(), Resolve<IRemoteDeltaApplier>());
+        Registrations[typeof(ISyncRunStateStore)] = () => new InMemorySyncRunStateStore();
+        Registrations[typeof(ISyncOrchestratorService)] = () => new SyncOrchestratorService(
+            Resolve<ILocalInventoryService>(),
+            Resolve<IDeltaSyncService>(),
+            Resolve<ISyncService>(),
+            Resolve<ISyncRunStateStore>());
         Registrations[typeof(AstarOneDriveDbContextModel)] = () => AstarOneDriveDbContextFactory.Create(databasePath);
         Registrations[typeof(SqliteSettingsRepository)] = () => new SqliteSettingsRepository(databasePath);
         Registrations[typeof(SqliteAccountsRepository)] = () => new SqliteAccountsRepository(databasePath);

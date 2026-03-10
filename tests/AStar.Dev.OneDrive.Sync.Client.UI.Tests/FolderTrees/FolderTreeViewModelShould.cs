@@ -118,7 +118,7 @@ public sealed class FolderTreeViewModelShould
     }
 
     [Fact]
-    public async Task ClearNodesWhenSwitchingToAccountWithNoPersistedTree()
+    public async Task BootstrapDefaultRootWhenSwitchingToAccountWithNoPersistedTree()
     {
         var databasePath = CreateDatabasePath();
         var viewModel = new FolderTreeViewModel(databasePath);
@@ -135,7 +135,23 @@ public sealed class FolderTreeViewModelShould
 
         Result<bool, Exception> loadTargetResult = await viewModel.LoadTreeAsync(targetAccountId, TestContext.Current.CancellationToken);
         Pattern.IsSuccess(loadTargetResult).ShouldBeTrue();
-        viewModel.Nodes.ShouldBeEmpty();
+        viewModel.Nodes.Count.ShouldBe(1);
+        viewModel.Nodes[0].Name.ShouldBe("OneDrive");
+        viewModel.Nodes[0].IsSelected.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task BootstrapDefaultRootWhenLoadingAccountWithoutPersistedTree()
+    {
+        var databasePath = CreateDatabasePath();
+        var viewModel = new FolderTreeViewModel(databasePath);
+
+        Result<bool, Exception> result = await viewModel.LoadTreeAsync("acct-real", TestContext.Current.CancellationToken);
+
+        Pattern.IsSuccess(result).ShouldBeTrue();
+        viewModel.Nodes.Count.ShouldBe(1);
+        viewModel.Nodes[0].Name.ShouldBe("OneDrive");
+        viewModel.Nodes[0].IsSelected.ShouldBeTrue();
     }
 
     private static FolderNode CreateNode(string name)
